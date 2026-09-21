@@ -4,21 +4,21 @@
 @source '../../storage/framework/views/*.php';
 
 /* ============================================================
-   TourismCloud AI — Design System Tokens (Tailwind v4 @theme)
+   TourismCloud AI â€” Design System Tokens (Tailwind v4 @theme)
    Paleta aprobada en Figma:
    - Primario teal:    #00626A / container #0E7C86 / dark #08565D
    - Secundario:       #9A442D (terracota)
-   - Terciario:        #85480C (ámbar oscuro)
+   - Terciario:        #85480C (Ã¡mbar oscuro)
    - Fondo:            #FAF8FF
    - Teal suave:       #E6F4F5
    - Amber suave:      #FDF6EC
    ============================================================ */
 @theme {
-    /* ── Tipografía ──────────────────────────────────────── */
+    /* â”€â”€ TipografÃ­a â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --font-sans:     'Inter', ui-sans-serif, system-ui, sans-serif;
     --font-display:  'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 
-    /* ── Color primario (teal) ───────────────────────────── */
+    /* â”€â”€ Color primario (teal) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --color-primary-50:     #e6f4f5;
     --color-primary-100:    #c0e4e7;
     --color-primary-200:    #97d2d7;
@@ -30,7 +30,7 @@
     --color-primary-800:    #054048;
     --color-primary-900:    #022d33;
 
-    /* ── Color secundario (terracota) ────────────────────── */
+    /* â”€â”€ Color secundario (terracota) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --color-secondary-50:   #fdf0ec;
     --color-secondary-100:  #f9d4c8;
     --color-secondary-200:  #f3b09e;
@@ -42,7 +42,7 @@
     --color-secondary-800:  #451d12;
     --color-secondary-900:  #2d120b;
 
-    /* ── Color terciario (ámbar) ─────────────────────────── */
+    /* â”€â”€ Color terciario (Ã¡mbar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --color-tertiary-50:    #fdf6ec;
     --color-tertiary-100:   #fbe5c4;
     --color-tertiary-200:   #f7cc93;
@@ -54,18 +54,18 @@
     --color-tertiary-800:   #3e2205;
     --color-tertiary-900:   #281603;
 
-    /* ── Neutrales y fondo ───────────────────────────────── */
+    /* â”€â”€ Neutrales y fondo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --color-surface:        #FAF8FF;
     --color-surface-card:   #FFFFFF;
     --color-teal-light:     #E6F4F5;
     --color-amber-soft:     #FDF6EC;
 
-    /* ── Bordes redondeados ──────────────────────────────── */
+    /* â”€â”€ Bordes redondeados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --radius-card:   0.75rem;   /* 12px */
     --radius-btn:    0.5rem;    /* 8px */
     --radius-badge:  9999px;    /* pill */
 
-    /* ── Sombras ─────────────────────────────────────────── */
+    /* â”€â”€ Sombras â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --shadow-card:   0 1px 3px 0 rgb(0 98 106 / 0.08), 0 4px 16px -2px rgb(0 98 106 / 0.10);
     --shadow-card-hover: 0 4px 12px 0 rgb(0 98 106 / 0.14), 0 8px 28px -4px rgb(0 98 106 / 0.16);
 }
@@ -85,7 +85,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 700;
 }
 
-/* ── Tarjetas con hover elevado ──────────────────────────── */
+/* â”€â”€ Tarjetas con hover elevado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-card {
     background-color: var(--color-surface-card);
     border-radius: var(--radius-card);
@@ -97,7 +97,7 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(-2px);
 }
 
-/* ── Botón primario ──────────────────────────────────────── */
+/* â”€â”€ BotÃ³n primario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-btn-primary {
     background-color: var(--color-primary-500);
     color: #ffffff;
@@ -115,7 +115,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 2px 8px rgb(0 98 106 / 0.35);
 }
 
-/* ── Botón secundario (outline) ──────────────────────────── */
+/* â”€â”€ BotÃ³n secundario (outline) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-btn-outline {
     border: 1.5px solid var(--color-primary-500);
     color: var(--color-primary-500);
@@ -134,7 +134,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-primary-700);
 }
 
-/* ── Botón peligro ───────────────────────────────────────── */
+/* â”€â”€ BotÃ³n peligro â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-btn-danger {
     background-color: #dc2626;
     color: #ffffff;
@@ -151,7 +151,7 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #b91c1c;
 }
 
-/* ── Badge de estado ─────────────────────────────────────── */
+/* â”€â”€ Badge de estado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-badge-activo {
     background-color: #dcfce7;
     color: #15803d;
@@ -169,7 +169,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-/* ── Chips de categoría ──────────────────────────────────── */
+/* â”€â”€ Chips de categorÃ­a â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-chip {
     background-color: var(--color-teal-light);
     color: var(--color-primary-700);
@@ -179,7 +179,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 500;
 }
 
-/* ── Badge de tipo de establecimiento ────────────────────── */
+/* â”€â”€ Badge de tipo de establecimiento â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-badge-tipo {
     background-color: var(--color-amber-soft);
     color: var(--color-tertiary-500);
@@ -191,7 +191,7 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.03em;
 }
 
-/* ── Badge de rango de precio ────────────────────────────── */
+/* â”€â”€ Badge de rango de precio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-badge-precio-bajo   { background:#f0fdf4; color:#166534; }
 .tc-badge-precio-medio  { background:#fefce8; color:#854d0e; }
 .tc-badge-precio-alto   { background:#fff7ed; color:#9a3412; }
@@ -206,7 +206,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-/* ── Toggle de estado (switch) ───────────────────────────── */
+/* â”€â”€ Toggle de estado (switch) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-toggle {
     position: relative;
     display: inline-flex;
@@ -241,7 +241,7 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateX(1.25rem);
 }
 
-/* ── Inputs de formulario ────────────────────────────────── */
+/* â”€â”€ Inputs de formulario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-input {
     width: 100%;
     border: 1.5px solid #d1d5db;
@@ -259,7 +259,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 .tc-input::placeholder { color: #9ca3af; }
 
-/* ── Select de formulario ────────────────────────────────── */
+/* â”€â”€ Select de formulario â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-select {
     width: 100%;
     border: 1.5px solid #d1d5db;
@@ -282,7 +282,7 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 0 3px rgb(0 98 106 / 0.12);
 }
 
-/* ── Tabla de gestión ────────────────────────────────────── */
+/* â”€â”€ Tabla de gestiÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 .tc-table th {
     background-color: var(--color-teal-light);
@@ -290,7 +290,6 @@ h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: 600;
     padding: 0.75rem 1rem;
-    text-align: left;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -305,7 +304,7 @@ h1, h2, h3, h4, h5, h6 {
 .tc-table tbody tr:hover td { background-color: #f8fdfd; }
 .tc-table tbody tr:last-child td { border-bottom: none; }
 
-/* ── Galería de imágenes ─────────────────────────────────── */
+/* â”€â”€ GalerÃ­a de imÃ¡genes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -321,7 +320,7 @@ h1, h2, h3, h4, h5, h6 {
 .tc-gallery-item:hover { border-color: var(--color-primary-500); }
 .tc-gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 
-/* ── Mapa placeholder ────────────────────────────────────── */
+/* â”€â”€ Mapa placeholder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-map-placeholder {
     background: linear-gradient(135deg, var(--color-teal-light) 0%, #c8e8eb 100%);
     border-radius: var(--radius-card);
@@ -333,7 +332,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 500;
 }
 
-/* ── Alertas flash ───────────────────────────────────────── */
+/* â”€â”€ Alertas flash â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tc-alert-exito {
     background: #f0fdf4;
     border-left: 4px solid #22c55e;
@@ -359,3 +358,131 @@ h1, h2, h3, h4, h5, h6 {
     gap: 0.5rem;
 }
 
+
+/* ══ Carrusel de galería ═══════════════════════════════════════════════════ */
+.tc-carousel {
+    width: 100%;
+    user-select: none;
+    -webkit-user-select: none;
+    outline: none;
+}
+
+/* Contenedor del visor principal */
+.tc-carousel-track-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: #0d1f2d;
+    cursor: grab;
+    touch-action: pan-y;
+    max-height: 480px;
+}
+.tc-carousel-track-wrap:active { cursor: grabbing; }
+
+/* Pista (se mueve con translateX) */
+.tc-carousel-track {
+    display: flex;
+    transition: transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+/* Cada slide ocupa exactamente 100% del wrap */
+.tc-carousel-slide {
+    min-width: 100%;
+    max-height: 480px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+}
+.tc-carousel-img {
+    width: 100%;
+    height: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    pointer-events: none;
+    display: block;
+}
+
+/* Botones prev / next */
+.tc-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background: rgba(255,255,255,0.88);
+    color: #1a2232;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    transition: transform 0.15s ease, opacity 0.2s ease;
+    z-index: 10;
+}
+.tc-carousel-btn:hover:not([style*='not-allowed']) {
+    transform: translateY(-50%) scale(1.1);
+}
+.tc-carousel-btn-prev { left:  1rem; }
+.tc-carousel-btn-next { right: 1rem; }
+
+/* Contador */
+.tc-carousel-counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.55);
+    color: white;
+    padding: 0.25rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+}
+
+/* Tira de thumbnails */
+.tc-carousel-thumbs {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    padding: 0.625rem 0;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.tc-carousel-thumbs::-webkit-scrollbar { display: none; }
+
+.tc-carousel-thumb {
+    position: relative;
+    flex-shrink: 0;
+    height: 4.5rem;          /* 72px fijo */
+    width: 2.25rem;           /* 36px colapsado */
+    border-radius: 0.375rem;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                border-color 0.2s ease,
+                margin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: #e5e7eb;
+    padding: 0;
+}
+.tc-carousel-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    display: block;
+}
+.tc-carousel-thumb.is-active {
+    width: 7.5rem;            /* 120px expandido */
+    border-color: var(--color-primary-500);
+    margin-left: 0.125rem;
+    margin-right: 0.125rem;
+}
