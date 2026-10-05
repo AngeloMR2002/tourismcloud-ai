@@ -1,7 +1,7 @@
 <?php
 
-use App\Providers\AppServiceProvider;
+use App\Modules\Preferencias\Providers\PreferenciaServiceProvider;
 
 return [
-    AppServiceProvider::class,
+    PreferenciaServiceProvider::class,
 ];
