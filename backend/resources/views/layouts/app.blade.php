@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="es" class="h-full m-0 p-0">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
     <title>{{ $title ?? 'TourismCloud AI' }} | TourismCloud AI</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full flex flex-col">
+<body class="h-full flex flex-col m-0 p-0">
 
     {{-- ══════════════════════════════════════════════════════════════
          OVERLAY (backdrop oscuro con desenfoque — no mueve el contenido, lo opaca)

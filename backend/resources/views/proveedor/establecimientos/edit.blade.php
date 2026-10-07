@@ -292,17 +292,17 @@
                             </div>
                         @endif
                     </div>
-                    <input type="file" name="imagen_portada" accept="image/jpg,image/jpeg,image/png,image/webp"
+                    <input type="file" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif"
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700"
                            onchange="estPreviewPortada(this)">
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 4 MB · 1200×900px recomendado</p>
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 5 MB · 1200×900px recomendado</p>
                     @error('imagen_portada')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1.5 text-gray-700">Galería de imágenes adicional <span class="text-red-500">*</span></label>
-                    <input type="file" name="galeria[]" accept="image/jpg,image/jpeg,image/png,image/webp" multiple
+                    <input type="file" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" multiple
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700">
-                    <p class="text-xs text-gray-400 mt-1">Sube al menos 1 imagen si eliminas las actuales. Hasta 10 imágenes · PNG, JPG, WebP · Máx 4 MB c/u</p>
+                    <p class="text-xs text-gray-400 mt-1">Sube al menos 1 imagen si eliminas las actuales. Hasta 10 imágenes · PNG, JPG, WebP · Máx 5 MB c/u</p>
                     <div id="est-preview-galeria">
                         @if(isset($establecimiento) && $establecimiento->imagenes->count() > 0)
                             <div class="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide" id="est-existing-gallery">

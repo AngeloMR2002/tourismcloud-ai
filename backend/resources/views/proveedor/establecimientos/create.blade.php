@@ -54,20 +54,20 @@
         @csrf
         <input type="hidden" name="_proveedor_id_test" value="{{ request('_proveedor_id_test', 2) }}">
 
-        {{-- â”€â”€ 1. Tipo de establecimiento (primero, como en el wireframe) â”€â”€ --}}
+        {{-- ── 1. Tipo de establecimiento (primero, como en el wireframe) ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
                 Tipo de establecimiento
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Selecciona la categorÃ­a que mejor describe tu negocio</p>
+            <p class="text-xs text-gray-400 mb-4">Selecciona la categoría que mejor describe tu negocio</p>
 
             @php
                 $tiposDisp = [
-                    'restaurante' => ['ico' => 'ðŸ½ï¸', 'label' => 'Restaurante'],
-                    'hotel'       => ['ico' => 'ðŸ¨', 'label' => 'Hotel'],
-                    'transporte'  => ['ico' => 'ðŸšŒ', 'label' => 'Transporte'],
-                    'agencia'     => ['ico' => 'ðŸ¢', 'label' => 'Agencia'],
-                    'otro'        => ['ico' => 'ðŸ“‹', 'label' => 'Otro'],
+                    'restaurante' => ['ico' => '🍽️', 'label' => 'Restaurante'],
+                    'hotel'       => ['ico' => '🏨', 'label' => 'Hotel'],
+                    'transporte'  => ['ico' => '🚌', 'label' => 'Transporte'],
+                    'agencia'     => ['ico' => '🏢', 'label' => 'Agencia'],
+                    'otro'        => ['ico' => '📋', 'label' => 'Otro'],
                 ];
                 $tipoOld = old('tipo', '');
             @endphp
@@ -92,17 +92,17 @@
             @error('tipo')<p class="mt-2 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
-        {{-- â”€â”€ 2. InformaciÃ³n bÃ¡sica â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+        {{-- ── 2. Información básica ─────────────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                InformaciÃ³n bÃ¡sica
+                Información básica
             </h2>
             <div class="space-y-4">
                 {{-- Nombre --}}
                 <div>
                     <label class="block text-sm font-semibold mb-1.5 text-gray-700">Nombre del establecimiento <span class="text-red-500">*</span></label>
                     <input type="text" name="nombre" value="{{ old('nombre') }}"
-                           placeholder="Ej: Restaurant La TradiciÃ³n" class="tc-input" maxlength="150" required>
+                           placeholder="Ej: Restaurant La Tradición" class="tc-input" maxlength="150" required>
                     @error('nombre')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
 
@@ -111,7 +111,7 @@
                     <div>
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700">Destino <span class="text-red-500">*</span></label>
                         <select name="destino_id" class="tc-select" required>
-                            <option value="">Seleccionar un destinoâ€¦</option>
+                            <option value="">Seleccionar un destino…</option>
                             @foreach($destinos as $d)
                                 <option value="{{ $d->id }}" @selected(old('destino_id') == $d->id)>{{ $d->nombre }}</option>
                             @endforeach
@@ -153,24 +153,24 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">DirecciÃ³n</label>
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Dirección</label>
                         <input type="text" name="direccion" value="{{ old('direccion') }}"
-                               placeholder="Calle, nÃºmero, referenciaâ€¦" class="tc-input" maxlength="255">
+                               placeholder="Calle, número, referencia…" class="tc-input" maxlength="255">
                     </div>
                 </div>
 
-                {{-- DescripciÃ³n --}}
+                {{-- Descripción --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">DescripciÃ³n</label>
-                    <textarea name="descripcion" rows="4" placeholder="Describe el establecimientoâ€¦" class="tc-input resize-none">{{ old('descripcion') }}</textarea>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Descripción</label>
+                    <textarea name="descripcion" rows="4" placeholder="Describe el establecimiento…" class="tc-input resize-none">{{ old('descripcion') }}</textarea>
                 </div>
             </div>
         </div>
 
-        {{-- â”€â”€ 3. CategorÃ­a de InterÃ©s â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+        {{-- ── 3. Categoría de Interés ────────────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                CategorÃ­a de InterÃ©s
+                Categoría de Interés
             </h2>
             <p class="text-xs text-gray-400 mb-4">Selecciona todas las que apliquen</p>
             <div class="flex flex-wrap gap-2">
@@ -191,10 +191,10 @@
             </div>
         </div>
 
-        {{-- â”€â”€ 4. UbicaciÃ³n geogrÃ¡fica â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+        {{-- ── 4. Ubicación geográfica ─────────────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-4" style="color: var(--color-primary-700);">
-                UbicaciÃ³n geogrÃ¡fica
+                Ubicación geográfica
             </h2>
             <div class="rounded-xl mb-4 flex flex-col items-center justify-center gap-2"
                  style="height: 180px; background: linear-gradient(135deg, var(--color-amber-soft) 0%, #fde9b5 100%);">
@@ -202,7 +202,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <p class="text-xs text-gray-500">Ingresa las coordenadas para marcar la ubicaciÃ³n</p>
+                <p class="text-xs text-gray-500">Ingresa las coordenadas para marcar la ubicación</p>
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
@@ -220,15 +220,15 @@
             </div>
         </div>
 
-        {{-- â”€â”€ 5. Horario semanal de atenciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+        {{-- ── 5. Horario semanal de atención ────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                Horario semanal de atenciÃ³n
+                Horario semanal de atención
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Activa los dÃ­as en que el establecimiento estÃ¡ disponible para visitar</p>
+            <p class="text-xs text-gray-400 mb-4">Activa los días en que el establecimiento está disponible para visitar</p>
 
             @php
-                $diasConf = ['lunes'=>'Lunes','martes'=>'Martes','miercoles'=>'MiÃ©rcoles','jueves'=>'Jueves','viernes'=>'Viernes','sabado'=>'SÃ¡bado','domingo'=>'Domingo'];
+                $diasConf = ['lunes'=>'Lunes','martes'=>'Martes','miercoles'=>'Miércoles','jueves'=>'Jueves','viernes'=>'Viernes','sabado'=>'Sábado','domingo'=>'Domingo'];
                 $horariosOld = old('horarios', []);
             @endphp
             <div class="space-y-2">
@@ -258,7 +258,7 @@
                                 <input type="time" id="est-abre-{{ $k }}" name="horarios[{{ $k }}][abre]"
                                        value="{{ $abre }}" class="tc-input w-28 text-sm">
                             </div>
-                            <span class="text-gray-300 text-sm">â†’</span>
+                            <span class="text-gray-300 text-sm">→</span>
                             <div class="flex items-center gap-1.5">
                                 <span class="text-xs text-gray-500">Cierra</span>
                                 <input type="time" id="est-cierra-{{ $k }}" name="horarios[{{ $k }}][cierra]"
@@ -271,10 +271,10 @@
             </div>
         </div>
 
-        {{-- â”€â”€ 6. ImÃ¡genes del establecimiento â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ --}}
+        {{-- ── 6. Imágenes del establecimiento ──────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                ImÃ¡genes del establecimiento
+                Imágenes del establecimiento
             </h2>
             <div class="space-y-4">
                 <div>
@@ -287,17 +287,16 @@
                             <p class="text-xs" style="color: var(--color-tertiary-500);">Vista previa de portada</p>
                         </div>
                     </div>
-                    <input type="file" name="imagen_portada" accept="image/jpg,image/jpeg,image/png,image/webp" required onchange="estPreviewPortada(this)"
-                           class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700"
+                    <input type="file" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" required class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700"
                            onchange="estPreviewPortada(this)">
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP Â· MÃ¡x 4 MB Â· 1200Ã—900px recomendado</p>
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 4 MB · 1200×900px recomendado</p>
                     @error('imagen_portada')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">GalerÃ­a de imÃ¡genes adicional</label>
-                    <input type="file" name="galeria[]" accept="image/jpg,image/jpeg,image/png,image/webp" multiple required
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Galería de imágenes adicional</label>
+                    <input type="file" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" multiple required
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700">
-                    <p class="text-xs text-gray-400 mt-1">Hasta 10 imÃ¡genes Â· PNG, JPG, WebP Â· MÃ¡x 4 MB c/u</p>
+                    <p class="text-xs text-gray-400 mt-1">Hasta 10 imágenes · PNG, JPG, WebP · Máx 4 MB c/u</p>
                 </div>
             </div>
         </div>
@@ -376,13 +375,13 @@ function toggleEstHorario(dia, open) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar dÃ­as cerrados
+    // Inicializar días cerrados
     ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(d) {
         var t = document.getElementById('est-tog-' + d);
         if (t && !t.checked) toggleEstHorario(d, false);
     });
 
-    // Chips categorÃ­a
+    // Chips categoría
     document.querySelectorAll('input[type="checkbox"][name="categorias[]"]').forEach(function(cb) {
         cb.addEventListener('change', function() {
             var span = document.getElementById('chip-estcat-' + this.value);
@@ -400,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Preview de galerÃ­a (mÃºltiples imÃ¡genes)
+// Preview de galería (múltiples imágenes)
 document.querySelector('input[name="galeria[]"]').addEventListener('change', function(e) {
     var previewContainer = document.getElementById('est-preview-galeria');
     if (!previewContainer) {
@@ -423,46 +422,6 @@ document.querySelector('input[name="galeria[]"]').addEventListener('change', fun
             img.src = e.target.result;
             img.className = 'w-full h-full object-cover';
             
-            imgWrap.appendChild(img);
-            previewContainer.appendChild(imgWrap);
-        };
-        reader.readAsDataURL(file);
-    });
-});
-
-// Preview de portada
-function estPreviewPortada(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var previewArea = document.getElementById('est-preview-portada-area');
-            if(previewArea) {
-                previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
-            }
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-// Preview de galería (múltiples imágenes)
-document.querySelector('input[name="galeria[]"]').addEventListener('change', function(e) {
-    var previewContainer = document.getElementById('est-preview-galeria');
-    if (!previewContainer) {
-        previewContainer = document.createElement('div');
-        previewContainer.id = 'est-preview-galeria';
-        previewContainer.className = 'mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide';
-        this.parentNode.appendChild(previewContainer);
-    }
-    previewContainer.innerHTML = '';
-    Array.from(e.target.files).slice(0, 10).forEach(function(file) {
-        if (!file.type.match('image.*')) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var imgWrap = document.createElement('div');
-            imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200';
-            imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-            var img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'w-full h-full object-cover';
             imgWrap.appendChild(img);
             previewContainer.appendChild(imgWrap);
         };
