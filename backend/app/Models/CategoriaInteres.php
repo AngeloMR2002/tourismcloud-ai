@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Modules\Establecimientos\Models\Establecimiento;
+use App\Modules\Atractivos\Models\Atractivo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
