@@ -213,15 +213,42 @@ class AtractivoRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has('horarios') && is_string($this->input('horarios'))) {
-            $horarios = json_decode($this->input('horarios'), true);
+        $horarios = $this->input('horarios');
 
+        if (is_string($horarios)) {
+            $horariosJson = json_decode($horarios, true);
             if (json_last_error() === JSON_ERROR_NONE) {
-                $this->merge([
-                    'horarios' => $horarios,
-                ]);
+                $horarios = $horariosJson;
             }
         }
+
+        if (!is_array($horarios)) {
+            return;
+        }
+
+        $dias = [
+            'lunes',
+            'martes',
+            'miercoles',
+            'jueves',
+            'viernes',
+            'sabado',
+            'domingo',
+        ];
+
+        foreach ($horarios as $clave => &$horario) {
+            if (
+                is_array($horario)
+                && !isset($horario['dia'])
+                && is_string($clave)
+                && in_array($clave, $dias, true)
+            ) {
+                $horario['dia'] = $clave;
+            }
+        }
+        unset($horario);
+
+        $this->merge(['horarios' => $horarios]);
     }
 
     /**

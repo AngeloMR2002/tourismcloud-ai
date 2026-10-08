@@ -228,10 +228,42 @@ class EstablecimientoRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->horarios && is_string($this->horarios)) {
-            $this->merge([
-                'horarios' => json_decode($this->horarios, true),
-            ]);
+        $horarios = $this->input('horarios');
+
+        if (is_string($horarios)) {
+            $horariosJson = json_decode($horarios, true);
+            $horarios = json_last_error() === JSON_ERROR_NONE
+                && is_array($horariosJson)
+                    ? $horariosJson
+                    : $horarios;
+        }
+
+        if (is_array($horarios)) {
+            $dias = [
+                'lunes',
+                'martes',
+                'miercoles',
+                'jueves',
+                'viernes',
+                'sabado',
+                'domingo',
+            ];
+
+            foreach ($horarios as $clave => &$horario) {
+                if (
+                    is_array($horario)
+                    && !isset($horario['dia'])
+                    && is_string($clave)
+                    && in_array($clave, $dias, true)
+                ) {
+                    $horario['dia'] = $clave;
+                }
+            }
+            unset($horario);
+
+            $this->merge(['horarios' => $horarios]);
+        } elseif (is_string($horarios)) {
+            $this->merge(['horarios' => $horarios]);
         }
     }
 

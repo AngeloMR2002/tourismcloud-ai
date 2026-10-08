@@ -438,9 +438,9 @@
 
                                 <input type="time"
                                        id="hora-inicio-{{ $dia }}"
-                                       name="horarios[{{ $dia }}][hora_inicio]"
                                        value="{{ $horaInicio }}"
-                                       class="tc-input w-28 text-sm">
+                                       class="tc-input w-28 text-sm"
+                                       @if($open) required @endif>
 
                             </div>
 
@@ -456,9 +456,9 @@
 
                                 <input type="time"
                                        id="hora-fin-{{ $dia }}"
-                                       name="horarios[{{ $dia }}][hora_fin]"
                                        value="{{ $horaFin }}"
-                                       class="tc-input w-28 text-sm">
+                                       class="tc-input w-28 text-sm"
+                                       @if($open) required @endif>
 
                             </div>
 
