@@ -16,3 +16,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// Rutas administrativas para gestión de usuarios
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('usuarios', \App\Modules\Usuarios\Http\Controllers\UsuarioController::class);
+});

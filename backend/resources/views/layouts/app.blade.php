@@ -81,7 +81,7 @@
 
             @auth
                 @if(auth()->user()->isAdministrador())
-                    <a href="{{ route('principal.usuarios') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">♧ Usuarios</a>
+                    <a href="{{ route('admin.usuarios.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">♧ Usuarios</a>
                     <a href="{{ route('admin.destinos.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">◇ Destinos</a>
                 @endif
 
