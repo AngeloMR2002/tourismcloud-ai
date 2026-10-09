@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.app')
 
 @section('title', 'Mis Atractivos')
 

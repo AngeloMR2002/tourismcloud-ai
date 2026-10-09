@@ -2,23 +2,16 @@
 
 namespace App\Modules\Destinos\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\Usuarios\Models\Usuario;
 use App\Modules\Atractivos\Models\Atractivo;
 use App\Modules\Establecimientos\Models\Establecimiento;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Stub del modelo Destino.
- *
- * IMPORTANTE: Este modelo es un placeholder temporal para que las relaciones
- * Atractivo::destino() y Establecimiento::destino() puedan resolverse
- * mientras feature/destinos llega a develop.
- *
- * NO modificar este archivo — la versión definitiva la trae feature/destinos.
- * Eliminar este archivo cuando se haga merge de esa rama.
- */
 class Destino extends Model
 {
+    use HasFactory;
+
     protected $table = 'destinos';
 
     protected $fillable = [
@@ -34,12 +27,22 @@ class Destino extends Model
         'estado',
     ];
 
-    public function atractivos(): HasMany
+    // --- RELACIONES ---
+
+    // Un destino puede tener un operador turístico asignado
+    public function operador()
+    {
+        return $this->belongsTo(Usuario::class, 'operador_id');
+    }
+
+    // Un destino tiene muchos atractivos
+    public function atractivos()
     {
         return $this->hasMany(Atractivo::class, 'destino_id');
     }
 
-    public function establecimientos(): HasMany
+    // Un destino tiene muchos establecimientos
+    public function establecimientos()
     {
         return $this->hasMany(Establecimiento::class, 'destino_id');
     }

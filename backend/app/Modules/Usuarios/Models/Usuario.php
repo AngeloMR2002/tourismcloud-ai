@@ -2,25 +2,20 @@
 
 namespace App\Modules\Usuarios\Models;
 
-use App\Modules\Establecimientos\Models\Establecimiento;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+// IMPORTANTE: Debe extender de Authenticatable
+use Illuminate\Foundation\Auth\User as Authenticatable; 
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\Destinos\Models\Destino; // Relación
 
-/**
- * Stub del modelo Usuario.
- *
- * IMPORTANTE: Este modelo es un placeholder temporal para que la relación
- * Establecimiento::proveedor() pueda resolverse mientras feature/auth
- * llega a develop.
- *
- * NO modificar este archivo — la versión definitiva la trae feature/auth.
- * Eliminar este archivo cuando se haga merge de esa rama.
- * La tabla real en el schema SQL se llama 'usuarios' (no 'users').
- */
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
+    // 1. Especificar la tabla (porque Laravel por defecto buscaría 'users')
     protected $table = 'usuarios';
 
+    // 2. Campos asignables masivamente
     protected $fillable = [
         'organizacion_id',
         'nombre',
@@ -31,10 +26,45 @@ class Usuario extends Model
         'estado',
     ];
 
-    protected $hidden = ['password'];
+    // 3. Campos ocultos (no se envían en JSON/API)
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-    public function establecimientos(): HasMany
+    // 4. Casteo de atributos
+    protected function casts(): array
     {
-        return $this->hasMany(Establecimiento::class, 'proveedor_id');
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed', // Laravel 11 hashea automáticamente
+        ];
     }
+
+    // --- RELACIONES (basadas en tu esquema SQL) ---
+
+    // Un usuario pertenece a una organización
+    public function organizacion()
+    {
+        // NOTA: Cuando crees el modelo Organizacion en su módulo, actualiza la ruta aquí
+        // return $this->belongsTo(Organizacion::class, 'organizacion_id');
+    }
+
+    // Un usuario (turista) tiene muchas preferencias
+    public function preferencias()
+    {
+        // return $this->hasOne(PreferenciaTurista::class, 'turista_id');
+    }
+
+    // Un usuario (operador_turistico) gestiona muchos destinos
+    public function destinosGestionados()
+    {
+        return $this->hasMany(Destino::class, 'operador_id');
+    }
+
+    // --- MÉTODOS DE ROL (Helpers útiles) ---
+    public function isAdministrador(): bool { return $this->rol === 'administrador'; }
+    public function isOperador(): bool { return $this->rol === 'operador_turistico'; }
+    public function isProveedor(): bool { return $this->rol === 'proveedor'; }
+    public function isTurista(): bool { return $this->rol === 'turista'; }
 }

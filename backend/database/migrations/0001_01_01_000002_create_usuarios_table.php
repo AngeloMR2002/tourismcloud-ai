@@ -1,40 +1,38 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        if (!Schema::hasTable('usuarios')) {
-            DB::statement("CREATE TABLE usuarios (
-            id BIGSERIAL PRIMARY KEY,
-            organizacion_id BIGINT,
-            nombre VARCHAR(100) NOT NULL,
-            apellido VARCHAR(100) NOT NULL,
-            email VARCHAR(150) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            rol VARCHAR(30) NOT NULL,
-            estado VARCHAR(20) NOT NULL DEFAULT 'activo',
-            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_usuarios_organizacion FOREIGN KEY (organizacion_id) REFERENCES organizaciones(id) ON DELETE SET NULL,
-            CONSTRAINT chk_usuarios_rol CHECK (rol IN ('administrador','operador_turistico','proveedor','turista')),
-            CONSTRAINT chk_usuarios_estado CHECK (estado IN ('activo','inactivo'))
-        );");
-            DB::statement("CREATE INDEX idx_usuarios_organizacion ON usuarios(organizacion_id);");
-            DB::statement("CREATE INDEX idx_usuarios_rol ON usuarios(rol);");
-        }
+        Schema::create('usuarios', function (Blueprint $table) {
+            $table->id();
+            // foreignId -> hace el BIGINT y la FK automáticamente
+            $table->foreignId('organizacion_id')->nullable()->constrained('organizaciones')->nullOnDelete();
+            
+            $table->string('nombre', 100);
+            $table->string('apellido', 100);
+            $table->string('email', 150)->unique();
+            $table->timestamp('email_verified_at')->nullable(); // Campo útil de Laravel
+            $table->string('password', 255);
+            $table->string('rol', 30);
+            $table->string('estado', 20)->default('activo');
+            
+            $table->rememberToken(); // Campo requerido por Laravel Auth
+            $table->timestamps();
+        });
+
+        // En PostgreSQL los CHECK constraints se agregan después de crear la tabla a veces, 
+        // pero Laravel permite hacerlo usando raw statements o simplemente confiando en 
+        // la validación a nivel de aplicación (Request). Para mantener tu diseño estricto:
+        DB::statement("ALTER TABLE usuarios ADD CONSTRAINT chk_usuarios_rol CHECK (rol IN ('administrador','operador_turistico','proveedor','turista'))");
+        DB::statement("ALTER TABLE usuarios ADD CONSTRAINT chk_usuarios_estado CHECK (estado IN ('activo','inactivo'))");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('usuarios');

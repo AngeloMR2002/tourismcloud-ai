@@ -1,6 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Modules\Usuarios\Http\Controllers\AuthController;
 
-// Rutas del modulo Usuarios
+// Rutas para invitados (no logueados)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    
+    Route::get('/registro', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/registro', [AuthController::class, 'register'])->name('register.post');
+});
 
+// Rutas para usuarios autenticados
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
