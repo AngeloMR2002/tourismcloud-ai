@@ -24,4 +24,9 @@ Route::prefix('proveedor')->name('proveedor.')->group(function () {
         '/establecimientos/{establecimiento}/toggle-estado',
         [ProveedorEstablecimientoController::class, 'toggleEstado']
     )->name('establecimientos.toggle-estado');
+
+    Route::delete(
+        '/establecimientos/{establecimiento}/imagenes/{imagen}',
+        [ProveedorEstablecimientoController::class, 'eliminarImagen']
+    )->name('establecimientos.imagenes.destroy');
 });

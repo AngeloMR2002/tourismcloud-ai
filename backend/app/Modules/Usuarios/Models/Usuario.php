@@ -24,10 +24,10 @@ class Usuario extends Model
     protected $fillable = [
         'organizacion_id',
         'nombre',
+        'apellido',
         'email',
         'password',
         'rol',
-        'telefono',
         'estado',
     ];
 

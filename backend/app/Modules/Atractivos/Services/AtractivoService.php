@@ -92,6 +92,9 @@ class AtractivoService
         array $galeria = []
     ): Atractivo {
         return DB::transaction(function () use ($datos, $categorias, $portada, $galeria) {
+            $horarios = $datos['horarios'] ?? null;
+            unset($datos['horarios']);
+
             // Subir imagen de portada si se suministró.
             if ($portada) {
                 $datos['imagen_portada'] = $portada->store('atractivos/portadas', 'public');
@@ -100,6 +103,7 @@ class AtractivoService
             $atractivo = Atractivo::create($datos);
 
             $this->sincronizarCategorias($atractivo, $categorias);
+            $this->guardarHorarios($atractivo, $horarios);
             $this->guardarImagenes($atractivo, $galeria);
 
             return $atractivo->fresh(['destino', 'categorias', 'imagenes']);
@@ -114,9 +118,13 @@ class AtractivoService
         array $datos,
         array $categorias = [],
         ?UploadedFile $portada = null,
-        array $galeria = []
+        array $galeria = [],
+        array $eliminarImagenes = []
     ): Atractivo {
-        return DB::transaction(function () use ($atractivo, $datos, $categorias, $portada, $galeria) {
+        return DB::transaction(function () use ($atractivo, $datos, $categorias, $portada, $galeria, $eliminarImagenes) {
+            $horarios = $datos['horarios'] ?? null;
+            unset($datos['horarios']);
+
             // Reemplazar imagen de portada si se subió una nueva.
             if ($portada) {
                 // Eliminar la portada anterior del storage si existía.
@@ -129,10 +137,47 @@ class AtractivoService
             $atractivo->update($datos);
 
             $this->sincronizarCategorias($atractivo, $categorias);
+            if ($horarios !== null) {
+                $this->guardarHorarios($atractivo, $horarios);
+            }
+
+            // Eliminar imágenes seleccionadas
+            foreach ($eliminarImagenes as $imagenId) {
+                if (!empty($imagenId)) {
+                    $this->eliminarImagen($atractivo, (int) $imagenId);
+                }
+            }
+
             $this->guardarImagenes($atractivo, $galeria);
 
             return $atractivo->fresh(['destino', 'categorias', 'imagenes']);
         });
+    }
+
+    /**
+     * Sincroniza los horarios semanales del atractivo en la tabla horarios.
+     */
+    protected function guardarHorarios(Atractivo $atractivo, ?array $horarios): void
+    {
+        if ($horarios === null) {
+            return;
+        }
+
+        DB::table('horarios')->where('atractivo_id', $atractivo->id)->delete();
+
+        foreach ($horarios as $dia => $horas) {
+            if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
+                DB::table('horarios')->insert([
+                    'atractivo_id'       => $atractivo->id,
+                    'establecimiento_id' => null,
+                    'dia'                => $dia,
+                    'hora_inicio'        => $horas['abre'],
+                    'hora_fin'           => $horas['cierra'],
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ]);
+            }
+        }
     }
 
     /**
@@ -198,9 +243,11 @@ class AtractivoService
         $imagen = Imagen::where('id', $imagenId)
             ->where('entidad_tipo', 'atractivo')
             ->where('entidad_id', $atractivo->id)
-            ->firstOrFail();
+            ->first();
 
-        Storage::disk('public')->delete($imagen->url);
-        $imagen->delete();
+        if ($imagen) {
+            Storage::disk('public')->delete($imagen->url);
+            $imagen->delete();
+        }
     }
 }

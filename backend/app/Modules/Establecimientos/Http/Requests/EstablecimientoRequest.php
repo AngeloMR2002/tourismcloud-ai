@@ -34,6 +34,10 @@ class EstablecimientoRequest extends FormRequest
             'galeria'      => ['nullable', 'array', 'max:10'],
             'galeria.*'    => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
 
+            // Imágenes marcadas para eliminación
+            'eliminar_imagenes'   => ['nullable', 'array'],
+            'eliminar_imagenes.*' => ['integer'],
+
             // ─── Horarios ───────────────────────────────────────────────────
             'horarios'           => ['nullable', 'array'],
             'horarios.lunes'     => ['nullable', 'array'],

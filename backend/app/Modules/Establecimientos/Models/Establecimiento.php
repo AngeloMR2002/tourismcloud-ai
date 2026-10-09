@@ -26,7 +26,6 @@ class Establecimiento extends Model
         'nombre',
         'descripcion',
         'direccion',
-        'horarios',
         'latitud',
         'longitud',
         'rango_precio',
@@ -34,17 +33,32 @@ class Establecimiento extends Model
         'estado',
     ];
 
-    /**
-     * Los campos horarios se castean automáticamente a/desde array PHP.
-     */
     protected function casts(): array
     {
         return [
-            'horarios'   => 'array',
             'latitud'    => 'decimal:7',
             'longitud'   => 'decimal:7',
             'deleted_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Horarios semanales desde la tabla horarios.
+     */
+    public function getHorariosAttribute(): array
+    {
+        $rows = \Illuminate\Support\Facades\DB::table('horarios')
+            ->where('establecimiento_id', $this->id)
+            ->get();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row->dia] = [
+                'abre'   => substr($row->hora_inicio, 0, 5),
+                'cierra' => substr($row->hora_fin, 0, 5),
+            ];
+        }
+        return $result;
     }
 
     // ─── Relaciones ──────────────────────────────────────────────────────────

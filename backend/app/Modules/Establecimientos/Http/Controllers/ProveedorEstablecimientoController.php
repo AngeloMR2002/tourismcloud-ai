@@ -35,7 +35,7 @@ class ProveedorEstablecimientoController extends Controller
     public function index(Request $request): View
     {
         // TODO: reemplazar por auth()->id() cuando feature/auth esté disponible.
-        $proveedorId = $request->get('_proveedor_id_test', 1);
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
 
         $filtros = array_merge(
             $request->only(['destino_id', 'tipo', 'rango_precio', 'busqueda']),
@@ -51,8 +51,9 @@ class ProveedorEstablecimientoController extends Controller
     /**
      * Formulario de creación de establecimiento.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
         $destinos   = Destino::orderBy('nombre')->get();
         $categorias = CategoriaInteres::orderBy('nombre')->get();
 
@@ -66,10 +67,10 @@ class ProveedorEstablecimientoController extends Controller
     public function store(EstablecimientoRequest $request): RedirectResponse
     {
         // TODO: reemplazar por auth()->id() cuando feature/auth esté disponible.
-        $proveedorId = $request->get('_proveedor_id_test', 1);
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
 
         $datos = array_merge(
-            $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_proveedor_id_test']),
+            $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_proveedor_id_test', 'eliminar_imagenes']),
             ['proveedor_id' => $proveedorId]
         );
 
@@ -81,7 +82,7 @@ class ProveedorEstablecimientoController extends Controller
         );
 
         return redirect()
-            ->route('proveedor.establecimientos.index')
+            ->route('proveedor.establecimientos.index', ['_proveedor_id_test' => $proveedorId])
             ->with('exito', "Establecimiento \"{$establecimiento->nombre}\" creado correctamente.");
     }
 
@@ -91,7 +92,7 @@ class ProveedorEstablecimientoController extends Controller
      */
     public function edit(Request $request, Establecimiento $establecimiento): View
     {
-        $proveedorId = $request->get('_proveedor_id_test', 1);
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
         $this->verificarPropiedad($establecimiento, $proveedorId);
 
         $destinos   = Destino::orderBy('nombre')->get();
@@ -106,22 +107,36 @@ class ProveedorEstablecimientoController extends Controller
      */
     public function update(EstablecimientoRequest $request, Establecimiento $establecimiento): RedirectResponse
     {
-        $proveedorId = $request->get('_proveedor_id_test', 1);
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
         $this->verificarPropiedad($establecimiento, $proveedorId);
 
-        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_proveedor_id_test']);
+        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_proveedor_id_test', 'eliminar_imagenes']);
 
         $this->service->actualizar(
-            establecimiento: $establecimiento,
-            datos:           $datos,
-            categorias:      $request->input('categorias', []),
-            portada:         $request->file('imagen_portada'),
-            galeria:         $request->file('galeria', [])
+            establecimiento:  $establecimiento,
+            datos:            $datos,
+            categorias:       $request->input('categorias', []),
+            portada:          $request->file('imagen_portada'),
+            galeria:          $request->file('galeria', []),
+            eliminarImagenes: (array) $request->input('eliminar_imagenes', [])
         );
 
         return redirect()
-            ->route('proveedor.establecimientos.index')
+            ->route('proveedor.establecimientos.index', ['_proveedor_id_test' => $proveedorId])
             ->with('exito', "Establecimiento \"{$establecimiento->nombre}\" actualizado correctamente.");
+    }
+
+    /**
+     * Elimina una imagen de galería vía AJAX.
+     */
+    public function eliminarImagen(Request $request, Establecimiento $establecimiento, int $imagen): \Illuminate\Http\JsonResponse
+    {
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
+        $this->verificarPropiedad($establecimiento, $proveedorId);
+
+        $this->service->eliminarImagen($establecimiento, $imagen);
+
+        return response()->json(['exito' => true, 'mensaje' => 'Imagen eliminada correctamente.']);
     }
 
     /**
@@ -129,14 +144,14 @@ class ProveedorEstablecimientoController extends Controller
      */
     public function destroy(Request $request, Establecimiento $establecimiento): RedirectResponse
     {
-        $proveedorId = $request->get('_proveedor_id_test', 1);
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
         $this->verificarPropiedad($establecimiento, $proveedorId);
 
         $nombre = $establecimiento->nombre;
         $this->service->eliminar($establecimiento);
 
         return redirect()
-            ->route('proveedor.establecimientos.index')
+            ->route('proveedor.establecimientos.index', ['_proveedor_id_test' => $proveedorId])
             ->with('exito', "Establecimiento \"{$nombre}\" eliminado.");
     }
 
@@ -146,7 +161,7 @@ class ProveedorEstablecimientoController extends Controller
      */
     public function toggleEstado(Request $request, Establecimiento $establecimiento): RedirectResponse
     {
-        $proveedorId = $request->get('_proveedor_id_test', 1);
+        $proveedorId = (int) $request->get('_proveedor_id_test', 2);
         $this->verificarPropiedad($establecimiento, $proveedorId);
 
         $establecimiento = $this->service->toggleEstado($establecimiento);

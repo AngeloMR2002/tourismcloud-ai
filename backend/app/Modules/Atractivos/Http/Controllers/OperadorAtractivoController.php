@@ -79,7 +79,7 @@ class OperadorAtractivoController extends Controller
         );
 
         return redirect()
-            ->route('operador.atractivos.index')
+            ->route('operador.atractivos.index', ['_operador_id_test' => $operadorId])
             ->with('exito', "Atractivo \"{$atractivo->nombre}\" creado correctamente.");
     }
 
@@ -106,19 +106,33 @@ class OperadorAtractivoController extends Controller
         $operadorId = $request->get('_operador_id_test', 1);
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
-        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_operador_id_test']);
+        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_operador_id_test', 'eliminar_imagenes']);
 
         $this->service->actualizar(
-            atractivo:  $atractivo,
-            datos:      $datos,
-            categorias: $request->input('categorias', []),
-            portada:    $request->file('imagen_portada'),
-            galeria:    $request->file('galeria', [])
+            atractivo:        $atractivo,
+            datos:            $datos,
+            categorias:       $request->input('categorias', []),
+            portada:          $request->file('imagen_portada'),
+            galeria:          $request->file('galeria', []),
+            eliminarImagenes: (array) $request->input('eliminar_imagenes', [])
         );
 
         return redirect()
-            ->route('operador.atractivos.index')
+            ->route('operador.atractivos.index', ['_operador_id_test' => $operadorId])
             ->with('exito', "Atractivo \"{$atractivo->nombre}\" actualizado correctamente.");
+    }
+
+    /**
+     * Elimina una imagen de galería vía AJAX.
+     */
+    public function eliminarImagen(Request $request, Atractivo $atractivo, int $imagen): \Illuminate\Http\JsonResponse
+    {
+        $operadorId = $request->get('_operador_id_test', 1);
+        $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
+
+        $this->service->eliminarImagen($atractivo, $imagen);
+
+        return response()->json(['exito' => true, 'mensaje' => 'Imagen eliminada correctamente.']);
     }
 
     /**
@@ -133,7 +147,7 @@ class OperadorAtractivoController extends Controller
         $this->service->eliminar($atractivo);
 
         return redirect()
-            ->route('operador.atractivos.index')
+            ->route('operador.atractivos.index', ['_operador_id_test' => $operadorId])
             ->with('exito', "Atractivo \"{$nombre}\" eliminado.");
     }
 

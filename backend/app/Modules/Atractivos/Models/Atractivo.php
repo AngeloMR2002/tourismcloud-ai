@@ -20,7 +20,6 @@ class Atractivo extends Model
         'destino_id',
         'nombre',
         'descripcion',
-        'horarios',
         'costo_entrada',
         'duracion_estimada_min',
         'latitud',
@@ -29,20 +28,33 @@ class Atractivo extends Model
         'estado',
     ];
 
-    /**
-     * Los campos horarios se castean automáticamente a/desde array PHP.
-     * Esto garantiza que $atractivo->horarios devuelva un array,
-     * no un string JSON, sin necesidad de json_decode() manual.
-     */
     protected function casts(): array
     {
         return [
-            'horarios'      => 'array',
             'costo_entrada' => 'decimal:2',
             'latitud'       => 'decimal:7',
             'longitud'      => 'decimal:7',
             'deleted_at'    => 'datetime',
         ];
+    }
+
+    /**
+     * Horarios semanales desde la tabla horarios.
+     */
+    public function getHorariosAttribute(): array
+    {
+        $rows = \Illuminate\Support\Facades\DB::table('horarios')
+            ->where('atractivo_id', $this->id)
+            ->get();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row->dia] = [
+                'abre'   => substr($row->hora_inicio, 0, 5),
+                'cierra' => substr($row->hora_fin, 0, 5),
+            ];
+        }
+        return $result;
     }
 
     // ─── Relaciones ──────────────────────────────────────────────────────────

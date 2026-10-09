@@ -91,6 +91,9 @@ class EstablecimientoService
         array $galeria = []
     ): Establecimiento {
         return DB::transaction(function () use ($datos, $categorias, $portada, $galeria) {
+            $horarios = $datos['horarios'] ?? null;
+            unset($datos['horarios']);
+
             if ($portada) {
                 $datos['imagen_portada'] = $portada->store('establecimientos/portadas', 'public');
             }
@@ -98,6 +101,7 @@ class EstablecimientoService
             $establecimiento = Establecimiento::create($datos);
 
             $this->sincronizarCategorias($establecimiento, $categorias);
+            $this->guardarHorarios($establecimiento, $horarios);
             $this->guardarImagenes($establecimiento, $galeria);
 
             return $establecimiento->fresh(['destino', 'categorias', 'imagenes']);
@@ -112,9 +116,13 @@ class EstablecimientoService
         array $datos,
         array $categorias = [],
         ?UploadedFile $portada = null,
-        array $galeria = []
+        array $galeria = [],
+        array $eliminarImagenes = []
     ): Establecimiento {
-        return DB::transaction(function () use ($establecimiento, $datos, $categorias, $portada, $galeria) {
+        return DB::transaction(function () use ($establecimiento, $datos, $categorias, $portada, $galeria, $eliminarImagenes) {
+            $horarios = $datos['horarios'] ?? null;
+            unset($datos['horarios']);
+
             if ($portada) {
                 if ($establecimiento->imagen_portada) {
                     Storage::disk('public')->delete($establecimiento->imagen_portada);
@@ -125,10 +133,47 @@ class EstablecimientoService
             $establecimiento->update($datos);
 
             $this->sincronizarCategorias($establecimiento, $categorias);
+            if ($horarios !== null) {
+                $this->guardarHorarios($establecimiento, $horarios);
+            }
+
+            // Eliminar imágenes seleccionadas
+            foreach ($eliminarImagenes as $imagenId) {
+                if (!empty($imagenId)) {
+                    $this->eliminarImagen($establecimiento, (int) $imagenId);
+                }
+            }
+
             $this->guardarImagenes($establecimiento, $galeria);
 
             return $establecimiento->fresh(['destino', 'categorias', 'imagenes']);
         });
+    }
+
+    /**
+     * Sincroniza los horarios semanales del establecimiento en la tabla horarios.
+     */
+    protected function guardarHorarios(Establecimiento $establecimiento, ?array $horarios): void
+    {
+        if ($horarios === null) {
+            return;
+        }
+
+        DB::table('horarios')->where('establecimiento_id', $establecimiento->id)->delete();
+
+        foreach ($horarios as $dia => $horas) {
+            if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
+                DB::table('horarios')->insert([
+                    'atractivo_id'       => null,
+                    'establecimiento_id' => $establecimiento->id,
+                    'dia'                => $dia,
+                    'hora_inicio'        => $horas['abre'],
+                    'hora_fin'           => $horas['cierra'],
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ]);
+            }
+        }
     }
 
     /**
@@ -193,9 +238,11 @@ class EstablecimientoService
         $imagen = Imagen::where('id', $imagenId)
             ->where('entidad_tipo', 'establecimiento')
             ->where('entidad_id', $establecimiento->id)
-            ->firstOrFail();
+            ->first();
 
-        Storage::disk('public')->delete($imagen->url);
-        $imagen->delete();
+        if ($imagen) {
+            Storage::disk('public')->delete($imagen->url);
+            $imagen->delete();
+        }
     }
 }

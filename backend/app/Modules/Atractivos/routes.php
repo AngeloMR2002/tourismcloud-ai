@@ -24,4 +24,9 @@ Route::prefix('operador')->name('operador.')->group(function () {
         '/atractivos/{atractivo}/toggle-estado',
         [OperadorAtractivoController::class, 'toggleEstado']
     )->name('atractivos.toggle-estado');
+
+    Route::delete(
+        '/atractivos/{atractivo}/imagenes/{imagen}',
+        [OperadorAtractivoController::class, 'eliminarImagen']
+    )->name('atractivos.imagenes.destroy');
 });

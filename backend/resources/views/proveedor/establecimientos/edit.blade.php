@@ -299,27 +299,41 @@
                     @error('imagen_portada')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Galería de imágenes adicional <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Galería de imágenes adicional</label>
                     <input type="file" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" multiple
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700">
-                    <p class="text-xs text-gray-400 mt-1">Sube al menos 1 imagen si eliminas las actuales. Hasta 10 imágenes · PNG, JPG, WebP · Máx 5 MB c/u</p>
-                    <div id="est-preview-galeria">
-                        @if(isset($establecimiento) && $establecimiento->imagenes->count() > 0)
-                            <div class="mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide" id="est-existing-gallery">
-                                @foreach($establecimiento->imagenes as $img)
-                                    <div class="shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 relative group" id="est-img-container-{{ $img->id }}" style="box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                                        <img src="{{ asset('storage/' . $img->url) }}" class="w-full h-full object-cover">
-                                        <button type="button" onclick="estEliminarImagen({{ $img->id }})" 
-                                                class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity" title="Eliminar imagen">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                        </button>
-                                    </div>
-                                @endforeach
+                    <p class="text-xs text-gray-400 mt-1">Puedes agregar nuevas imágenes a la galería (PNG, JPG, WebP · Máx 5 MB c/u).</p>
+
+                    {{-- Contenedor de la galería completa --}}
+                    <div class="mt-3 space-y-3">
+                        {{-- Imágenes ya guardadas --}}
+                        <div id="est-wrapper-existing-gallery" class="{{ (!isset($establecimiento) || $establecimiento->imagenes->count() === 0) ? 'hidden' : '' }}">
+                            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Imágenes guardadas</p>
+                            <div class="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide" id="est-existing-gallery">
+                                @if(isset($establecimiento))
+                                    @foreach($establecimiento->imagenes as $img)
+                                        <div class="shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 relative group transition-all" id="est-img-container-{{ $img->id }}" style="box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                            <img src="{{ asset('storage/' . $img->url) }}" class="w-full h-full object-cover">
+                                            <button type="button" onclick="estEliminarImagen({{ $img->id }})" 
+                                                    class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-90 group-hover:opacity-100 shadow transition-opacity" title="Eliminar imagen">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                @endif
                             </div>
-                        @endif
+                        </div>
+
+                        {{-- Nuevas imágenes seleccionadas para agregar --}}
+                        <div id="est-new-uploads-section" class="hidden">
+                            <p class="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-2">Nuevas imágenes por agregar</p>
+                            <div class="flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide" id="est-preview-nuevas-imagenes"></div>
+                        </div>
                     </div>
+
                     <!-- Contenedor para IDs de imágenes a eliminar -->
                     <div id="est-eliminar-inputs"></div>
+                    @error('galeria')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
@@ -422,35 +436,48 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Preview de galería (múltiples imágenes)
-document.querySelector('input[name="galeria[]"]').addEventListener('change', function(e) {
-    var previewContainer = document.getElementById('est-preview-galeria');
-    if (!previewContainer) {
-        previewContainer = document.createElement('div');
-        previewContainer.id = 'est-preview-galeria';
-        previewContainer.className = 'mt-3 flex gap-2 overflow-x-auto pb-2 scrollbar-hide';
-        this.parentNode.appendChild(previewContainer);
-    }
-    previewContainer.innerHTML = '';
-    
-    Array.from(e.target.files).slice(0, 10).forEach(function(file) {
-        if (!file.type.match('image.*')) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var imgWrap = document.createElement('div');
-            imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200';
-            imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-            
-            var img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'w-full h-full object-cover';
-            
-            imgWrap.appendChild(img);
-            previewContainer.appendChild(imgWrap);
-        };
-        reader.readAsDataURL(file);
+// Preview de nuevas imágenes adicionales (se agregan visualmente sin borrar las guardadas)
+var inputGaleriaEst = document.querySelector('input[name="galeria[]"]');
+if (inputGaleriaEst) {
+    inputGaleriaEst.addEventListener('change', function(e) {
+        var section = document.getElementById('est-new-uploads-section');
+        var previewContainer = document.getElementById('est-preview-nuevas-imagenes');
+        if (!previewContainer || !section) return;
+
+        previewContainer.innerHTML = '';
+        var files = Array.from(e.target.files).slice(0, 10);
+
+        if (files.length === 0) {
+            section.classList.add('hidden');
+            return;
+        }
+
+        section.classList.remove('hidden');
+
+        files.forEach(function(file) {
+            if (!file.type.match('image.*')) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                var imgWrap = document.createElement('div');
+                imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-amber-500 relative';
+                imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                var img = document.createElement('img');
+                img.src = evt.target.result;
+                img.className = 'w-full h-full object-cover';
+                
+                var badge = document.createElement('span');
+                badge.className = 'absolute bottom-1 left-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow';
+                badge.textContent = 'Nueva';
+
+                imgWrap.appendChild(img);
+                imgWrap.appendChild(badge);
+                previewContainer.appendChild(imgWrap);
+            };
+            reader.readAsDataURL(file);
+        });
     });
-});
+}
 
 // Preview de portada
 function estPreviewPortada(input) {
@@ -465,31 +492,57 @@ function estPreviewPortada(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-// Eliminar imagen de galería
+
+// Eliminar imagen de galería (vía AJAX inmediato con respaldo de input oculto para submit)
 function estEliminarImagen(id) {
-    // Ocultar miniatura
-    var container = document.getElementById('est-img-container-' + id);
-    if(container) {
-        container.style.display = 'none';
-        container.classList.add('deleted-img');
+    if (!confirm('¿Estás seguro de que deseas eliminar esta imagen de la galería?')) {
+        return;
     }
-    // Agregar input oculto para backend
+
+    var container = document.getElementById('est-img-container-' + id);
+    if (container) {
+        container.style.opacity = '0.3';
+        container.style.pointerEvents = 'none';
+    }
+
+    // Input de respaldo para que se envíe en submit si la petición AJAX no se completa
     var input = document.createElement('input');
     input.type = 'hidden';
     input.name = 'eliminar_imagenes[]';
     input.value = id;
     document.getElementById('est-eliminar-inputs').appendChild(input);
-}
 
-// Validar en submit que haya al menos 1 imagen
-document.querySelector('form').addEventListener('submit', function(e) {
-    var existingImgs = document.querySelectorAll('#est-existing-gallery .group:not(.deleted-img)').length;
-    var newImgs = document.querySelector('input[name="galeria[]"]').files.length;
-    
-    if (existingImgs + newImgs === 0) {
-        e.preventDefault();
-        alert('Debe mantener o subir al menos 1 imagen secundaria en la galería.');
-    }
-});
+    var urlDelete = '{{ url("proveedor/establecimientos/" . $establecimiento->id . "/imagenes") }}/' + id + '?_proveedor_id_test={{ request("_proveedor_id_test", 2) }}';
+    fetch(urlDelete, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(function(res) {
+        if (res.ok) {
+            if (container) {
+                container.remove();
+                var remaining = document.querySelectorAll('#est-existing-gallery [id^="est-img-container-"]').length;
+                if (remaining === 0) {
+                    var wrapper = document.getElementById('est-wrapper-existing-gallery');
+                    if (wrapper) wrapper.classList.add('hidden');
+                }
+            }
+        } else {
+            if (container) {
+                container.style.display = 'none';
+                container.classList.add('deleted-img');
+            }
+        }
+    })
+    .catch(function() {
+        if (container) {
+            container.style.display = 'none';
+            container.classList.add('deleted-img');
+        }
+    });
+}
 </script>
 @endpush

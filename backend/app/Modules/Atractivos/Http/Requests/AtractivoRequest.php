@@ -37,6 +37,10 @@ class AtractivoRequest extends FormRequest
             'galeria'                => ['nullable', 'array', 'max:10'],
             'galeria.*'              => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
 
+            // Imágenes marcadas para eliminación
+            'eliminar_imagenes'      => ['nullable', 'array'],
+            'eliminar_imagenes.*'    => ['integer'],
+
             // ─── Horarios ───────────────────────────────────────────────────
             // El campo horarios es un JSON object con 7 claves (días de la semana).
             // Cada valor es null (cerrado) o {"abre": "HH:mm", "cierra": "HH:mm"}.
