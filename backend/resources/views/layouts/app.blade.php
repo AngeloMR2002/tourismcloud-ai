@@ -101,6 +101,9 @@
                 <span class="text-[0.65rem] font-bold uppercase tracking-widest text-neutral-400">Gestión</span>
             </div>
 
+            <a href="{{ route('login') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">↗ Iniciar sesión</a>
+            <a href="{{ route('principal.usuarios') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">♧ Usuarios <span class="ml-auto text-xs text-neutral-400">Demo</span></a>
+            <a href="{{ route('principal.destinos') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">◇ Destinos <span class="ml-auto text-xs text-neutral-400">Demo</span></a>
             {{-- Enlace: Panel Operador --}}
             <a href="{{ route('operador.atractivos.index') }}?_operador_id_test=1"
                class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
