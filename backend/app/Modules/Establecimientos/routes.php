@@ -1,13 +1,21 @@
 <?php
 
+use App\Modules\Establecimientos\Http\Controllers\CatalogoEstablecimientoController;
 use App\Modules\Establecimientos\Http\Controllers\ProveedorEstablecimientoController;
 use Illuminate\Support\Facades\Route;
 
 // =============================================================================
+// CATÁLOGO PÚBLICO — Establecimientos (accesible por turistas y visitantes sin auth)
+// =============================================================================
+Route::prefix('catalogo')->name('catalogo.')->group(function () {
+    Route::get('/establecimientos', [CatalogoEstablecimientoController::class, 'index'])
+        ->name('establecimientos.index');
+    Route::get('/establecimientos/{establecimiento}', [CatalogoEstablecimientoController::class, 'show'])
+        ->name('establecimientos.show');
+});
+
+// =============================================================================
 // PANEL PROVEEDOR — gestión de "Mis Establecimientos"
-//
-// TODO: Activar middleware 'role:proveedor' cuando feature/auth defina el
-//       alias real en bootstrap/app.php.
 // =============================================================================
 Route::prefix('proveedor')->name('proveedor.')->group(function () {
     Route::resource('establecimientos', ProveedorEstablecimientoController::class)

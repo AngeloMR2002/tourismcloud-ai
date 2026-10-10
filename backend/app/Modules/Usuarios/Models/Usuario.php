@@ -50,10 +50,15 @@ class Usuario extends Authenticatable
         // return $this->belongsTo(Organizacion::class, 'organizacion_id');
     }
 
-    // Un usuario (turista) tiene muchas preferencias
-    public function preferencias()
+    // Un usuario (turista) tiene una preferencia registrada
+    public function preferencia(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        // return $this->hasOne(PreferenciaTurista::class, 'turista_id');
+        return $this->hasOne(\App\Modules\Preferencias\Models\PreferenciaTurista::class, 'turista_id');
+    }
+
+    public function preferencias(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->preferencia();
     }
 
     // Un usuario (operador_turistico) gestiona muchos destinos

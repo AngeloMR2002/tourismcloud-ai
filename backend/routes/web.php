@@ -4,11 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 // ─── Página de inicio ─────────────────────────────────────────────────────────
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('catalogo.atractivos.index');
-    }
-    return redirect()->route('login');
-});
+    return view('welcome');
+})->name('inicio');
 
 // ─── Rutas Globales / Vistas Base ─────────────────────────────────────────────
 Route::redirect('/usuarios', '/admin/usuarios')->name('principal.usuarios');
