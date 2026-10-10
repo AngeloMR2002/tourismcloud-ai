@@ -75,14 +75,34 @@
             </div>
 
             @guest
-                <a href="{{ route('login') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">↗ Iniciar sesión</a>
-                <a href="{{ route('register') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">✎ Crear cuenta</a>
+                <a href="{{ route('login') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('login') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('login') ? 'background: var(--color-primary-500); color: white;' : '' }}">
+                    <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Iniciar sesión</span>
+                </a>
+                <a href="{{ route('register') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('register') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('register') ? 'background: var(--color-primary-500); color: white;' : '' }}">
+                    <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    </div>
+                    <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Crear cuenta</span>
+                </a>
             @endguest
 
             @auth
                 @if(auth()->user()->isAdministrador())
-                    <a href="{{ route('admin.usuarios.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">♧ Usuarios</a>
-                    <a href="{{ route('admin.destinos.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-700 hover:bg-neutral-100">◇ Destinos</a>
+                    <a href="{{ route('admin.usuarios.index') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.usuarios.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('admin.usuarios.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
+                        <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        </div>
+                        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Usuarios</span>
+                    </a>
+                    <a href="{{ route('admin.destinos.index') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.destinos.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('admin.destinos.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
+                        <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Destinos</span>
+                    </a>
                 @endif
 
                 @if(auth()->user()->isOperador())

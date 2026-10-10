@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
 
 class UsuarioController extends Controller
 {
@@ -79,7 +77,6 @@ class UsuarioController extends Controller
             'nombre'   => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
             'email'    => ['required', 'string', 'email', 'max:150', Rule::unique('usuarios')->ignore($usuario->id)],
-            'password' => ['nullable', 'string', 'min:8'],
             'rol'      => ['required', Rule::in(self::ROLES)],
             'estado'   => ['required', Rule::in(self::ESTADOS)],
         ]);
@@ -91,31 +88,9 @@ class UsuarioController extends Controller
                 ->with('error', 'No puedes cambiar tu propio rol ni desactivar tu propia cuenta.');
         }
 
-        // Solo cambia la contraseña si escribieron una nueva
-        if (filled($validated['password'] ?? null)) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
-        }
-
         $usuario->update($validated);
 
         return redirect()->route('admin.usuarios.index')->with('exito', 'Usuario actualizado correctamente.');
-    }
-
-    public function resetPassword(Request $request, Usuario $usuario)
-    {
-        $request->validate([
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-        ]);
-
-        // remember_token nuevo: invalida las sesiones "recordarme" activas de ese usuario
-        $usuario->forceFill([
-            'password'       => Hash::make($request->password),
-            'remember_token' => Str::random(60),
-        ])->save();
-
-        return back()->with('exito', "Contraseña de {$usuario->nombre} actualizada. Compártesela por un canal seguro.");
     }
 
     public function toggleEstado(Usuario $usuario)

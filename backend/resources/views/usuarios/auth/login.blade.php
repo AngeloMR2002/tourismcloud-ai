@@ -13,6 +13,20 @@
                     <p class="text-gray-500 mt-2">Accede a tu cuenta y planifica tu próximo viaje.</p>
                 </div>
 
+                @if(session('exito'))
+                    <div class="p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm font-medium rounded-2xl flex items-center gap-3">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span>{{ session('exito') }}</span>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="p-4 bg-red-50 border border-red-100 text-red-700 text-sm font-medium rounded-2xl flex items-center gap-3">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
                 <!-- Formulario -->
                 <form method="POST" action="{{ route('login.post') }}" class="space-y-4 mt-2">
                     @csrf
@@ -47,7 +61,7 @@
                             <input type="checkbox" name="remember" class="rounded border-gray-300 text-[#00626A] focus:ring-[#00626A]">
                             <span>Mantener sesión iniciada</span>
                         </label>
-                        <a href="#" class="font-medium text-[#00626A] hover:underline">¿Olvidaste tu contraseña?</a>
+                        <a href="{{ route('password.request') }}" class="font-medium text-[#00626A] hover:underline">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <!-- Botón Ingresar -->

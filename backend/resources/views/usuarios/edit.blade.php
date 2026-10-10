@@ -42,14 +42,6 @@
                     @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Contraseña (Opcional) -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
-                    <input type="password" name="password" placeholder="Dejar en blanco para no cambiar" minlength="8"
-                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A] transition-colors placeholder-gray-400">
-                    @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
                 <!-- Rol -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Rol del Sistema <span class="text-red-500">*</span></label>

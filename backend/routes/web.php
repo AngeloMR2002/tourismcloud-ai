@@ -11,15 +11,6 @@ Route::get('/', function () {
 });
 
 // ─── Rutas Globales / Vistas Base ─────────────────────────────────────────────
-Route::get('/usuarios', function () {
-    return redirect()->route('admin.usuarios.index');
-})->name('principal.usuarios');
-
-Route::get('/organizaciones', function () {
-    return redirect()->route('admin.usuarios.index');
-})->name('principal.organizaciones');
-
-Route::get('/permisos', function () {
-    return redirect()->route('admin.usuarios.index');
-})->name('principal.permisos');
-
+Route::redirect('/usuarios', '/admin/usuarios')->name('principal.usuarios');
+Route::redirect('/organizaciones', '/admin/usuarios')->name('principal.organizaciones');
+Route::redirect('/permisos', '/admin/usuarios')->name('principal.permisos');

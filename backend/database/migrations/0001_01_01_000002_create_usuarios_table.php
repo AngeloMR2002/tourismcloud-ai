@@ -17,13 +17,20 @@ return new class extends Migration
             $table->string('nombre', 100);
             $table->string('apellido', 100);
             $table->string('email', 150)->unique();
+            $table->string('google_id')->nullable();
             $table->timestamp('email_verified_at')->nullable(); // Campo útil de Laravel
-            $table->string('password', 255);
+            $table->string('password', 255)->nullable();
             $table->string('rol', 30);
             $table->string('estado', 20)->default('activo');
             
             $table->rememberToken(); // Campo requerido por Laravel Auth
             $table->timestamps();
+        });
+
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
 
         // En PostgreSQL los CHECK constraints se agregan después de crear la tabla a veces, 
@@ -35,6 +42,7 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('usuarios');
     }
 };

@@ -11,6 +11,12 @@ Route::middleware('guest')->group(function () {
     
     Route::get('/registro', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/registro', [AuthController::class, 'register'])->name('register.post');
+
+    // Recuperación de contraseña con código al correo
+    Route::get('/recuperar-password', [AuthController::class, 'showForgotForm'])->name('password.request');
+    Route::post('/recuperar-password', [AuthController::class, 'sendResetCode'])->name('password.email');
+    Route::get('/verificar-codigo', [AuthController::class, 'showVerifyCodeForm'])->name('password.verify');
+    Route::post('/verificar-codigo', [AuthController::class, 'verifyCodeAndReset'])->name('password.update');
 });
 
 // Rutas para usuarios autenticados
@@ -20,7 +26,6 @@ Route::middleware('auth')->group(function () {
 
 // Rutas administrativas para gestión de usuarios
 Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.')->group(function () {
-    Route::patch('usuarios/{usuario}/password', [UsuarioController::class, 'resetPassword'])->name('usuarios.password');
     Route::patch('usuarios/{usuario}/estado', [UsuarioController::class, 'toggleEstado'])->name('usuarios.toggle-estado');
 
     Route::resource('usuarios', UsuarioController::class);

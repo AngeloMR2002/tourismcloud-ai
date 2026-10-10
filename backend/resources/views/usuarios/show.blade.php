@@ -62,30 +62,7 @@
             </div>
         </dl>
 
-        <p class="mt-8 text-xs text-gray-400">Por seguridad, la contraseña nunca se muestra. Puedes asignar una nueva en la sección de abajo.</p>
-    </div>
-
-    <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-        <h2 class="text-base font-semibold text-gray-900">Restablecer contraseña</h2>
-        <p class="text-sm text-gray-500 mt-1 mb-6">Mínimo 8 caracteres, con letras y números. Comunícasela al usuario por un canal seguro.</p>
-        <form method="POST" action="{{ route('admin.usuarios.password', $usuario) }}" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            @csrf
-            @method('PATCH')
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
-                <input type="password" name="password" required autocomplete="new-password"
-                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A] transition-colors">
-                @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
-                <input type="password" name="password_confirmation" required autocomplete="new-password"
-                    class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A] transition-colors">
-            </div>
-            <div class="md:col-span-2 flex justify-end">
-                <button type="submit" class="px-5 py-2.5 bg-[#00626A] rounded-lg text-sm font-medium text-white hover:bg-[#004e55] shadow-sm transition-colors">Actualizar contraseña</button>
-            </div>
-        </form>
+        <p class="mt-8 text-xs text-gray-400">Por seguridad, la contraseña nunca se muestra. Cada usuario gestiona su propia contraseña mediante el flujo de recuperación de cuenta.</p>
     </div>
 </div>
 @endsection
