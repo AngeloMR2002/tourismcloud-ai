@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Modules\Usuarios\Http\Controllers\AuthController;
+use App\Modules\Usuarios\Http\Controllers\UsuarioController;
 
 // Rutas para invitados (no logueados)
 Route::middleware('guest')->group(function () {
@@ -18,6 +19,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // Rutas administrativas para gestión de usuarios
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('usuarios', \App\Modules\Usuarios\Http\Controllers\UsuarioController::class);
+Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.')->group(function () {
+    Route::patch('usuarios/{usuario}/password', [UsuarioController::class, 'resetPassword'])->name('usuarios.password');
+    Route::patch('usuarios/{usuario}/estado', [UsuarioController::class, 'toggleEstado'])->name('usuarios.toggle-estado');
+
+    Route::resource('usuarios', UsuarioController::class);
 });

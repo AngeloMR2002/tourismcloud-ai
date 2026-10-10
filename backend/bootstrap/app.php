@@ -21,7 +21,16 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectUsersTo('/catalogo/atractivos');
+        $middleware->alias([
+            'role' => \App\Modules\Usuarios\Http\Middleware\RoleMiddleware::class,
+        ]);
+
+        // Si un usuario ya logueado entra a /login, va a su panel
+        $middleware->redirectUsersTo(function (Request $request) {
+            /** @var \App\Modules\Usuarios\Models\Usuario|null $user */
+            $user = $request->user();
+            return $user ? $user->homeUrl() : '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

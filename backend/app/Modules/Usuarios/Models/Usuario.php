@@ -67,4 +67,24 @@ class Usuario extends Authenticatable
     public function isOperador(): bool { return $this->rol === 'operador_turistico'; }
     public function isProveedor(): bool { return $this->rol === 'proveedor'; }
     public function isTurista(): bool { return $this->rol === 'turista'; }
+
+    public function homeUrl(): string
+    {
+        return match ($this->rol) {
+            'administrador'      => route('admin.usuarios.index'),
+            'operador_turistico' => route('operador.atractivos.index'),
+            'proveedor'          => route('proveedor.establecimientos.index'),
+            default              => route('catalogo.atractivos.index'),
+        };
+    }
+
+    public function rolEtiqueta(): string
+    {
+        return match ($this->rol) {
+            'administrador'      => 'Administrador',
+            'operador_turistico' => 'Operador turístico',
+            'proveedor'          => 'Proveedor',
+            default              => 'Turista',
+        };
+    }
 }

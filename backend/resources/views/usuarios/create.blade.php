@@ -49,13 +49,6 @@
                     @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <!-- Teléfono -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                    <input type="text" name="telefono" value="{{ old('telefono') }}"
-                        class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A] transition-colors">
-                </div>
-
                 <!-- Rol -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Rol del Sistema <span class="text-red-500">*</span></label>

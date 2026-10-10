@@ -24,11 +24,14 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // 'estado' => 'activo' bloquea a los usuarios inactivos
+        if (Auth::attempt([...$credentials, 'estado' => 'activo'], $request->boolean('remember'))) {
             $request->session()->regenerate();
-            
-            // Redirigir según el rol del usuario (puedes ajustarlo luego)
-            return redirect()->intended('/catalogo/atractivos');
+
+            /** @var Usuario $usuario */
+            $usuario = Auth::user();
+
+            return redirect()->intended($usuario->homeUrl());
         }
 
         return back()->withErrors([
@@ -63,7 +66,7 @@ class AuthController extends Controller
 
         Auth::login($usuario);
 
-        return redirect('/catalogo/atractivos');
+        return redirect($usuario->homeUrl());
     }
 
     // Cerrar sesión
