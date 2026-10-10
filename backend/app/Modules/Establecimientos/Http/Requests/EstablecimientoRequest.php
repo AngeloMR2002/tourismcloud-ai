@@ -15,263 +15,78 @@ class EstablecimientoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'destino_id' => [
-                'required',
-                'integer',
-                'min:1',
-            ],
+            'destino_id'   => ['required', 'integer', 'min:1'],
+            'tipo'         => ['required', Rule::in(['hotel', 'restaurante', 'transporte', 'agencia', 'otro'])],
+            'nombre'       => ['required', 'string', 'max:150'],
+            'descripcion'  => ['nullable', 'string', 'max:5000'],
+            'direccion'    => ['nullable', 'string', 'max:255'],
+            'latitud'      => ['nullable', 'numeric', 'between:-90,90'],
+            'longitud'     => ['nullable', 'numeric', 'between:-180,180'],
+            'rango_precio' => ['nullable', Rule::in(['bajo', 'medio', 'alto', 'lujo'])],
+            'imagen_portada' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
+            'estado'       => ['required', Rule::in(['activo', 'inactivo'])],
 
-            'proveedor_id' => [
-                'required',
-                'integer',
-                'min:1',
-            ],
+            // Categorías: array de IDs enteros, opcionales.
+            'categorias'   => ['nullable', 'array'],
+            'categorias.*' => ['integer', 'min:1'],
 
-            'tipo' => [
-                'required',
-                Rule::in([
-                    'hotel',
-                    'restaurante',
-                    'transporte',
-                    'agencia',
-                    'otro',
-                ]),
-            ],
+            // Galería de imágenes adicional.
+            'galeria'      => ['nullable', 'array', 'max:10'],
+            'galeria.*'    => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
 
-            'nombre' => [
-                'required',
-                'string',
-                'max:150',
-            ],
+            // Imágenes marcadas para eliminación
+            'eliminar_imagenes'   => ['nullable', 'array'],
+            'eliminar_imagenes.*' => ['integer'],
 
-            'descripcion' => [
-                'nullable',
-                'string',
-                'max:5000',
-            ],
-
-            'direccion' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'latitud' => [
-                'nullable',
-                'numeric',
-                'between:-90,90',
-            ],
-
-            'longitud' => [
-                'nullable',
-                'numeric',
-                'between:-180,180',
-            ],
-
-            'rango_precio' => [
-                'nullable',
-                Rule::in([
-                    'bajo',
-                    'medio',
-                    'alto',
-                    'lujo',
-                ]),
-            ],
-
-            'imagen_portada' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:4096',
-            ],
-
-            'estado' => [
-                'required',
-                Rule::in([
-                    'activo',
-                    'inactivo',
-                ]),
-            ],
-
-            // Categorías
-            'categorias' => [
-                'nullable',
-                'array',
-            ],
-
-            'categorias.*' => [
-                'integer',
-                'min:1',
-            ],
-
-            // Galería
-            'galeria' => [
-                'nullable',
-                'array',
-                'max:10',
-            ],
-
-            'galeria.*' => [
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:4096',
-            ],
-
-            // ─── Horarios normalizados ────────────────────────────────
-            'horarios' => [
-                'nullable',
-                'array',
-            ],
-
-            'horarios.*' => [
-                'required',
-                'array',
-            ],
-
-            'horarios.*.dia' => [
-                'required',
-                Rule::in([
-                    'lunes',
-                    'martes',
-                    'miercoles',
-                    'jueves',
-                    'viernes',
-                    'sabado',
-                    'domingo',
-                ]),
-            ],
-
-            'horarios.*.hora_inicio' => [
-                'required',
-                'date_format:H:i',
-            ],
-
-            'horarios.*.hora_fin' => [
-                'required',
-                'date_format:H:i',
-                'after:horarios.*.hora_inicio',
-            ],
+            // ─── Horarios ───────────────────────────────────────────────────
+            'horarios'           => ['nullable', 'array'],
+            'horarios.lunes'     => ['nullable', 'array'],
+            'horarios.martes'    => ['nullable', 'array'],
+            'horarios.miercoles' => ['nullable', 'array'],
+            'horarios.jueves'    => ['nullable', 'array'],
+            'horarios.viernes'   => ['nullable', 'array'],
+            'horarios.sabado'    => ['nullable', 'array'],
+            'horarios.domingo'   => ['nullable', 'array'],
+            'horarios.*.abre'    => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'horarios.*.cierra'  => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'destino_id.required' =>
-                'Debes seleccionar un destino.',
-
-            'proveedor_id.required' =>
-                'Debes seleccionar un proveedor.',
-
-            'tipo.required' =>
-                'El tipo de establecimiento es obligatorio.',
-
-            'tipo.in' =>
-                'El tipo debe ser: hotel, restaurante, transporte, agencia u otro.',
-
-            'nombre.required' =>
-                'El nombre del establecimiento es obligatorio.',
-
-            'nombre.max' =>
-                'El nombre no puede superar 150 caracteres.',
-
-            'estado.in' =>
-                'El estado debe ser "activo" o "inactivo".',
-
-            'rango_precio.in' =>
-                'El rango de precio debe ser: bajo, medio, alto o lujo.',
-
-            'imagen_portada.image' =>
-                'La portada debe ser una imagen (jpg, png o webp).',
-
-            'imagen_portada.max' =>
-                'La imagen de portada no puede superar 4 MB.',
-
-            'galeria.max' =>
-                'Puedes subir máximo 10 imágenes en la galería.',
-
-            'latitud.between' =>
-                'La latitud debe estar entre -90 y 90.',
-
-            'longitud.between' =>
-                'La longitud debe estar entre -180 y 180.',
-
-            // Horarios
-            'horarios.array' =>
-                'Los horarios deben enviarse como una lista.',
-
-            'horarios.*.array' =>
-                'Cada horario debe tener una estructura válida.',
-
-            'horarios.*.dia.required' =>
-                'Cada horario debe indicar un día.',
-
-            'horarios.*.dia.in' =>
-                'El día indicado no es válido.',
-
-            'horarios.*.hora_inicio.required' =>
-                'Cada horario debe indicar una hora de inicio.',
-
-            'horarios.*.hora_inicio.date_format' =>
-                'La hora de inicio debe estar en formato HH:mm.',
-
-            'horarios.*.hora_fin.required' =>
-                'Cada horario debe indicar una hora de fin.',
-
-            'horarios.*.hora_fin.date_format' =>
-                'La hora de fin debe estar en formato HH:mm.',
-
-            'horarios.*.hora_fin.after' =>
-                'La hora de fin debe ser posterior a la hora de inicio.',
+            'destino_id.required'     => 'Debes seleccionar un destino.',
+            'tipo.required'           => 'El tipo de establecimiento es obligatorio.',
+            'tipo.in'                 => 'El tipo debe ser: hotel, restaurante, transporte, agencia u otro.',
+            'nombre.required'         => 'El nombre del establecimiento es obligatorio.',
+            'nombre.max'              => 'El nombre no puede superar 150 caracteres.',
+            'estado.required'         => 'El estado es obligatorio.',
+            'estado.in'               => 'El estado debe ser "activo" o "inactivo".',
+            'rango_precio.in'         => 'El rango de precio debe ser: bajo, medio, alto o lujo.',
+            'imagen_portada.image'    => 'La portada debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
+            'imagen_portada.mimes'    => 'La imagen de portada debe estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
+            'imagen_portada.max'      => 'La imagen de portada no puede superar 5 MB.',
+            'galeria.max'             => 'Puedes subir máximo 10 imágenes en la galería.',
+            'galeria.*.file'          => 'Cada archivo de la galería debe ser un archivo válido.',
+            'galeria.*.image'         => 'Cada archivo de la galería debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
+            'galeria.*.mimes'         => 'Las imágenes de la galería deben estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
+            'galeria.*.max'           => 'Cada imagen de la galería no puede superar 5 MB.',
+            'latitud.between'         => 'La latitud debe estar entre -90 y 90.',
+            'longitud.between'        => 'La longitud debe estar entre -180 y 180.',
+            'horarios.*.abre.regex'   => 'El horario de apertura debe estar en formato HH:mm (ej: 09:00).',
+            'horarios.*.cierra.regex' => 'El horario de cierre debe estar en formato HH:mm (ej: 18:00).',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $horarios = $this->input('horarios');
-
-        if (is_string($horarios)) {
-            $horariosJson = json_decode($horarios, true);
-            $horarios = json_last_error() === JSON_ERROR_NONE
-                && is_array($horariosJson)
-                    ? $horariosJson
-                    : $horarios;
-        }
-
-        if (is_array($horarios)) {
-            $dias = [
-                'lunes',
-                'martes',
-                'miercoles',
-                'jueves',
-                'viernes',
-                'sabado',
-                'domingo',
-            ];
-
-            foreach ($horarios as $clave => &$horario) {
-                if (
-                    is_array($horario)
-                    && !isset($horario['dia'])
-                    && is_string($clave)
-                    && in_array($clave, $dias, true)
-                ) {
-                    $horario['dia'] = $clave;
-                }
-            }
-            unset($horario);
-
-            $this->merge(['horarios' => $horarios]);
-        } elseif (is_string($horarios)) {
-            $this->merge(['horarios' => $horarios]);
+        if ($this->horarios && is_string($this->horarios)) {
+            $this->merge(['horarios' => json_decode($this->horarios, true)]);
         }
     }
 
     /**
-     * Validación adicional de horarios.
-     *
-     * Verifica que cada intervalo tenga una hora de fin
-     * posterior a la hora de inicio.
+     * Validación adicional: días abiertos deben tener abre + cierra, y cierra > abre.
      */
     public function withValidator($validator): void
     {
@@ -282,23 +97,30 @@ class EstablecimientoRequest extends FormRequest
                 return;
             }
 
-            foreach ($horarios as $indice => $horario) {
+            $dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+
+            foreach ($dias as $dia) {
+                $horario = $horarios[$dia] ?? null;
+
+                if ($horario === null) {
+                    continue;
+                }
+
                 if (!is_array($horario)) {
+                    $validator->errors()->add("horarios.{$dia}", "El horario del {$dia} debe ser null (cerrado) o un objeto con 'abre' y 'cierra'.");
                     continue;
                 }
 
-                $horaInicio = $horario['hora_inicio'] ?? null;
-                $horaFin = $horario['hora_fin'] ?? null;
+                $abre   = $horario['abre']   ?? null;
+                $cierra = $horario['cierra'] ?? null;
 
-                if (!$horaInicio || !$horaFin) {
+                if (!$abre || !$cierra) {
+                    $validator->errors()->add("horarios.{$dia}", "Si el {$dia} está abierto, debes indicar tanto la hora de apertura como la de cierre.");
                     continue;
                 }
 
-                if ($horaFin <= $horaInicio) {
-                    $validator->errors()->add(
-                        "horarios.{$indice}.hora_fin",
-                        'La hora de fin debe ser posterior a la hora de inicio.'
-                    );
+                if ($cierra <= $abre) {
+                    $validator->errors()->add("horarios.{$dia}", "La hora de cierre del {$dia} debe ser posterior a la hora de apertura.");
                 }
             }
         });

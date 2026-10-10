@@ -7,224 +7,255 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Datos de prueba locales para destinos, atractivos y establecimientos.
+ * =====================================================================
+ * DevTestingSeeder — DATOS INICIALES Y DE PRUEBA
+ * =====================================================================
  *
- * Ejecutar desde backend con:
- * php artisan db:seed --class=DevTestingSeeder
+ * Basado al 100% en el schema de la BD PostgreSQL v2 (22 tablas).
+ * Inserta los datos base necesarios: organizaciones, usuarios, destinos,
+ * categorías, atractivos, establecimientos y horarios.
+ *
+ * INSTRUCCIONES:
+ *   php artisan db:seed
+ *   o
+ *   php artisan db:seed --class=DevTestingSeeder
+ * =====================================================================
  */
 class DevTestingSeeder extends Seeder
 {
     public function run(): void
     {
-        $seededIds = DB::transaction(function (): array {
-            $now = now();
-            $password = Hash::make('password');
+        $this->command->info('🧪 DevTestingSeeder: insertando datos iniciales y de prueba...');
 
-            $organizationId = $this->findOrCreateId(
-                'organizaciones',
-                ['nombre' => 'TourismCloud Demo', 'tipo' => 'agencia_turistica'],
-                [
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
-            );
+        // ─── 1. Organizaciones ───────────────────────────────────────────────
+        DB::table('organizaciones')->insertOrIgnore([
+            [
+                'id'          => 1,
+                'nombre'      => 'Organización Principal',
+                'tipo'        => 'empresa_turismo',
+                'descripcion' => 'Organización principal de prueba para desarrollo local.',
+                'estado'      => 'activo',
+                'created_at'  => now(),
+                'updated_at'  => now(),
+            ],
+        ]);
+        $this->command->line('  ✓ Organizaciones insertadas.');
 
-            $operatorId = $this->findOrCreateId(
-                'usuarios',
-                ['email' => 'operador@tourismcloud.test'],
-                [
-                    'organizacion_id' => $organizationId,
-                    'nombre' => 'Operador Demo',
-                    'password' => $password,
-                    'rol' => 'operador_turistico',
-                    'telefono' => '+51 999 000 001',
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
-            );
+        // ─── 2. Categorías de interés ────────────────────────────────────────
+        DB::table('categorias_interes')->insertOrIgnore([
+            ['id' => 1, 'nombre' => 'Naturaleza y ecoturismo', 'descripcion' => 'Actividades y atractivos al aire libre.'],
+            ['id' => 2, 'nombre' => 'Historia y cultura',     'descripcion' => 'Sitios arqueológicos, monumentos y museos.'],
+            ['id' => 3, 'nombre' => 'Gastronomía',            'descripcion' => 'Restaurantes, ferias y experiencias culinarias.'],
+            ['id' => 4, 'nombre' => 'Aventura y deportes',    'descripcion' => 'Trekking, deportes acuáticos y experiencias extremas.'],
+            ['id' => 5, 'nombre' => 'Relax y bienestar',       'descripcion' => 'Spas, aguas termales y desconexión.'],
+        ]);
+        $this->command->line('  ✓ Categorías de interés insertadas.');
 
-            $providerId = $this->findOrCreateId(
-                'usuarios',
-                ['email' => 'proveedor@tourismcloud.test'],
-                [
-                    'organizacion_id' => $organizationId,
-                    'nombre' => 'Proveedor Demo',
-                    'password' => $password,
-                    'rol' => 'proveedor',
-                    'telefono' => '+51 999 000 002',
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
-            );
+        // ─── 3. Usuarios de prueba ───────────────────────────────────────────
+        // Tabla 'usuarios' (no 'users'): nombre, apellido, email, password, rol, estado.
+        DB::table('usuarios')->insertOrIgnore([
+            [
+                'id'              => 1,
+                'organizacion_id' => 1,
+                'nombre'          => 'Operador',
+                'apellido'        => 'Demo',
+                'email'           => 'operador@tourismcloud.test',
+                'password'        => Hash::make('password'),
+                'rol'             => 'operador_turistico',
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+            [
+                'id'              => 2,
+                'organizacion_id' => 1,
+                'nombre'          => 'Proveedor',
+                'apellido'        => 'Demo',
+                'email'           => 'proveedor@tourismcloud.test',
+                'password'        => Hash::make('password'),
+                'rol'             => 'proveedor',
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+            [
+                'id'              => 3,
+                'organizacion_id' => 1,
+                'nombre'          => 'Admin',
+                'apellido'        => 'Demo',
+                'email'           => 'admin@tourismcloud.test',
+                'password'        => Hash::make('password'),
+                'rol'             => 'administrador',
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+            [
+                'id'              => 4,
+                'organizacion_id' => null,
+                'nombre'          => 'Turista',
+                'apellido'        => 'Demo',
+                'email'           => 'turista@tourismcloud.test',
+                'password'        => Hash::make('password'),
+                'rol'             => 'turista',
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+        ]);
+        $this->command->line('  ✓ Usuarios de prueba insertados (operador ID=1, proveedor ID=2, admin ID=3, turista ID=4).');
 
-            $categoryIds = [];
-            foreach ([
-                'Naturaleza y ecoturismo',
-                'Historia y cultura',
-                'Gastronomía',
-                'Aventura y deportes',
-                'Relax y bienestar',
-            ] as $categoryName) {
-                $categoryIds[$categoryName] = $this->findOrCreateId(
-                    'categorias_interes',
-                    ['nombre' => $categoryName]
-                );
-            }
+        // ─── 4. Destinos de prueba ───────────────────────────────────────────
+        DB::table('destinos')->insertOrIgnore([
+            [
+                'id'              => 1,
+                'organizacion_id' => 1,
+                'operador_id'     => 1,
+                'nombre'          => 'Cusco',
+                'descripcion'     => 'Capital histórica del Imperio Inca, declarada Patrimonio de la Humanidad.',
+                'pais'            => 'Perú',
+                'region'          => 'Cusco',
+                'ciudad'          => 'Cusco',
+                'latitud'         => -13.5319981,
+                'longitud'        => -71.9674626,
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+            [
+                'id'              => 2,
+                'organizacion_id' => 1,
+                'operador_id'     => 1,
+                'nombre'          => 'Arequipa',
+                'descripcion'     => 'La Ciudad Blanca, conocida por su arquitectura de sillar.',
+                'pais'            => 'Perú',
+                'region'          => 'Arequipa',
+                'ciudad'          => 'Arequipa',
+                'latitud'         => -16.4090474,
+                'longitud'        => -71.537450,
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+        ]);
+        $this->command->line('  ✓ Destinos de prueba insertados (Cusco ID=1, Arequipa ID=2).');
 
-            $cuscoId = $this->findOrCreateId(
-                'destinos',
-                ['organizacion_id' => $organizationId, 'nombre' => 'Cusco'],
-                [
-                    'operador_id' => $operatorId,
-                    'descripcion' => 'Capital histórica del Imperio Inca, declarada Patrimonio de la Humanidad.',
-                    'pais' => 'Perú',
-                    'region' => 'Cusco',
-                    'ciudad' => 'Cusco',
-                    'latitud' => -13.5319981,
-                    'longitud' => -71.9674626,
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
-            );
+        // ─── 5. Atractivo de muestra ─────────────────────────────────────────
+        DB::table('atractivos')->insertOrIgnore([
+            [
+                'id'                    => 1,
+                'destino_id'            => 1,
+                'nombre'                => 'Machu Picchu',
+                'descripcion'           => 'Ciudadela inca del siglo XV ubicada en las montañas de los Andes.',
+                'costo_entrada'         => 152.00,
+                'duracion_estimada_min' => 240,
+                'latitud'               => -13.1631412,
+                'longitud'              => -72.5449629,
+                'imagen_portada'        => null,
+                'estado'                => 'activo',
+                'created_at'            => now(),
+                'updated_at'            => now(),
+                'deleted_at'            => null,
+            ],
+        ]);
+        DB::table('atractivo_categoria')->insertOrIgnore([
+            ['atractivo_id' => 1, 'categoria_id' => 2], // Historia y cultura
+            ['atractivo_id' => 1, 'categoria_id' => 4], // Aventura y deportes
+        ]);
+        $this->command->line('  ✓ Atractivo de muestra insertado (Machu Picchu ID=1).');
 
-            $this->findOrCreateId(
-                'destinos',
-                ['organizacion_id' => $organizationId, 'nombre' => 'Arequipa'],
-                [
-                    'operador_id' => $operatorId,
-                    'descripcion' => 'La Ciudad Blanca, conocida por su arquitectura de sillar.',
-                    'pais' => 'Perú',
-                    'region' => 'Arequipa',
-                    'ciudad' => 'Arequipa',
-                    'latitud' => -16.4090474,
-                    'longitud' => -71.5374500,
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
-            );
+        // ─── 6. Establecimiento de muestra ───────────────────────────────────
+        DB::table('establecimientos')->insertOrIgnore([
+            [
+                'id'             => 1,
+                'destino_id'     => 1,
+                'proveedor_id'   => 2, // proveedor demo
+                'tipo'           => 'hotel',
+                'nombre'         => 'Belmond Sanctuary Lodge',
+                'descripcion'    => 'El único hotel ubicado junto a Machu Picchu, con vistas privilegiadas.',
+                'direccion'      => 'Machu Picchu, Cusco, Perú',
+                'latitud'        => -13.1639,
+                'longitud'       => -72.5449,
+                'rango_precio'   => 'lujo',
+                'imagen_portada' => null,
+                'estado'         => 'activo',
+                'created_at'     => now(),
+                'updated_at'     => now(),
+                'deleted_at'     => null,
+            ],
+        ]);
+        DB::table('establecimiento_categoria')->insertOrIgnore([
+            ['establecimiento_id' => 1, 'categoria_id' => 5], // Relax y bienestar
+        ]);
+        $this->command->line('  ✓ Establecimiento de muestra insertado (Belmond ID=1).');
 
-            $attractionId = $this->findOrCreateId(
-                'atractivos',
-                ['destino_id' => $cuscoId, 'nombre' => 'Machu Picchu'],
-                [
-                    'descripcion' => 'Ciudadela inca del siglo XV ubicada en las montañas de los Andes.',
-                    'costo_entrada' => 152.00,
-                    'duracion_estimada_min' => 240,
-                    'latitud' => -13.1631412,
-                    'longitud' => -72.5449629,
-                    'imagen_portada' => null,
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                    'deleted_at' => null,
-                ]
-            );
-
-            DB::table('atractivo_categoria')->insertOrIgnore([
-                ['atractivo_id' => $attractionId, 'categoria_id' => $categoryIds['Historia y cultura']],
-                ['atractivo_id' => $attractionId, 'categoria_id' => $categoryIds['Aventura y deportes']],
+        // ─── 7. Horarios de muestra en tabla 'horarios' ──────────────────────
+        $diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+        foreach ($diasSemana as $dia) {
+            DB::table('horarios')->insertOrIgnore([
+                'establecimiento_id' => null,
+                'atractivo_id'       => 1,
+                'dia'                => $dia,
+                'hora_inicio'        => '06:00:00',
+                'hora_fin'           => '17:30:00',
+                'created_at'         => now(),
+                'updated_at'         => now(),
             ]);
-
-            foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'] as $day) {
-                DB::table('horarios')->updateOrInsert(
-                    ['atractivo_id' => $attractionId, 'dia' => $day],
-                    [
-                        'establecimiento_id' => null,
-                        'hora_inicio' => '06:00',
-                        'hora_fin' => '17:30',
-                    ]
-                );
-            }
-
-            $establishmentId = $this->findOrCreateId(
-                'establecimientos',
-                ['destino_id' => $cuscoId, 'nombre' => 'Belmond Sanctuary Lodge'],
-                [
-                    'proveedor_id' => $providerId,
-                    'tipo' => 'hotel',
-                    'descripcion' => 'El único hotel ubicado junto a Machu Picchu, con vistas privilegiadas.',
-                    'direccion' => 'Machu Picchu, Cusco, Perú',
-                    'latitud' => -13.1639,
-                    'longitud' => -72.5449,
-                    'rango_precio' => 'lujo',
-                    'imagen_portada' => null,
-                    'estado' => 'activo',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                    'deleted_at' => null,
-                ]
-            );
-
-            DB::table('establecimiento_categoria')->insertOrIgnore([
-                [
-                    'establecimiento_id' => $establishmentId,
-                    'categoria_id' => $categoryIds['Relax y bienestar'],
-                ],
+            DB::table('horarios')->insertOrIgnore([
+                'establecimiento_id' => 1,
+                'atractivo_id'       => null,
+                'dia'                => $dia,
+                'hora_inicio'        => '00:00:00',
+                'hora_fin'           => '23:59:00',
+                'created_at'         => now(),
+                'updated_at'         => now(),
             ]);
+        }
+        $this->command->line('  ✓ Horarios de muestra insertados en la tabla horarios.');
 
-            foreach (['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'] as $day) {
-                DB::table('horarios')->updateOrInsert(
-                    ['establecimiento_id' => $establishmentId, 'dia' => $day],
-                    [
-                        'atractivo_id' => null,
-                        'hora_inicio' => '00:00',
-                        'hora_fin' => '23:59',
-                    ]
-                );
-            }
+        // ─── 8. Sincronizar secuencias de PostgreSQL ─────────────────────────
+        $tablasConSecuencia = [
+            'organizaciones',
+            'categorias_interes',
+            'destinos',
+            'usuarios',
+            'atractivos',
+            'establecimientos',
+            'horarios',
+            'imagenes',
+            'actividades',
+            'resenas',
+            'rutas',
+            'ruta_paradas',
+            'servicios_turisticos',
+            'preferencias_turista',
+            'itinerarios',
+            'itinerario_dias',
+            'itinerario_items',
+            'itinerario_servicios',
+            'solicitudes_ia',
+        ];
 
-            return [
-                'operator' => $operatorId,
-                'provider' => $providerId,
-            ];
-        });
+        foreach ($tablasConSecuencia as $tabla) {
+            DB::statement("
+                SELECT setval(
+                    pg_get_serial_sequence('{$tabla}', 'id'),
+                    COALESCE((SELECT MAX(id) FROM \"{$tabla}\"), 1)
+                )
+            ");
+        }
+        $this->command->line('  ✓ Secuencias de PostgreSQL sincronizadas (MAX id en cada tabla).');
 
-        $this->command->info('DevTestingSeeder completado.');
+        $this->command->newLine();
+        $this->command->info('✅ DevTestingSeeder completado. Credenciales de prueba:');
         $this->command->table(
             ['Rol', 'Email', 'Password', 'Notas'],
             [
-                [
-                    'operador_turistico',
-                    'operador@tourismcloud.test',
-                    'password',
-                    "Panel: /operador/atractivos?_operador_id_test={$seededIds['operator']}",
-                ],
-                [
-                    'proveedor',
-                    'proveedor@tourismcloud.test',
-                    'password',
-                    "Panel: /proveedor/establecimientos?_proveedor_id_test={$seededIds['provider']}",
-                ],
+                ['operador_turistico', 'operador@tourismcloud.test',  'password', 'Panel: /operador/atractivos?_operador_id_test=1'],
+                ['proveedor',          'proveedor@tourismcloud.test', 'password', 'Panel: /proveedor/establecimientos?_proveedor_id_test=2'],
+                ['administrador',      'admin@tourismcloud.test',     'password', 'Administrador'],
+                ['turista',            'turista@tourismcloud.test',   'password', 'Turista'],
             ]
         );
-        $this->command->warn('Usar únicamente para pruebas locales.');
-    }
-
-    private function findOrCreateId(string $table, array $identity, array $values = []): int
-    {
-        $query = DB::table($table);
-        foreach ($identity as $column => $value) {
-            $query->where($column, $value);
-        }
-
-        $existing = $query->first(['id']);
-        if ($existing !== null) {
-            if ($values !== []) {
-                $updates = $values;
-                unset($updates['created_at']);
-                if ($updates !== []) {
-                    DB::table($table)->where('id', $existing->id)->update($updates);
-                }
-            }
-
-            return (int) $existing->id;
-        }
-
-        return (int) DB::table($table)->insertGetId(array_merge($identity, $values));
     }
 }

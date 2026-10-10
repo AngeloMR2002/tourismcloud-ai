@@ -23,12 +23,4 @@ class FiltroAtractivoRequest extends FormRequest
             'por_pagina'   => ['nullable', 'integer', Rule::in([9, 15, 30, 60])],
         ];
     }
-
-    public function messages(): array
-    {
-        return [
-            'costo_max.gte'   => 'El costo máximo debe ser mayor o igual al mínimo.',
-            'por_pagina.in'   => 'El número de resultados por página debe ser 9, 15, 30 o 60.',
-        ];
-    }
 }

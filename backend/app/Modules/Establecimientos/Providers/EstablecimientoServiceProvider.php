@@ -2,6 +2,7 @@
 
 namespace App\Modules\Establecimientos\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class EstablecimientoServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class EstablecimientoServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes.php');
+        Route::middleware('web')->group(__DIR__ . '/../routes.php');
 
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'establecimientos');
     }
