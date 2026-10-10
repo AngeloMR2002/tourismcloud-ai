@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.app')
 
 @section('title', 'Editar atractivo')
 
@@ -145,31 +145,47 @@
 
         {{-- ── 3. Ubicación geográfica ────────────────────────────────── --}}
         <div class="tc-card p-6">
-            <h2 class="text-sm font-bold uppercase tracking-wide mb-4" style="color: var(--color-primary-700);">
+            <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
                 Ubicación geográfica
             </h2>
-            {{-- Placeholder visual de mapa --}}
-            <div class="rounded-xl mb-4 flex flex-col items-center justify-center gap-2"
-                 style="height: 180px; background: linear-gradient(135deg, var(--color-teal-light) 0%, #c8e8eb 100%);">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-primary-500);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <p class="text-xs text-gray-500">Ingresa las coordenadas para marcar la ubicación</p>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold mb-1.5 text-gray-600">Latitud</label>
-                    <input type="number" name="latitud" value="{{ old('latitud', $atractivo->latitud) }}"
-                           step="0.0000001" min="-90" max="90" placeholder="-13.163141" class="tc-input">
-                    @error('latitud')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+            <p class="text-xs text-gray-400 mb-4">Busca la dirección o arrastra el marcador rojo para fijar las coordenadas automáticamente.</p>
+            
+            {{-- 📍 MAPA INTERACTIVO PARA SELECCIÓN DE COORDENADAS ════════════════════════ --}}
+            <div class="space-y-4">
+                <!-- Contenedor del Mapa -->
+                <div class="relative w-full h-[450px] rounded-2xl overflow-hidden border border-gray-200 shadow-sm mb-4">
+                    
+                    <!-- Buscador Flotante sobre el Mapa -->
+                    <div class="absolute top-4 left-4 z-10 w-11/12 max-w-sm">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-[#00626A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <input type="text" id="map_search" placeholder="Ej. Plaza de Armas de Cusco..." autocomplete="off"
+                                class="w-full pl-11 px-4 py-3.5 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-lg focus:ring-2 focus:ring-[#00626A]/50 focus:border-[#00626A] transition-all text-sm text-gray-800 placeholder-gray-400">
+                        </div>
+                        <!-- Lista de sugerencias de Google -->
+                        <ul id="map_suggestions" class="absolute w-full bg-white rounded-xl shadow-xl mt-2 hidden max-h-60 overflow-y-auto border border-gray-100"></ul>
+                    </div>
+                    
+                    <!-- Lienzo de Google Maps -->
+                    <div id="interactive_form_map" class="w-full h-full bg-gray-50"></div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1.5 text-gray-600">Longitud</label>
-                    <input type="number" name="longitud" value="{{ old('longitud', $atractivo->longitud) }}"
-                           step="0.0000001" min="-180" max="180" placeholder="-72.544963" class="tc-input">
-                    @error('longitud')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+
+                <!-- Inputs de Coordenadas (Solo Lectura) -->
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Latitud Seleccionada</label>
+                        <input type="number" step="any" id="latitud_input" name="latitud" value="{{ old('latitud', $atractivo->latitud) }}" readonly required
+                            class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Longitud Seleccionada</label>
+                        <input type="number" step="any" id="longitud_input" name="longitud" value="{{ old('longitud', $atractivo->longitud) }}" readonly required
+                            class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
+                    </div>
                 </div>
+                @error('latitud') <p class="text-red-500 text-xs mt-1 font-medium">Debes seleccionar una ubicación en el mapa.</p> @enderror
             </div>
         </div>
 
@@ -314,167 +330,141 @@
 
 @push('scripts')
 <script>
-function toggleHorario(dia, open) {
-    var row    = document.getElementById('row-' + dia);
-    var label  = document.getElementById('label-' + dia);
-    var times  = document.getElementById('times-' + dia);
-    var closed = document.getElementById('closed-' + dia);
-    var abre   = document.getElementById('abre-' + dia);
-    var cierra = document.getElementById('cierra-' + dia);
-
-    row.style.background = open ? 'var(--color-teal-light)' : '#f3f4f6';
-    label.style.color    = open ? 'var(--color-primary-700)' : '#9ca3af';
-
-    if (open) {
-        times.classList.remove('hidden'); times.classList.add('flex');
-        closed.classList.add('hidden');
-        abre.name   = 'horarios[' + dia + '][abre]';
-        cierra.name = 'horarios[' + dia + '][cierra]';
-    } else {
-        times.classList.add('hidden'); times.classList.remove('flex');
-        closed.classList.remove('hidden');
-        abre.removeAttribute('name');
-        cierra.removeAttribute('name');
-    }
-}
-
-// Preview de portada
-function previewPortada(input) {
-    // Se podría añadir preview aquí si se desea en el futuro
-}
-
-// Inicializar: asegurarse de que los días cerrados no envíen sus inputs
-document.addEventListener('DOMContentLoaded', function() {
-    ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(d) {
-        var t = document.getElementById('tog-' + d);
-        if (t && !t.checked) toggleHorario(d, false);
+    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+        key: "{{ env('GOOGLE_MAPS_API_KEY') }}",
+        v: "weekly"
     });
 
-    // Efecto visual de chips de categoría
-    document.querySelectorAll('input[type="checkbox"][name="categorias[]"]').forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            var span = document.getElementById('chip-cat-' + this.value);
-            if (!span) return;
-            if (this.checked) {
-                span.style.background = 'var(--color-primary-500)';
-                span.style.color = 'white';
-                span.style.borderColor = 'var(--color-primary-500)';
+    async function initInteractiveFormMap() {
+        const { Map } = await google.maps.importLibrary("maps");
+        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+        const { Place, AutocompleteSuggestion } = await google.maps.importLibrary("places");
+
+        const latInput = document.getElementById('latitud_input');
+        const lngInput = document.getElementById('longitud_input');
+        const searchInput = document.getElementById('map_search');
+        const suggestionsList = document.getElementById('map_suggestions');
+
+        // Posición Inicial (Usa las de BD si existen (edit), o Lima/Perú por defecto)
+        let initialLat = parseFloat(latInput.value) || -9.1900;
+        let initialLng = parseFloat(lngInput.value) || -75.0152;
+        let initialZoom = latInput.value ? 16 : 5; // Zoom alto si estamos editando, bajo si es nuevo
+
+        const map = new Map(document.getElementById("interactive_form_map"), {
+            center: { lat: initialLat, lng: initialLng },
+            zoom: initialZoom,
+            mapId: "DEMO_MAP_ID", // Obligatorio para AdvancedMarkers
+            disableDefaultUI: false,
+            streetViewControl: false, // Quitamos el muñequito
+            mapTypeControl: false // Quitamos selector Satélite/Mapa
+        });
+
+        let marker = null;
+
+        // Función para mover el PIN y actualizar los inputs
+        function updateMarkerPosition(lat, lng) {
+            if (!marker) {
+                marker = new AdvancedMarkerElement({
+                    map: map,
+                    position: { lat, lng },
+                    gmpDraggable: true, // ¡Permite arrastrar el pin libremente!
+                    title: "Arrastra para ajustar la ubicación"
+                });
+                
+                // Escuchar el final del arrastre (Drop)
+                marker.addListener('dragend', (event) => {
+                    latInput.value = event.latLng.lat().toFixed(6);
+                    lngInput.value = event.latLng.lng().toFixed(6);
+                });
             } else {
-                span.style.background = 'white';
-                span.style.color = '#374151';
-                span.style.borderColor = '#d1d5db';
+                marker.position = { lat, lng };
             }
-        });
-    });
-});
-
-// Preview de nuevas imágenes adicionales (se agregan visualmente sin borrar las guardadas)
-var inputGaleria = document.querySelector('input[name="galeria[]"]');
-if (inputGaleria) {
-    inputGaleria.addEventListener('change', function(e) {
-        var section = document.getElementById('new-uploads-section');
-        var previewContainer = document.getElementById('preview-nuevas-imagenes');
-        if (!previewContainer || !section) return;
-
-        previewContainer.innerHTML = '';
-        var files = Array.from(e.target.files).slice(0, 10);
-
-        if (files.length === 0) {
-            section.classList.add('hidden');
-            return;
+            
+            latInput.value = lat.toFixed(6);
+            lngInput.value = lng.toFixed(6);
         }
 
-        section.classList.remove('hidden');
-
-        files.forEach(function(file) {
-            if (!file.type.match('image.*')) return;
-            var reader = new FileReader();
-            reader.onload = function(evt) {
-                var imgWrap = document.createElement('div');
-                imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-teal-500 relative';
-                imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                
-                var img = document.createElement('img');
-                img.src = evt.target.result;
-                img.className = 'w-full h-full object-cover';
-                
-                var badge = document.createElement('span');
-                badge.className = 'absolute bottom-1 left-1 bg-teal-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow';
-                badge.textContent = 'Nueva';
-
-                imgWrap.appendChild(img);
-                imgWrap.appendChild(badge);
-                previewContainer.appendChild(imgWrap);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-}
-
-// Preview de portada
-function previewPortada(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var previewArea = document.getElementById('preview-portada-area');
-            if(previewArea) {
-                previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
-            }
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-// Eliminar imagen de galería (vía AJAX inmediato con respaldo de input oculto para submit)
-function eliminarImagen(id) {
-    if (!confirm('¿Estás seguro de que deseas eliminar esta imagen de la galería?')) {
-        return;
-    }
-
-    var container = document.getElementById('img-container-' + id);
-    if (container) {
-        container.style.opacity = '0.3';
-        container.style.pointerEvents = 'none';
-    }
-
-    // Input de respaldo para que se envíe en el submit si la petición AJAX no se completa
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'eliminar_imagenes[]';
-    input.value = id;
-    document.getElementById('eliminar-inputs').appendChild(input);
-
-    var urlDelete = '{{ url("operador/atractivos/" . $atractivo->id . "/imagenes") }}/' + id + '?_operador_id_test={{ request("_operador_id_test", 1) }}';
-    fetch(urlDelete, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
+        // Si estamos en EDITAR y ya hay coordenadas, dibujar el pin de inmediato
+        if (latInput.value && lngInput.value) {
+            updateMarkerPosition(initialLat, initialLng);
         }
-    })
-    .then(function(res) {
-        if (res.ok) {
-            if (container) {
-                container.remove();
-                var remaining = document.querySelectorAll('#existing-gallery [id^="img-container-"]').length;
-                if (remaining === 0) {
-                    var wrapper = document.getElementById('wrapper-existing-gallery');
-                    if (wrapper) wrapper.classList.add('hidden');
+
+        // Evento 1: Clic en cualquier parte del mapa
+        map.addListener('click', (event) => {
+            const lat = event.latLng.lat();
+            const lng = event.latLng.lng();
+            updateMarkerPosition(lat, lng);
+        });
+
+        // Evento 2: Buscador inteligente de ubicaciones (Autocomplete 2025)
+        searchInput.addEventListener('input', async function() {
+            const query = this.value;
+            if (query.length < 3) {
+                suggestionsList.innerHTML = '';
+                suggestionsList.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions({ input: query });
+                const suggestions = response.suggestions;
+
+                if (!suggestions || suggestions.length === 0) {
+                    suggestionsList.classList.add('hidden');
+                    return;
                 }
+
+                suggestionsList.innerHTML = '';
+                
+                // Pintar resultados
+                suggestions.forEach(suggestion => {
+                    const text = suggestion.placePrediction.text.text;
+                    const placeId = suggestion.placePrediction.placeId;
+
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 border-b border-gray-100 last:border-0 flex items-center gap-2';
+                    li.innerHTML = `<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg> ${text}`;
+                    
+                    // Al hacer clic en un resultado
+                    li.addEventListener('click', async function() {
+                        searchInput.value = text;
+                        suggestionsList.classList.add('hidden');
+                        
+                        // Traer coordenadas
+                        const place = new Place({ id: placeId });
+                        await place.fetchFields({ fields: ['location'] });
+                        
+                        if (place.location) {
+                            const lat = place.location.lat();
+                            const lng = place.location.lng();
+                            
+                            // "Volar" hacia el lugar y clavar el pin
+                            map.panTo({ lat, lng });
+                            map.setZoom(17);
+                            updateMarkerPosition(lat, lng);
+                        }
+                    });
+                    suggestionsList.appendChild(li);
+                });
+                suggestionsList.classList.remove('hidden');
+            } catch (e) {
+                console.error("Error consultando Google Places:", e);
             }
-        } else {
-            if (container) {
-                container.style.display = 'none';
-                container.classList.add('deleted-img');
+        });
+
+        // Ocultar buscador si hacen clic fuera
+        document.addEventListener('click', (e) => {
+            if (e.target !== searchInput && e.target !== suggestionsList) {
+                suggestionsList.classList.add('hidden');
             }
-        }
-    })
-    .catch(function() {
-        if (container) {
-            container.style.display = 'none';
-            container.classList.add('deleted-img');
-        }
-    });
-}
+        });
+        
+        // Evitar que el 'Enter' mande el formulario general por error
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", initInteractiveFormMap);
 </script>
 @endpush

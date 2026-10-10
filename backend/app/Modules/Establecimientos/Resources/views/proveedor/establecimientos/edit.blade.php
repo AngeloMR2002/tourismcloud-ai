@@ -1,4 +1,4 @@
-@extends('layouts.panel')
+@extends('layouts.app')
 
 @section('title', 'Editar establecimiento')
 
@@ -55,7 +55,7 @@
         @method('PATCH')
         <input type="hidden" name="_proveedor_id_test" value="{{ request('_proveedor_id_test', 2) }}">
 
-        {{-- ── 1. Tipo de establecimiento (primero, como en el wireframe) ── --}}
+        {{-- ── 1. Tipo de establecimiento ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
                 Tipo de establecimiento
@@ -93,7 +93,7 @@
             @error('tipo')<p class="mt-2 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
-        {{-- ── 2. Información básica ─────────────────────────────────── --}}
+        {{-- ── 2. Información básica ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
                 Información básica
@@ -168,7 +168,7 @@
             </div>
         </div>
 
-        {{-- ── 3. Categoría de Interés ────────────────────────────────── --}}
+        {{-- ── 3. Categoría de Interés ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
                 Categoría de Interés
@@ -192,36 +192,52 @@
             </div>
         </div>
 
-        {{-- ── 4. Ubicación geográfica ─────────────────────────────────── --}}
+        {{-- ── 4. Ubicación geográfica (MAPA INTERACTIVO) ── --}}
         <div class="tc-card p-6">
-            <h2 class="text-sm font-bold uppercase tracking-wide mb-4" style="color: var(--color-primary-700);">
-                Ubicación geográfica
+            <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
+                Ubicación Exacta en el Mapa <span class="text-red-500">*</span>
             </h2>
-            <div class="rounded-xl mb-4 flex flex-col items-center justify-center gap-2"
-                 style="height: 180px; background: linear-gradient(135deg, var(--color-amber-soft) 0%, #fde9b5 100%);">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-tertiary-500);">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <p class="text-xs text-gray-500">Ingresa las coordenadas para marcar la ubicación</p>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold mb-1.5 text-gray-600">Latitud</label>
-                    <input type="number" name="latitud" value="{{ old('latitud', $establecimiento->latitud) }}"
-                           step="0.0000001" min="-90" max="90" placeholder="-13.163141" class="tc-input">
-                    @error('latitud')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+            <p class="text-xs text-gray-400 mb-4">Busca la dirección o arrastra el marcador rojo para fijar las coordenadas automáticamente.</p>
+            
+            <div class="space-y-4">
+                <!-- Contenedor del Mapa -->
+                <div class="relative w-full h-[450px] rounded-2xl overflow-hidden border border-gray-200 shadow-sm mb-4">
+                    
+                    <!-- Buscador Flotante sobre el Mapa -->
+                    <div class="absolute top-4 left-4 z-10 w-11/12 max-w-sm">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-[#00626A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <input type="text" id="map_search" placeholder="Ej. Plaza de Armas de Cusco..." autocomplete="off"
+                                class="w-full pl-11 px-4 py-3.5 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-lg focus:ring-2 focus:ring-[#00626A]/50 focus:border-[#00626A] transition-all text-sm text-gray-800 placeholder-gray-400">
+                        </div>
+                        <!-- Lista de sugerencias de Google -->
+                        <ul id="map_suggestions" class="absolute w-full bg-white rounded-xl shadow-xl mt-2 hidden max-h-60 overflow-y-auto border border-gray-100"></ul>
+                    </div>
+                    
+                    <!-- Lienzo de Google Maps -->
+                    <div id="interactive_form_map" class="w-full h-full bg-gray-50"></div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1.5 text-gray-600">Longitud</label>
-                    <input type="number" name="longitud" value="{{ old('longitud', $establecimiento->longitud) }}"
-                           step="0.0000001" min="-180" max="180" placeholder="-72.544963" class="tc-input">
-                    @error('longitud')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+
+                <!-- Inputs de Coordenadas (Solo Lectura) -->
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Latitud Seleccionada</label>
+                        <input type="number" step="any" id="latitud_input" name="latitud" value="{{ old('latitud', $establecimiento->latitud) }}" readonly required
+                            class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Longitud Seleccionada</label>
+                        <input type="number" step="any" id="longitud_input" name="longitud" value="{{ old('longitud', $establecimiento->longitud) }}" readonly required
+                            class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
+                    </div>
                 </div>
+                @error('latitud') <p class="text-red-500 text-xs mt-1 font-medium">Debes seleccionar una ubicación en el mapa.</p> @enderror
             </div>
         </div>
 
-        {{-- ── 5. Horario semanal de atención ────────────────────────── --}}
+        {{-- ── 5. Horario semanal de atención ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
                 Horario semanal de atención
@@ -230,15 +246,15 @@
 
             @php
                 $diasConf = ['lunes'=>'Lunes','martes'=>'Martes','miercoles'=>'Miércoles','jueves'=>'Jueves','viernes'=>'Viernes','sabado'=>'Sábado','domingo'=>'Domingo'];
-                $horariosOld = old('horarios', $establecimiento->horarios);
+                $horariosOld = old('horarios',$establecimiento->horarios);
             @endphp
             <div class="space-y-2">
                 @foreach($diasConf as $k => $nombre)
                     @php
                         $hor    = $horariosOld[$k] ?? null;
                         $open   = is_array($hor) && isset($hor['abre']);
-                        $abre   = $hor['abre']   ?? '09:00';
-                        $cierra = $hor['cierra']  ?? '22:00';
+                        $abre   =$hor['abre']   ?? '09:00';
+                        $cierra =$hor['cierra']  ?? '22:00';
                     @endphp
                     <div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors"
                          id="est-row-{{ $k }}"
@@ -272,7 +288,7 @@
             </div>
         </div>
 
-        {{-- ── 6. Imágenes del establecimiento ──────────────────────── --}}
+        {{-- ── 6. Imágenes del establecimiento ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
                 Imágenes del establecimiento
@@ -352,197 +368,335 @@
 
 @push('scripts')
 <script>
-var tiposDisponibles = ['restaurante','hotel','transporte','agencia','otro'];
-var rangosDisponibles = ['bajo','medio','alto','lujo'];
-
-function selectTipo(val) {
-    tiposDisponibles.forEach(function(t) {
-        var btn = document.getElementById('tipo-btn-' + t);
-        if (!btn) return;
-        if (t === val) {
-            btn.style.background   = 'var(--color-primary-500)';
-            btn.style.color        = 'white';
-            btn.style.borderColor  = 'var(--color-primary-500)';
-        } else {
-            btn.style.background   = 'white';
-            btn.style.color        = '#374151';
-            btn.style.borderColor  = '#d1d5db';
-        }
-    });
-}
-
-function selectRango(val) {
-    rangosDisponibles.forEach(function(r) {
-        var btn = document.getElementById('rango-btn-' + r);
-        if (!btn) return;
-        if (r === val) {
-            btn.style.background   = 'var(--color-primary-500)';
-            btn.style.color        = 'white';
-            btn.style.borderColor  = 'var(--color-primary-500)';
-        } else {
-            btn.style.background   = 'white';
-            btn.style.color        = '#374151';
-            btn.style.borderColor  = '#d1d5db';
-        }
-    });
-}
-
-function toggleEstHorario(dia, open) {
-    var row    = document.getElementById('est-row-' + dia);
-    var label  = document.getElementById('est-label-' + dia);
-    var times  = document.getElementById('est-times-' + dia);
-    var closed = document.getElementById('est-closed-' + dia);
-    var abre   = document.getElementById('est-abre-' + dia);
-    var cierra = document.getElementById('est-cierra-' + dia);
-
-    row.style.background = open ? 'var(--color-amber-soft)' : '#f3f4f6';
-    label.style.color    = open ? 'var(--color-tertiary-500)' : '#9ca3af';
-
-    if (open) {
-        times.classList.remove('hidden'); times.classList.add('flex');
-        closed.classList.add('hidden');
-        abre.name   = 'horarios[' + dia + '][abre]';
-        cierra.name = 'horarios[' + dia + '][cierra]';
-    } else {
-        times.classList.add('hidden'); times.classList.remove('flex');
-        closed.classList.remove('hidden');
-        abre.removeAttribute('name');
-        cierra.removeAttribute('name');
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar días cerrados
-    ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(d) {
-        var t = document.getElementById('est-tog-' + d);
-        if (t && !t.checked) toggleEstHorario(d, false);
+    // ══════════════════════════════════════════════════════════════
+    // CARGAR GOOGLE MAPS API
+    // ══════════════════════════════════════════════════════════════
+    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+        key: "{{ env('GOOGLE_MAPS_API_KEY') }}",
+        v: "weekly"
     });
 
-    // Chips categoría
-    document.querySelectorAll('input[type="checkbox"][name="categorias[]"]').forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            var span = document.getElementById('chip-estcat-' + this.value);
-            if (!span) return;
-            if (this.checked) {
-                span.style.background   = 'var(--color-primary-500)';
-                span.style.color        = 'white';
-                span.style.borderColor  = 'var(--color-primary-500)';
+    async function initInteractiveFormMap() {
+        const { Map } = await google.maps.importLibrary("maps");
+        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+        const { Place, AutocompleteSuggestion } = await google.maps.importLibrary("places");
+
+        const latInput = document.getElementById('latitud_input');
+        const lngInput = document.getElementById('longitud_input');
+        const searchInput = document.getElementById('map_search');
+        const suggestionsList = document.getElementById('map_suggestions');
+
+        if (!latInput || !lngInput || !document.getElementById("interactive_form_map")) return;
+
+        // Posición Inicial (Usa las de BD si existen, o Perú por defecto)
+        let initialLat = parseFloat(latInput.value) || -9.1900;
+        let initialLng = parseFloat(lngInput.value) || -75.0152;
+        let initialZoom = latInput.value ? 16 : 5;
+
+        const map = new Map(document.getElementById("interactive_form_map"), {
+            center: { lat: initialLat, lng: initialLng },
+            zoom: initialZoom,
+            mapId: "DEMO_MAP_ID", // Obligatorio para AdvancedMarkers
+            disableDefaultUI: false,
+            streetViewControl: false,
+            mapTypeControl: false
+        });
+
+        let marker = null;
+
+        function updateMarkerPosition(lat, lng) {
+            if (!marker) {
+                marker = new AdvancedMarkerElement({
+                    map: map,
+                    position: { lat, lng },
+                    gmpDraggable: true,
+                    title: "Arrastra para ajustar la ubicación"
+                });
+                
+                marker.addListener('dragend', (event) => {
+                    latInput.value = event.latLng.lat().toFixed(6);
+                    lngInput.value = event.latLng.lng().toFixed(6);
+                });
             } else {
-                span.style.background   = 'white';
-                span.style.color        = '#374151';
-                span.style.borderColor  = '#d1d5db';
+                marker.position = { lat, lng };
+            }
+            
+            latInput.value = lat.toFixed(6);
+            lngInput.value = lng.toFixed(6);
+        }
+
+        if (latInput.value && lngInput.value) {
+            updateMarkerPosition(initialLat, initialLng);
+        }
+
+        map.addListener('click', (event) => {
+            const lat = event.latLng.lat();
+            const lng = event.latLng.lng();
+            updateMarkerPosition(lat, lng);
+        });
+
+        if (searchInput && suggestionsList) {
+            searchInput.addEventListener('input', async function() {
+                const query = this.value;
+                if (query.length < 3) {
+                    suggestionsList.innerHTML = '';
+                    suggestionsList.classList.add('hidden');
+                    return;
+                }
+
+                try {
+                    const response = await AutocompleteSuggestion.fetchAutocompleteSuggestions({ input: query });
+                    const suggestions = response.suggestions;
+
+                    if (!suggestions || suggestions.length === 0) {
+                        suggestionsList.classList.add('hidden');
+                        return;
+                    }
+
+                    suggestionsList.innerHTML = '';
+                    
+                    suggestions.forEach(suggestion => {
+                        const text = suggestion.placePrediction.text.text;
+                        const placeId = suggestion.placePrediction.placeId;
+
+                        const li = document.createElement('li');
+                        li.className = 'px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 border-b border-gray-100 last:border-0 flex items-center gap-2';
+                        li.innerHTML = `<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg> ${text}`;
+                        
+                        li.addEventListener('click', async function() {
+                            searchInput.value = text;
+                            suggestionsList.classList.add('hidden');
+                            
+                            const place = new Place({ id: placeId });
+                            await place.fetchFields({ fields: ['location'] });
+                            
+                            if (place.location) {
+                                const lat = place.location.lat();
+                                const lng = place.location.lng();
+                                
+                                map.panTo({ lat, lng });
+                                map.setZoom(17);
+                                updateMarkerPosition(lat, lng);
+                            }
+                        });
+                        suggestionsList.appendChild(li);
+                    });
+                    suggestionsList.classList.remove('hidden');
+                } catch (e) {
+                    console.error("Error consultando Google Places:", e);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (e.target !== searchInput && e.target !== suggestionsList) {
+                    suggestionsList.classList.add('hidden');
+                }
+            });
+            
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // OTRAS FUNCIONALIDADES (TIPOS, RANGOS, HORARIOS, IMÁGENES)
+    // ══════════════════════════════════════════════════════════════
+    var tiposDisponibles = ['restaurante','hotel','transporte','agencia','otro'];
+    var rangosDisponibles = ['bajo','medio','alto','lujo'];
+
+    function selectTipo(val) {
+        tiposDisponibles.forEach(function(t) {
+            var btn = document.getElementById('tipo-btn-' + t);
+            if (!btn) return;
+            if (t === val) {
+                btn.style.background   = 'var(--color-primary-500)';
+                btn.style.color        = 'white';
+                btn.style.borderColor  = 'var(--color-primary-500)';
+            } else {
+                btn.style.background   = 'white';
+                btn.style.color        = '#374151';
+                btn.style.borderColor  = '#d1d5db';
             }
         });
+    }
+
+    function selectRango(val) {
+        rangosDisponibles.forEach(function(r) {
+            var btn = document.getElementById('rango-btn-' + r);
+            if (!btn) return;
+            if (r === val) {
+                btn.style.background   = 'var(--color-primary-500)';
+                btn.style.color        = 'white';
+                btn.style.borderColor  = 'var(--color-primary-500)';
+            } else {
+                btn.style.background   = 'white';
+                btn.style.color        = '#374151';
+                btn.style.borderColor  = '#d1d5db';
+            }
+        });
+    }
+
+    function toggleEstHorario(dia, open) {
+        var row    = document.getElementById('est-row-' + dia);
+        var label  = document.getElementById('est-label-' + dia);
+        var times  = document.getElementById('est-times-' + dia);
+        var closed = document.getElementById('est-closed-' + dia);
+        var abre   = document.getElementById('est-abre-' + dia);
+        var cierra = document.getElementById('est-cierra-' + dia);
+
+        if (!row) return;
+
+        row.style.background = open ? 'var(--color-amber-soft)' : '#f3f4f6';
+        label.style.color    = open ? 'var(--color-tertiary-500)' : '#9ca3af';
+
+        if (open) {
+            times.classList.remove('hidden'); times.classList.add('flex');
+            closed.classList.add('hidden');
+            abre.name   = 'horarios[' + dia + '][abre]';
+            cierra.name = 'horarios[' + dia + '][cierra]';
+        } else {
+            times.classList.add('hidden'); times.classList.remove('flex');
+            closed.classList.remove('hidden');
+            abre.removeAttribute('name');
+            cierra.removeAttribute('name');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar Mapa
+        initInteractiveFormMap();
+
+        // Inicializar días cerrados
+        ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(d) {
+            var t = document.getElementById('est-tog-' + d);
+            if (t && !t.checked) toggleEstHorario(d, false);
+        });
+
+        // Chips categoría
+        document.querySelectorAll('input[type="checkbox"][name="categorias[]"]').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                var span = document.getElementById('chip-estcat-' + this.value);
+                if (!span) return;
+                if (this.checked) {
+                    span.style.background   = 'var(--color-primary-500)';
+                    span.style.color        = 'white';
+                    span.style.borderColor  = 'var(--color-primary-500)';
+                } else {
+                    span.style.background   = 'white';
+                    span.style.color        = '#374151';
+                    span.style.borderColor  = '#d1d5db';
+                }
+            });
+        });
     });
-});
 
-// Preview de nuevas imágenes adicionales (se agregan visualmente sin borrar las guardadas)
-var inputGaleriaEst = document.querySelector('input[name="galeria[]"]');
-if (inputGaleriaEst) {
-    inputGaleriaEst.addEventListener('change', function(e) {
-        var section = document.getElementById('est-new-uploads-section');
-        var previewContainer = document.getElementById('est-preview-nuevas-imagenes');
-        if (!previewContainer || !section) return;
+    // Preview de nuevas imágenes adicionales
+    var inputGaleriaEst = document.querySelector('input[name="galeria[]"]');
+    if (inputGaleriaEst) {
+        inputGaleriaEst.addEventListener('change', function(e) {
+            var section = document.getElementById('est-new-uploads-section');
+            var previewContainer = document.getElementById('est-preview-nuevas-imagenes');
+            if (!previewContainer || !section) return;
 
-        previewContainer.innerHTML = '';
-        var files = Array.from(e.target.files).slice(0, 10);
+            previewContainer.innerHTML = '';
+            var files = Array.from(e.target.files).slice(0, 10);
 
-        if (files.length === 0) {
-            section.classList.add('hidden');
+            if (files.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            files.forEach(function(file) {
+                if (!file.type.match('image.*')) return;
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    var imgWrap = document.createElement('div');
+                    imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-amber-500 relative';
+                    imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                    
+                    var img = document.createElement('img');
+                    img.src = evt.target.result;
+                    img.className = 'w-full h-full object-cover';
+                    
+                    var badge = document.createElement('span');
+                    badge.className = 'absolute bottom-1 left-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow';
+                    badge.textContent = 'Nueva';
+
+                    imgWrap.appendChild(img);
+                    imgWrap.appendChild(badge);
+                    previewContainer.appendChild(imgWrap);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    }
+
+    // Preview de portada
+    function estPreviewPortada(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewArea = document.getElementById('est-preview-portada-area');
+                if(previewArea) {
+                    previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Eliminar imagen de galería (vía AJAX)
+    function estEliminarImagen(id) {
+        if (!confirm('¿Estás seguro de que deseas eliminar esta imagen de la galería?')) {
             return;
         }
 
-        section.classList.remove('hidden');
-
-        files.forEach(function(file) {
-            if (!file.type.match('image.*')) return;
-            var reader = new FileReader();
-            reader.onload = function(evt) {
-                var imgWrap = document.createElement('div');
-                imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-amber-500 relative';
-                imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-                
-                var img = document.createElement('img');
-                img.src = evt.target.result;
-                img.className = 'w-full h-full object-cover';
-                
-                var badge = document.createElement('span');
-                badge.className = 'absolute bottom-1 left-1 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow';
-                badge.textContent = 'Nueva';
-
-                imgWrap.appendChild(img);
-                imgWrap.appendChild(badge);
-                previewContainer.appendChild(imgWrap);
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-}
-
-// Preview de portada
-function estPreviewPortada(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var previewArea = document.getElementById('est-preview-portada-area');
-            if(previewArea) {
-                previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
-            }
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-// Eliminar imagen de galería (vía AJAX inmediato con respaldo de input oculto para submit)
-function estEliminarImagen(id) {
-    if (!confirm('¿Estás seguro de que deseas eliminar esta imagen de la galería?')) {
-        return;
-    }
-
-    var container = document.getElementById('est-img-container-' + id);
-    if (container) {
-        container.style.opacity = '0.3';
-        container.style.pointerEvents = 'none';
-    }
-
-    // Input de respaldo para que se envíe en submit si la petición AJAX no se completa
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'eliminar_imagenes[]';
-    input.value = id;
-    document.getElementById('est-eliminar-inputs').appendChild(input);
-
-    var urlDelete = '{{ url("proveedor/establecimientos/" . $establecimiento->id . "/imagenes") }}/' + id + '?_proveedor_id_test={{ request("_proveedor_id_test", 2) }}';
-    fetch(urlDelete, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
+        var container = document.getElementById('est-img-container-' + id);
+        if (container) {
+            container.style.opacity = '0.3';
+            container.style.pointerEvents = 'none';
         }
-    })
-    .then(function(res) {
-        if (res.ok) {
-            if (container) {
-                container.remove();
-                var remaining = document.querySelectorAll('#est-existing-gallery [id^="est-img-container-"]').length;
-                if (remaining === 0) {
-                    var wrapper = document.getElementById('est-wrapper-existing-gallery');
-                    if (wrapper) wrapper.classList.add('hidden');
+
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'eliminar_imagenes[]';
+        input.value = id;
+        document.getElementById('est-eliminar-inputs').appendChild(input);
+
+        var urlDelete = '{{ url("proveedor/establecimientos/" . $establecimiento->id . "/imagenes") }}/' + id + '?_proveedor_id_test={{ request("_proveedor_id_test", 2) }}';
+        fetch(urlDelete, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(function(res) {
+            if (res.ok) {
+                if (container) {
+                    container.remove();
+                    var remaining = document.querySelectorAll('#est-existing-gallery [id^="est-img-container-"]').length;
+                    if (remaining === 0) {
+                        var wrapper = document.getElementById('est-wrapper-existing-gallery');
+                        if (wrapper) wrapper.classList.add('hidden');
+                    }
+                }
+            } else {
+                if (container) {
+                    container.style.display = 'none';
+                    container.classList.add('deleted-img');
                 }
             }
-        } else {
+        })
+        .catch(function() {
             if (container) {
                 container.style.display = 'none';
                 container.classList.add('deleted-img');
             }
-        }
-    })
-    .catch(function() {
-        if (container) {
-            container.style.display = 'none';
-            container.classList.add('deleted-img');
-        }
-    });
-}
+        });
+    }
 </script>
 @endpush
