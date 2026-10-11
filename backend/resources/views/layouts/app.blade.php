@@ -67,6 +67,16 @@
                 <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Establecimientos</span>
             </a>
 
+            @foreach(['actividades' => 'Actividades', 'rutas' => 'Rutas'] as $modulo => $etiqueta)
+                <a href="{{ route('catalogo.'.$modulo.'.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('catalogo.'.$modulo.'.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:bg-neutral-100' }}" style="{{ request()->routeIs('catalogo.'.$modulo.'.*') ? 'background: var(--color-primary-500); color: white;' : '' }}">
+                    @if($modulo === 'actividades')
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="m10 8 4 2-2 6-5 5m5-5 3 5M10 8l-2 4-3 2m9-4 3 3 3 1"/></svg>
+                    @else
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h6a4 4 0 0 1 0 8h-2a3 3 0 0 0 0 6h6"/></svg>
+                    @endif
+                    <span>{{ $etiqueta }}</span>
+                </a>
+            @endforeach
             <div class="my-3 mx-2 border-t border-neutral-100"></div>
 
             {{-- Sección: Gestión (Restringida) --}}
@@ -112,12 +122,22 @@
                 @endif
 
                 @if(auth()->user()->isOperador())
-                    <a href="{{ route('operador.atractivos.index') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('operador.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('operador.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
+                    <a href="{{ route('operador.atractivos.index') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('operador.atractivos.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('operador.atractivos.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
                         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Panel Operador</span>
                     </a>
+                    @foreach(['actividades' => 'Mis actividades', 'rutas' => 'Mis rutas'] as $modulo => $etiqueta)
+                        <a href="{{ route('operador.'.$modulo.'.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('operador.'.$modulo.'.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:bg-neutral-100' }}" style="{{ request()->routeIs('operador.'.$modulo.'.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
+                            @if($modulo === 'actividades')
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="m10 8 4 2-2 6-5 5m5-5 3 5M10 8l-2 4-3 2m9-4 3 3 3 1"/></svg>
+                            @else
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h6a4 4 0 0 1 0 8h-2a3 3 0 0 0 0 6h6"/></svg>
+                            @endif
+                            <span>{{ $etiqueta }}</span>
+                        </a>
+                    @endforeach
                 @endif
 
                 @if(auth()->user()->isProveedor())
