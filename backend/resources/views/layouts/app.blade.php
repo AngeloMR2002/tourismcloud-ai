@@ -100,6 +100,32 @@
             @endguest
 
             @auth
+                @if(auth()->user()->isAdministrador() || auth()->user()->isTurista())
+                    @php($rutaModulo = 'dashboard')
+                    @php($etiquetaModulo = 'Dashboard')
+                    <a href="{{ route($rutaModulo) }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs($rutaModulo === 'itinerarios.index' ? 'itinerarios.*' : $rutaModulo) ? 'text-white shadow-sm' : 'text-neutral-700 hover:bg-neutral-100' }}" style="{{ request()->routeIs($rutaModulo === 'itinerarios.index' ? 'itinerarios.*' : $rutaModulo) ? 'background: var(--color-primary-500); color: white;' : '' }}">
+                        @if($rutaModulo === 'dashboard')
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>
+                        @elseif($rutaModulo === 'agenda.index')
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+                        @else
+                            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 3v4m12-4v4M5 9h14v11H5zM8 13h3m2 0h3m-8 3h3"/></svg>
+                        @endif
+                        <span>{{ $etiquetaModulo }}</span>
+                    </a>
+                @endif
+                @if(auth()->user()->isTurista())
+                    @foreach(['itinerarios.index' => 'Mis itinerarios', 'agenda.index' => 'Agenda'] as $rutaModulo => $etiquetaModulo)
+                        <a href="{{ route($rutaModulo) }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs($rutaModulo === 'itinerarios.index' ? 'itinerarios.*' : $rutaModulo) ? 'text-white shadow-sm' : 'text-neutral-700 hover:bg-neutral-100' }}" style="{{ request()->routeIs($rutaModulo === 'itinerarios.index' ? 'itinerarios.*' : $rutaModulo) ? 'background: var(--color-primary-500); color: white;' : '' }}">
+                            @if($rutaModulo === 'agenda.index')
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+                            @else
+                                <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M6 3v4m12-4v4M5 9h14v11H5zM8 13h3m2 0h3m-8 3h3"/></svg>
+                            @endif
+                            <span>{{ $etiquetaModulo }}</span>
+                        </a>
+                    @endforeach
+                @endif
                 @if(auth()->user()->isAdministrador())
                     <a href="{{ route('admin.usuarios.index') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('admin.usuarios.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('admin.usuarios.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
                         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">

@@ -6,6 +6,7 @@ use App\Modules\Actividades\Models\Actividad;
 use App\Modules\Actividades\Services\ImportadorDemoActividadesRutas;
 use App\Modules\Atractivos\Models\Atractivo;
 use App\Modules\Destinos\Models\Destino;
+use App\Modules\Itinerarios\Models\Itinerario;
 use App\Modules\Rutas\Models\Ruta;
 use App\Modules\Rutas\Models\RutaParada;
 use App\Modules\Rutas\Services\RutaService;
@@ -96,6 +97,52 @@ class ActividadesRutasTest extends TestCase
         }
         $this->operador->update(['estado' => 'inactivo']);
         $this->actingAs($this->operador)->get(route('operador.actividades.index'))->assertRedirect(route('login'));
+    }
+
+    public function test_dashboard_itinerarios_y_agenda_usan_el_usuario_autenticado(): void
+    {
+        $this->get(route('dashboard'))->assertRedirect(route('login'));
+        $this->get(route('itinerarios.index'))->assertRedirect(route('login'));
+        $this->get(route('agenda.index'))->assertRedirect(route('login'));
+
+        $turista = Usuario::create(UserFactory::new()->raw(['rol' => 'turista']));
+        $this->actingAs($turista);
+
+        $this->get(route('dashboard'))->assertOk()->assertSee('Dashboard');
+        $this->get(route('itinerarios.index'))->assertOk()->assertSee('Mis itinerarios');
+        $this->get(route('agenda.index'))->assertOk()->assertSee('Agenda de itinerarios');
+
+        $this->post(route('itinerarios.store'), [
+            'destino_id' => $this->destino->id,
+            'nombre' => 'Viaje de prueba',
+            'descripcion' => 'Plan creado por el turista autenticado.',
+            'presupuesto_total' => 250,
+            'dias' => 3,
+            'fecha_inicio' => '2026-12-02',
+        ])->assertSessionHasNoErrors()->assertRedirect(route('itinerarios.index'));
+
+        $itinerario = Itinerario::where('nombre', 'Viaje de prueba')->firstOrFail();
+        $this->assertSame($turista->id, $itinerario->turista_id);
+        $this->assertSame(3, DB::table('itinerario_dias')->where('itinerario_id', $itinerario->id)->count());
+        $this->assertSame(['2026-12-02', '2026-12-03', '2026-12-04'], DB::table('itinerario_dias')->where('itinerario_id', $itinerario->id)->orderBy('numero_dia')->pluck('fecha')->map(fn ($fecha) => substr((string) $fecha, 0, 10))->all());
+        $otroTurista = Usuario::create(UserFactory::new()->raw(['rol' => 'turista']));
+        Itinerario::create([
+            'turista_id' => $otroTurista->id,
+            'destino_id' => $this->destino->id,
+            'nombre' => 'Itinerario privado ajeno',
+            'dias' => 1,
+            'estado' => 'generado',
+        ]);
+        $this->get(route('dashboard'))->assertOk()->assertSee('Viaje de prueba')->assertDontSee('Itinerario privado ajeno');
+        $this->get(route('itinerarios.show', $itinerario))->assertOk()->assertSee('Viaje de prueba')->assertSee('Día 3');
+        $this->get(route('agenda.index'))->assertOk()->assertSee('Viaje de prueba');
+
+        $this->actingAs($this->operador)->get(route('dashboard'))->assertForbidden();
+        $this->actingAs($this->operador)->get(route('itinerarios.index'))->assertForbidden();
+        $this->actingAs($this->operador)->get(route('agenda.index'))->assertForbidden();
+        $this->actingAs($this->otro)->get(route('itinerarios.show', $itinerario))->assertForbidden();
+        $this->actingAs($turista)->delete(route('itinerarios.destroy', $itinerario))->assertRedirect(route('itinerarios.index'));
+        $this->assertDatabaseMissing('itinerarios', ['id' => $itinerario->id]);
     }
 
     public function test_actividad_crud_portada_y_eliminacion_logica(): void
