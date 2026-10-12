@@ -21,6 +21,8 @@ class Usuario extends Authenticatable
         'nombre',
         'apellido',
         'email',
+        'google_id',
+        'email_verified_at',
         'password',
         'rol',
         'estado',
@@ -69,6 +71,7 @@ class Usuario extends Authenticatable
 
     // --- MÉTODOS DE ROL (Helpers útiles) ---
     public function isAdministrador(): bool { return $this->rol === 'administrador'; }
+    public function isAdmin(): bool { return $this->isAdministrador(); }
     public function isOperador(): bool { return $this->rol === 'operador_turistico'; }
     public function isProveedor(): bool { return $this->rol === 'proveedor'; }
     public function isTurista(): bool { return $this->rol === 'turista'; }

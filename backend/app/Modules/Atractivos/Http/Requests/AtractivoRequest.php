@@ -94,11 +94,25 @@ class AtractivoRequest extends FormRequest
         if ($this->horarios && is_string($this->horarios)) {
             $this->merge(['horarios' => json_decode($this->horarios, true)]);
         }
+
+        // Limpiar días desactivados o vacíos para que sean tratados cleanly como cerrados
+        if (is_array($this->horarios)) {
+            $limpios = [];
+            foreach ($this->horarios as $dia => $horas) {
+                if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
+                    $limpios[$dia] = [
+                        'abre'   => trim((string)$horas['abre']),
+                        'cierra' => trim((string)$horas['cierra']),
+                    ];
+                }
+            }
+            $this->merge(['horarios' => $limpios]);
+        }
     }
 
     /**
      * Validación adicional después de las reglas: verifica que los días abiertos
-     * tengan tanto 'abre' como 'cierra', y que la hora de cierre sea posterior a la de apertura.
+     * tengan formato válido y que la hora de cierre sea posterior a la de apertura.
      */
     public function withValidator($validator): void
     {
@@ -109,17 +123,8 @@ class AtractivoRequest extends FormRequest
                 return;
             }
 
-            $dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
-
-            foreach ($dias as $dia) {
-                $horario = $horarios[$dia] ?? null;
-
-                if ($horario === null) {
-                    continue; // Día cerrado, es válido.
-                }
-
+            foreach ($horarios as $dia => $horario) {
                 if (!is_array($horario)) {
-                    $validator->errors()->add("horarios.{$dia}", "El horario del {$dia} debe ser null (cerrado) o un objeto con 'abre' y 'cierra'.");
                     continue;
                 }
 
@@ -127,8 +132,7 @@ class AtractivoRequest extends FormRequest
                 $cierra = $horario['cierra'] ?? null;
 
                 if (!$abre || !$cierra) {
-                    $validator->errors()->add("horarios.{$dia}", "Si el {$dia} está abierto, debes indicar tanto la hora de apertura como la de cierre.");
-                    continue;
+                    continue; // Día cerrado
                 }
 
                 // Validar que cierra > abre.

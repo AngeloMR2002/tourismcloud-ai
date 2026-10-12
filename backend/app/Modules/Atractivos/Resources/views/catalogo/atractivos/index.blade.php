@@ -173,13 +173,27 @@
                                         Gratuito
                                     @endif
                                 </span>
+
                             </div>
 
                             {{-- Info tarjeta --}}
                             <div class="p-4 flex flex-col flex-1">
-                                <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #1a2232;" class="mb-1.5 leading-snug">
-                                    {{ $atractivo->nombre }}
-                                </h3>
+                                @php
+                                    $prom = $atractivo->promedio_puntuacion;
+                                    $totalRes = $atractivo->total_resenas;
+                                @endphp
+                                <div class="flex items-start justify-between gap-2 mb-1.5">
+                                    <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #1a2232;" class="leading-snug">
+                                        {{ $atractivo->nombre }}
+                                    </h3>
+                                    @if($totalRes > 0)
+                                        <div class="flex items-center gap-1 text-xs font-bold text-gray-800 shrink-0">
+                                            <span class="text-amber-400 text-sm leading-none">★</span>
+                                            <span>{{ number_format($prom, 1) }}</span>
+                                            <span class="text-[11px] text-gray-400 font-normal">({{ $totalRes }})</span>
+                                        </div>
+                                    @endif
+                                </div>
 
                                 {{-- Separador --}}
                                 <div class="h-px mb-2" style="background: #f0f0f0;"></div>

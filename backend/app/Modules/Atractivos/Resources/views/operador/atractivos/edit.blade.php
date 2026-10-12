@@ -128,13 +128,14 @@
             <div class="flex flex-wrap gap-2">
                 @foreach($categorias as $cat)
                     @php $checked = in_array($cat->id, old('categorias', $atractivo->categorias->pluck('id')->toArray())); @endphp
-                    <label class="cursor-pointer">
+                    <label class="cursor-pointer select-none">
                         <input type="checkbox" name="categorias[]" value="{{ $cat->id }}"
-                               {{ $checked ? 'checked' : '' }} class="sr-only peer">
-                        <span class="inline-block text-sm font-medium px-4 py-1.5 rounded-full border transition-all peer-checked:text-white"
+                               {{ $checked ? 'checked' : '' }} class="sr-only"
+                               onchange="toggleChipAtractivoCat(this, '{{ $cat->id }}')">
+                        <span class="inline-block text-sm font-medium px-4 py-1.5 rounded-full border transition-all"
                               style="{{ $checked
-                                ? 'background: var(--color-primary-500); color: white; border-color: var(--color-primary-500);'
-                                : 'background: white; color: #374151; border-color: #d1d5db;' }}"
+                                ? 'background-color: var(--color-primary-500, #00626A); color: #ffffff; border-color: var(--color-primary-500, #00626A);'
+                                : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"
                               id="chip-cat-{{ $cat->id }}">
                             {{ $cat->nombre }}
                         </span>
@@ -204,9 +205,9 @@
                 @foreach($diasConf as $k => $nombre)
                     @php
                         $hor    = $horariosOld[$k] ?? null;
-                        $open   = is_array($hor) && isset($hor['abre']);
-                        $abre   = $hor['abre']   ?? '09:00';
-                        $cierra = $hor['cierra']  ?? '18:00';
+                        $open   = is_array($hor) && !empty($hor['abre']) && !empty($hor['cierra']);
+                        $abre   = $hor['abre']   ?? '08:00';
+                        $cierra = $hor['cierra']  ?? '17:00';
                     @endphp
                     <div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors"
                          id="row-{{ $k }}"
@@ -225,23 +226,25 @@
                             {{ $nombre }}
                         </span>
 
-                        {{-- Inputs de hora (visibles solo cuando abierto) --}}
-                        <div id="times-{{ $k }}" class="{{ $open ? 'flex' : 'hidden' }} items-center gap-3 flex-1">
-                            <div class="flex items-center gap-1.5">
+                        {{-- Inputs de hora (visibles y activos solo cuando abierto) --}}
+                        <div id="times-{{ $k }}" class="flex items-center gap-3 flex-1 {{ $open ? '' : 'hidden' }}"
+                             style="{{ $open ? 'display: flex;' : 'display: none;' }}">
+                            <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-xs text-gray-500">Abre</span>
                                 <input type="time" id="abre-{{ $k }}" name="horarios[{{ $k }}][abre]"
-                                       value="{{ $abre }}" class="tc-input w-28 text-sm">
+                                       value="{{ $abre }}" {{ $open ? '' : 'disabled' }} class="tc-input text-sm" style="width: 110px;">
                             </div>
-                            <span class="text-gray-300 text-sm">→</span>
-                            <div class="flex items-center gap-1.5">
+                            <span class="text-gray-300 text-sm shrink-0">→</span>
+                            <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-xs text-gray-500">Cierra</span>
                                 <input type="time" id="cierra-{{ $k }}" name="horarios[{{ $k }}][cierra]"
-                                       value="{{ $cierra }}" class="tc-input w-28 text-sm">
+                                       value="{{ $cierra }}" {{ $open ? '' : 'disabled' }} class="tc-input text-sm" style="width: 110px;">
                             </div>
                         </div>
 
                         {{-- Label cuando cerrado --}}
-                        <span id="closed-{{ $k }}" class="{{ $open ? 'hidden' : '' }} text-xs text-gray-400 flex-1">
+                        <span id="closed-{{ $k }}" class="{{ $open ? 'hidden' : '' }} text-xs text-gray-400 flex-1"
+                              style="{{ $open ? 'display: none;' : '' }}">
                             Cerrado
                         </span>
                     </div>
@@ -465,6 +468,92 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", initInteractiveFormMap);
+    // Toggle de horario de atención
+    function toggleHorario(dia, isChecked) {
+        const row    = document.getElementById('row-' + dia);
+        const times  = document.getElementById('times-' + dia);
+        const closed = document.getElementById('closed-' + dia);
+        const label  = document.getElementById('label-' + dia);
+        const abre   = document.getElementById('abre-' + dia);
+        const cierra = document.getElementById('cierra-' + dia);
+
+        if (isChecked) {
+            if (times) {
+                times.classList.remove('hidden');
+                times.classList.add('flex');
+                times.style.display = 'flex';
+            }
+            if (closed) {
+                closed.classList.add('hidden');
+                closed.style.display = 'none';
+            }
+            if (abre) abre.disabled = false;
+            if (cierra) cierra.disabled = false;
+            if (row) row.style.background = 'var(--color-teal-light)';
+            if (label) label.style.color = 'var(--color-primary-700)';
+        } else {
+            if (times) {
+                times.classList.add('hidden');
+                times.classList.remove('flex');
+                times.style.display = 'none';
+            }
+            if (closed) {
+                closed.classList.remove('hidden');
+                closed.style.display = '';
+            }
+            if (abre) abre.disabled = true;
+            if (cierra) cierra.disabled = true;
+            if (row) row.style.background = '#f3f4f6';
+            if (label) label.style.color = '#9ca3af';
+        }
+    }
+    window.toggleHorario = toggleHorario;
+    window.toggleDia = toggleHorario;
+
+    // ── Chips categoría (Interés) ──
+    function toggleChipAtractivoCat(cb, id) {
+        var span = document.getElementById('chip-cat-' + id);
+        if (!span && cb && cb.closest) {
+            span = cb.closest('label') ? cb.closest('label').querySelector('span') : null;
+        }
+        if (!span) return;
+        if (cb.checked) {
+            span.style.backgroundColor = 'var(--color-primary-500, #00626A)';
+            span.style.color           = '#ffffff';
+            span.style.borderColor     = 'var(--color-primary-500, #00626A)';
+        } else {
+            span.style.backgroundColor = '#ffffff';
+            span.style.color           = '#374151';
+            span.style.borderColor     = '#d1d5db';
+        }
+    }
+    window.toggleChipAtractivoCat = toggleChipAtractivoCat;
+
+    // Delegación global inmediata
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.name === 'categorias[]') {
+            toggleChipAtractivoCat(e.target, e.target.value);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        try {
+            initInteractiveFormMap();
+        } catch(err) {
+            console.warn("Map init:", err);
+        }
+
+        ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(dia) {
+            const tog = document.getElementById('tog-' + dia);
+            if (tog) {
+                toggleHorario(dia, tog.checked);
+            }
+        });
+
+        // Asegurar estado visual inicial
+        document.querySelectorAll('input[type="checkbox"][name="categorias[]"]').forEach(function(cb) {
+            toggleChipAtractivoCat(cb, cb.value);
+        });
+    });
 </script>
 @endpush

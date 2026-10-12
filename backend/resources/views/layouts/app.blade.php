@@ -6,6 +6,7 @@
     <meta name="description" content="{{ $metaDescription ?? 'TourismCloud AI — Descubre los mejores atractivos y establecimientos turísticos.' }}">
     <title>{{ $title ?? 'TourismCloud AI' }} | TourismCloud AI</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="h-full flex flex-col m-0 p-0">
 
@@ -152,7 +153,7 @@
                         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
-                        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Panel Operador</span>
+                        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Mis Atractivos</span>
                     </a>
                     @foreach(['actividades' => 'Mis actividades', 'rutas' => 'Mis rutas'] as $modulo => $etiqueta)
                         <a href="{{ route('operador.'.$modulo.'.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('operador.'.$modulo.'.*') ? 'text-white shadow-sm' : 'text-neutral-700 hover:bg-neutral-100' }}" style="{{ request()->routeIs('operador.'.$modulo.'.*') ? 'background: var(--color-primary-600); color: white;' : '' }}">
@@ -171,7 +172,7 @@
                         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
                         </div>
-                        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Panel Proveedor</span>
+                        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Mis Establecimientos</span>
                     </a>
                     <a href="{{ route('preferencias.recientes') }}" class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 {{ request()->routeIs('preferencias.recientes') ? 'text-white shadow-sm' : 'text-neutral-700 hover:text-[#00626A] hover:bg-neutral-100' }}" style="{{ request()->routeIs('preferencias.recientes') ? 'background: var(--color-primary-600); color: white;' : '' }}">
                         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
@@ -246,12 +247,47 @@
         </div>
     </header>
 
-    {{-- Flash messages --}}
+    {{-- Modal Centrado de Notificación de Éxito --}}
     @if(session('exito'))
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-            <div class="tc-alert-exito" role="alert">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                {{ session('exito') }}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Operación Exitosa!',
+                        text: @json(session('exito')),
+                        confirmButtonText: 'Aceptar',
+                        confirmButtonColor: '#00626A',
+                        timer: 4000,
+                        timerProgressBar: true,
+                        background: '#ffffff',
+                        customClass: {
+                            popup: 'rounded-3xl shadow-2xl p-6 font-sans border border-gray-100',
+                            confirmButton: 'rounded-xl px-6 py-2.5 font-semibold text-sm shadow-sm'
+                        }
+                    });
+                } else {
+                    var m = document.getElementById('modal-notificacion-exito');
+                    if (m) m.classList.remove('hidden');
+                }
+            });
+        </script>
+        {{-- Fallback nativo centrado con ícono animado tipo check --}}
+        <div id="modal-notificacion-exito" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+            <div class="relative bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full mx-auto text-center shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200">
+                <button type="button" onclick="document.getElementById('modal-notificacion-exito').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1.5 rounded-full hover:bg-gray-100 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center border-2 border-emerald-100 text-emerald-600 shadow-inner">
+                    <svg class="w-9 h-9 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-1.5">¡Operación Exitosa!</h3>
+                <p class="text-sm text-gray-600 mb-6">{{ session('exito') }}</p>
+                <button type="button" onclick="document.getElementById('modal-notificacion-exito').remove()" class="tc-btn-primary w-full justify-center py-2.5 rounded-xl font-semibold text-sm">
+                    Aceptar
+                </button>
             </div>
         </div>
     @endif

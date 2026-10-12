@@ -229,55 +229,66 @@
                 $horariosOld = old('horarios', []);
             @endphp
 
-            <div class="space-y-3">
+            <div class="space-y-2">
                 @foreach($diasConfig as $clave => $nombre)
                     @php
                         $horarioDia = $horariosOld[$clave] ?? null;
-                        $abierto    = is_array($horarioDia) && isset($horarioDia['abre']);
-                        $abre       = $horarioDia['abre'] ?? '09:00';
-                        $cierra     = $horarioDia['cierra'] ?? '18:00';
+                        $abierto    = old() ? (is_array($horarioDia) && !empty($horarioDia['abre'])) : true;
+                        $abre       = $horarioDia['abre'] ?? '08:00';
+                        $cierra     = $horarioDia['cierra'] ?? '17:00';
                     @endphp
-                    <div class="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0">
+                    <div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors"
+                         id="row-{{ $clave }}"
+                         style="{{ $abierto ? 'background: var(--color-teal-light);' : 'background: #f3f4f6;' }}">
 
                         {{-- Toggle abierto/cerrado --}}
                         <label class="tc-toggle shrink-0" title="{{ $abierto ? 'Cerrar' : 'Abrir' }} {{ $nombre }}">
                             <input type="checkbox"
-                                   id="toggle-{{ $clave }}"
+                                   id="tog-{{ $clave }}"
                                    data-dia="{{ $clave }}"
                                    {{ $abierto ? 'checked' : '' }}
-                                   onchange="toggleDia('{{ $clave }}', this.checked)">
+                                   onchange="toggleHorario('{{ $clave }}', this.checked)">
                             <span class="tc-toggle-track"></span>
                             <span class="tc-toggle-thumb"></span>
                         </label>
 
                         {{-- Nombre del día --}}
-                        <span class="w-24 text-sm font-semibold text-gray-700 shrink-0">{{ $nombre }}</span>
+                        <span class="w-24 text-sm font-semibold shrink-0"
+                              style="color: {{ $abierto ? 'var(--color-primary-700)' : '#9ca3af' }};" id="label-{{ $clave }}">
+                            {{ $nombre }}
+                        </span>
 
-                        {{-- Inputs de hora (visibles solo si abierto) --}}
-                        <div id="horario-inputs-{{ $clave }}"
-                             class="flex items-center gap-3 flex-1 {{ $abierto ? '' : 'hidden' }}">
-                            <div class="flex items-center gap-2">
-                                <label class="text-xs text-gray-400 shrink-0">Abre</label>
+                        {{-- Inputs de hora (visibles y activos solo si abierto) --}}
+                        <div id="times-{{ $clave }}"
+                             class="flex items-center gap-3 flex-1 {{ $abierto ? '' : 'hidden' }}"
+                             style="{{ $abierto ? 'display: flex;' : 'display: none;' }}">
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="text-xs text-gray-500">Abre</span>
                                 <input type="time" id="abre-{{ $clave }}"
                                        name="horarios[{{ $clave }}][abre]"
                                        value="{{ $abre }}"
-                                       class="tc-input w-32 text-sm">
+                                       {{ $abierto ? '' : 'disabled' }}
+                                       class="tc-input text-sm"
+                                       style="width: 110px;">
                             </div>
-                            <span class="text-gray-300">→</span>
-                            <div class="flex items-center gap-2">
-                                <label class="text-xs text-gray-400 shrink-0">Cierra</label>
+                            <span class="text-gray-300 text-sm shrink-0">→</span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="text-xs text-gray-500">Cierra</span>
                                 <input type="time" id="cierra-{{ $clave }}"
                                        name="horarios[{{ $clave }}][cierra]"
                                        value="{{ $cierra }}"
-                                       class="tc-input w-32 text-sm">
+                                       {{ $abierto ? '' : 'disabled' }}
+                                       class="tc-input text-sm"
+                                       style="width: 110px;">
                             </div>
                         </div>
 
                         {{-- Etiqueta "Cerrado" cuando el día está desactivado --}}
-                        <div id="horario-closed-{{ $clave }}"
-                             class="text-xs text-gray-400 {{ $abierto ? 'hidden' : '' }}">
+                        <span id="closed-{{ $clave }}"
+                              class="{{ $abierto ? 'hidden' : '' }} text-xs text-gray-400 flex-1"
+                              style="{{ $abierto ? 'display: none;' : '' }}">
                             Cerrado
-                        </div>
+                        </span>
 
                         @error("horarios.{$clave}")
                             <p class="text-xs text-red-500">{{ $message }}</p>
@@ -474,7 +485,57 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", initInteractiveFormMap);
+    // Toggle de horario de atención
+    function toggleHorario(dia, isChecked) {
+        const row    = document.getElementById('row-' + dia);
+        const times  = document.getElementById('times-' + dia);
+        const closed = document.getElementById('closed-' + dia);
+        const label  = document.getElementById('label-' + dia);
+        const abre   = document.getElementById('abre-' + dia);
+        const cierra = document.getElementById('cierra-' + dia);
+
+        if (isChecked) {
+            if (times) {
+                times.classList.remove('hidden');
+                times.classList.add('flex');
+                times.style.display = 'flex';
+            }
+            if (closed) {
+                closed.classList.add('hidden');
+                closed.style.display = 'none';
+            }
+            if (abre) abre.disabled = false;
+            if (cierra) cierra.disabled = false;
+            if (row) row.style.background = 'var(--color-teal-light)';
+            if (label) label.style.color = 'var(--color-primary-700)';
+        } else {
+            if (times) {
+                times.classList.add('hidden');
+                times.classList.remove('flex');
+                times.style.display = 'none';
+            }
+            if (closed) {
+                closed.classList.remove('hidden');
+                closed.style.display = '';
+            }
+            if (abre) abre.disabled = true;
+            if (cierra) cierra.disabled = true;
+            if (row) row.style.background = '#f3f4f6';
+            if (label) label.style.color = '#9ca3af';
+        }
+    }
+    window.toggleHorario = toggleHorario;
+    window.toggleDia = toggleHorario;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        initInteractiveFormMap();
+        ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(dia) {
+            const tog = document.getElementById('tog-' + dia) || document.getElementById('toggle-' + dia);
+            if (tog) {
+                toggleHorario(dia, tog.checked);
+            }
+        });
+    });
 </script>
 @endpush
 

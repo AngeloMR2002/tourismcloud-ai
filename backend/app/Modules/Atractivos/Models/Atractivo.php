@@ -3,6 +3,7 @@
 namespace App\Modules\Atractivos\Models;
 
 use App\Modules\Destinos\Models\Destino;
+use App\Modules\Valoraciones\Traits\HasValoraciones;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Atractivo extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasValoraciones;
 
     protected $table = 'atractivos';
 
@@ -49,10 +50,13 @@ class Atractivo extends Model
 
         $result = [];
         foreach ($rows as $row) {
-            $result[$row->dia] = [
-                'abre'   => substr($row->hora_inicio, 0, 5),
-                'cierra' => substr($row->hora_fin, 0, 5),
+            $diaNorm = strtolower(str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], trim((string)$row->dia)));
+            $data = [
+                'abre'   => substr((string)$row->hora_inicio, 0, 5),
+                'cierra' => substr((string)$row->hora_fin, 0, 5),
             ];
+            $result[$row->dia] = $data;
+            $result[$diaNorm]  = $data;
         }
         return $result;
     }

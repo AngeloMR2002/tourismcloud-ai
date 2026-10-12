@@ -53,7 +53,7 @@ class CatalogoEstablecimientoController extends Controller
     {
         abort_unless($establecimiento->estado === 'activo', 404);
 
-        $establecimiento->load(['destino', 'categorias', 'imagenes']);
+        $establecimiento->load(['destino', 'categorias', 'imagenes', 'valoraciones.usuario']);
 
         return view('catalogo.establecimientos.show', compact('establecimiento'));
     }

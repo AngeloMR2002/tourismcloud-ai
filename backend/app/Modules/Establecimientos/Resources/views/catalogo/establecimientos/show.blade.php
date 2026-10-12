@@ -171,6 +171,9 @@
                     </a>
                 </div>
             </div>
+
+            {{-- 📝 FORMULARIO DE VALORACIONES Y RESEÑAS ═══════════════════════ --}}
+            @include('valoraciones::components.form', ['modelo' => $establecimiento, 'tipo' => 'establecimiento'])
         </div>
 
         {{-- ══ COLUMNA DERECHA ════════════════════════════════════════════ --}}
@@ -180,12 +183,16 @@
             @if($establecimiento->rango_precio)
                 @php
                     $rangosDisplay = [
-                        'bajo'  => ['label' => 'Bajo',   'simbolo' => '$',    'rango' => 'S/ 20 - 80'],
-                        'medio' => ['label' => 'Medio',  'simbolo' => '$$',   'rango' => 'S/ 80 - 200'],
-                        'alto'  => ['label' => 'Alto',   'simbolo' => '$$$',  'rango' => 'S/ 200 - 500'],
-                        'lujo'  => ['label' => 'Lujoso', 'simbolo' => '$$$$', 'rango' => 'S/ 500 - 2,000'],
+                        'Bajo'   => ['label' => 'Bajo',   'simbolo' => '$',    'rango' => 'S/ 20 - 80'],
+                        'Medio'  => ['label' => 'Medio',  'simbolo' => '$$',   'rango' => 'S/ 80 - 200'],
+                        'Alto'   => ['label' => 'Alto',   'simbolo' => '$$$',  'rango' => 'S/ 200 - 500'],
+                        'Lujoso' => ['label' => 'Lujoso', 'simbolo' => '$$$$', 'rango' => 'S/ 500 - 2,000'],
                     ];
-                    $rp = $rangosDisplay[$establecimiento->rango_precio];
+                    $rp = $rangosDisplay[$establecimiento->rango_precio] ?? [
+                        'label'   => $establecimiento->rango_precio,
+                        'simbolo' => '$$',
+                        'rango'   => 'Consultar con el establecimiento',
+                    ];
                 @endphp
                 <div class="tc-card p-5">
                     <p class="text-xs font-bold uppercase tracking-wide mb-2" style="color: var(--color-primary-700);">
@@ -200,31 +207,8 @@
                 </div>
             @endif
 
-            {{-- Reseñas --}}
-            <div class="tc-card p-5">
-                <div class="flex items-center gap-2 mb-1">
-                    <svg class="w-5 h-5" style="color: #f59e0b;" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                    <span class="font-bold text-lg" style="color: #1a2232;">5.00</span>
-                    <span class="text-sm text-gray-400">· 0 reseñas</span>
-                </div>
-                <div class="h-px mb-4" style="background: #f0f0f0;"></div>
-                <p class="text-xs font-bold uppercase tracking-wide mb-3" style="color: var(--color-primary-700);">
-                    Valoración general
-                </p>
-                <div class="space-y-2 mb-4">
-                    @foreach([5,4,3,2,1] as $estrella)
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs text-gray-400 w-2 shrink-0">{{ $estrella }}</span>
-                            <div class="flex-1 h-1.5 rounded-full" style="background: #e5e7eb;">
-                                <div class="h-full rounded-full" style="background: #f59e0b; width: 0%;"></div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-                <p class="text-xs text-center text-gray-400">Sé el primero en dejar una reseña.</p>
-            </div>
+            {{-- ── Módulo de Reseñas y Valoraciones ─────────────────── --}}
+            @include('valoraciones::components.sidebar', ['modelo' => $establecimiento, 'tipo' => 'establecimiento'])
 
             <a href="{{ route('catalogo.establecimientos.index') }}"
                class="tc-btn-outline w-full justify-center text-sm">

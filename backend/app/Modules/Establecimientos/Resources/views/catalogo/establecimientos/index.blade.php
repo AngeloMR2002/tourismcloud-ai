@@ -77,10 +77,10 @@
                         <div class="grid grid-cols-2 gap-2">
                             @php
                                 $rangos = [
-                                    'bajo'  => 'Bajo $',
-                                    'medio' => 'Medio $$',
-                                    'alto'  => 'Alto $$$',
-                                    'lujo'  => 'Lujoso $$$$',
+                                    'Bajo'   => 'Bajo $',
+                                    'Medio'  => 'Medio $$',
+                                    'Alto'   => 'Alto $$$',
+                                    'Lujoso' => 'Lujoso $$$$',
                                 ];
                             @endphp
                             @foreach($rangos as $valor => $etiqueta)
@@ -171,19 +171,33 @@
                                       style="background: rgba(255,255,255,0.92); color: var(--color-tertiary-500); text-transform: uppercase; letter-spacing: 0.03em;">
                                     {{ ucfirst($est->tipo) }}
                                 </span>
+
                             </div>
 
                             {{-- Info tarjeta --}}
                             <div class="p-4 flex flex-col flex-1">
-                                <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #1a2232;" class="mb-1.5 leading-snug">
-                                    {{ $est->nombre }}
-                                </h3>
+                                @php
+                                    $promEst = $est->promedio_puntuacion;
+                                    $totalResEst = $est->total_resenas;
+                                @endphp
+                                <div class="flex items-start justify-between gap-2 mb-1.5">
+                                    <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #1a2232;" class="leading-snug">
+                                        {{ $est->nombre }}
+                                    </h3>
+                                    @if($totalResEst > 0)
+                                        <div class="flex items-center gap-1 text-xs font-bold text-gray-800 shrink-0">
+                                            <span class="text-amber-400 text-sm leading-none">★</span>
+                                            <span>{{ number_format($promEst, 1) }}</span>
+                                            <span class="text-[11px] text-gray-400 font-normal">({{ $totalResEst }})</span>
+                                        </div>
+                                    @endif
+                                </div>
 
                                 {{-- Badges tipo + precio --}}
                                 <div class="flex items-center gap-2 mb-1.5">
                                     @if($est->rango_precio)
                                         <span class="tc-badge-precio-{{ $est->rango_precio }}">
-                                            {{ ucfirst($est->rango_precio) }}
+                                            {{ $est->rango_precio }}
                                         </span>
                                     @endif
                                     @if($est->categorias->isNotEmpty())

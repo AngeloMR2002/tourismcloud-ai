@@ -27,7 +27,7 @@ class EstablecimientoService
      */
     public function listar(array $filtros = [], int $porPagina = 15): LengthAwarePaginator
     {
-        $query = Establecimiento::with(['destino', 'categorias'])
+        $query = Establecimiento::with(['destino', 'categorias', 'valoraciones'])
             ->withCount('imagenes');
 
         // Filtro por destino.
@@ -46,7 +46,7 @@ class EstablecimientoService
             $query->where('tipo', $filtros['tipo']);
         }
 
-        // Filtro por rango de precio.
+        // Filtro por rango de precio (Bajo, Medio, Alto, Lujoso).
         if (!empty($filtros['rango_precio'])) {
             $query->where('rango_precio', $filtros['rango_precio']);
         }

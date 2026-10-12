@@ -67,6 +67,7 @@ class OperadorAtractivoController extends Controller
     {
         $operadorId = $request->get('_operador_id_test', 1);
         $datos      = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_operador_id_test']);
+        $datos['horarios'] = (array) $request->input('horarios', []);
 
         // Verificar que el destino le pertenece al operador.
         $this->verificarPropiedadDestino((int) $datos['destino_id'], $operadorId);
@@ -107,6 +108,7 @@ class OperadorAtractivoController extends Controller
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
         $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_operador_id_test', 'eliminar_imagenes']);
+        $datos['horarios'] = (array) $request->input('horarios', []);
 
         $this->service->actualizar(
             atractivo:        $atractivo,

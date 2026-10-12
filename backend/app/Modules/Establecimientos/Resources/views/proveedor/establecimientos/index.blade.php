@@ -130,7 +130,7 @@
                                 {{-- Precio --}}
                                 <td class="text-center">
                                     @if($est->rango_precio)
-                                        <span class="tc-badge-precio-{{ $est->rango_precio }}">{{ ucfirst($est->rango_precio) }}</span>
+                                        <span class="tc-badge-precio-{{ $est->rango_precio }}">{{ $est->rango_precio }}</span>
                                     @else
                                         <span class="text-gray-400 text-xs">—</span>
                                     @endif

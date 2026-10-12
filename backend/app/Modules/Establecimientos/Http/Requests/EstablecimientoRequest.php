@@ -22,7 +22,7 @@ class EstablecimientoRequest extends FormRequest
             'direccion'    => ['nullable', 'string', 'max:255'],
             'latitud'      => ['nullable', 'numeric', 'between:-90,90'],
             'longitud'     => ['nullable', 'numeric', 'between:-180,180'],
-            'rango_precio' => ['nullable', Rule::in(['bajo', 'medio', 'alto', 'lujo'])],
+            'rango_precio' => ['nullable', Rule::in(['Bajo', 'Medio', 'Alto', 'Lujoso'])],
             'imagen_portada' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
             'estado'       => ['required', Rule::in(['activo', 'inactivo'])],
 
@@ -62,7 +62,7 @@ class EstablecimientoRequest extends FormRequest
             'nombre.max'              => 'El nombre no puede superar 150 caracteres.',
             'estado.required'         => 'El estado es obligatorio.',
             'estado.in'               => 'El estado debe ser "activo" o "inactivo".',
-            'rango_precio.in'         => 'El rango de precio debe ser: bajo, medio, alto o lujo.',
+            'rango_precio.in'         => 'El rango de precio debe ser: Bajo, Medio, Alto o Lujoso.',
             'imagen_portada.image'    => 'La portada debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
             'imagen_portada.mimes'    => 'La imagen de portada debe estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
             'imagen_portada.max'      => 'La imagen de portada no puede superar 5 MB.',

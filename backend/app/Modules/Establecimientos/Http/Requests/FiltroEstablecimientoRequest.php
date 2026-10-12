@@ -17,7 +17,7 @@ class FiltroEstablecimientoRequest extends FormRequest
         return [
             'destino_id'   => ['nullable', 'integer', 'min:1'],
             'tipo'         => ['nullable', Rule::in(['hotel', 'restaurante', 'transporte', 'agencia', 'otro'])],
-            'rango_precio' => ['nullable', Rule::in(['bajo', 'medio', 'alto', 'lujo'])],
+            'rango_precio' => ['nullable', Rule::in(['Bajo', 'Medio', 'Alto', 'Lujoso'])],
             'categoria_id' => ['nullable', 'integer', 'min:1'],
             'busqueda'     => ['nullable', 'string', 'max:100'],
             'por_pagina'   => ['nullable', 'integer', Rule::in([9, 15, 30, 60])],

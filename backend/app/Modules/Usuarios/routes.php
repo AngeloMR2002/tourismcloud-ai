@@ -12,6 +12,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/registro', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/registro', [AuthController::class, 'register'])->name('register.post');
 
+    // Autenticación con Google
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
     // Recuperación de contraseña con código al correo
     Route::get('/recuperar-password', [AuthController::class, 'showForgotForm'])->name('password.request');
     Route::post('/recuperar-password', [AuthController::class, 'sendResetCode'])->name('password.email');

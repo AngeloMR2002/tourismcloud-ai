@@ -121,7 +121,12 @@
                     <div>
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700">Rango de precio</label>
                         @php
-                            $rangos = ['bajo'=>'Bajo $','medio'=>'Medio $$','alto'=>'Alto $$$','lujo'=>'Lujoso $$$$'];
+                            $rangos = [
+                                'Bajo'   => 'Bajo $',
+                                'Medio'  => 'Medio $$',
+                                'Alto'   => 'Alto $$$',
+                                'Lujoso' => 'Lujoso $$$$',
+                            ];
                             $rpOld  = old('rango_precio', '');
                         @endphp
                         <div class="grid grid-cols-2 gap-1.5">
@@ -176,13 +181,14 @@
             <div class="flex flex-wrap gap-2">
                 @foreach($categorias as $cat)
                     @php $checked = in_array($cat->id, old('categorias', [])); @endphp
-                    <label class="cursor-pointer">
+                    <label class="cursor-pointer select-none">
                         <input type="checkbox" name="categorias[]" value="{{ $cat->id }}"
-                               {{ $checked ? 'checked' : '' }} class="sr-only peer">
+                               {{ $checked ? 'checked' : '' }} class="sr-only"
+                               onchange="toggleChipEstCat(this, '{{ $cat->id }}')">
                         <span class="inline-block text-sm font-medium px-4 py-1.5 rounded-full border transition-all"
                               style="{{ $checked
-                                ? 'background: var(--color-primary-500); color: white; border-color: var(--color-primary-500);'
-                                : 'background: white; color: #374151; border-color: #d1d5db;' }}"
+                                ? 'background-color: var(--color-primary-500, #00626A); color: #ffffff; border-color: var(--color-primary-500, #00626A);'
+                                : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"
                               id="chip-estcat-{{ $cat->id }}">
                             {{ $cat->nombre }}
                         </span>
@@ -251,9 +257,9 @@
                 @foreach($diasConf as $k => $nombre)
                     @php
                         $hor    = $horariosOld[$k] ?? null;
-                        $open   = is_array($hor) && isset($hor['abre']);
-                        $abre   =$hor['abre']   ?? '09:00';
-                        $cierra =$hor['cierra']  ?? '22:00';
+                        $open   = old() ? (is_array($hor) && isset($hor['abre'])) : true;
+                        $abre   = $hor['abre']   ?? '09:00';
+                        $cierra = $hor['cierra']  ?? '22:00';
                     @endphp
                     <div class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors"
                          id="est-row-{{ $k }}"
@@ -268,20 +274,22 @@
                               style="color: {{ $open ? 'var(--color-tertiary-500)' : '#9ca3af' }};" id="est-label-{{ $k }}">
                             {{ $nombre }}
                         </span>
-                        <div id="est-times-{{ $k }}" class="{{ $open ? 'flex' : 'hidden' }} items-center gap-3 flex-1">
-                            <div class="flex items-center gap-1.5">
+                        <div id="est-times-{{ $k }}" class="flex items-center gap-3 flex-1 {{ $open ? '' : 'hidden' }}"
+                             style="{{ $open ? 'display: flex;' : 'display: none;' }}">
+                            <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-xs text-gray-500">Abre</span>
                                 <input type="time" id="est-abre-{{ $k }}" name="horarios[{{ $k }}][abre]"
-                                       value="{{ $abre }}" class="tc-input w-28 text-sm">
+                                       value="{{ $abre }}" class="tc-input text-sm" style="width: 110px;">
                             </div>
-                            <span class="text-gray-300 text-sm">→</span>
-                            <div class="flex items-center gap-1.5">
+                            <span class="text-gray-300 text-sm shrink-0">→</span>
+                            <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="text-xs text-gray-500">Cierra</span>
                                 <input type="time" id="est-cierra-{{ $k }}" name="horarios[{{ $k }}][cierra]"
-                                       value="{{ $cierra }}" class="tc-input w-28 text-sm">
+                                       value="{{ $cierra }}" class="tc-input text-sm" style="width: 110px;">
                             </div>
                         </div>
-                        <span id="est-closed-{{ $k }}" class="{{ $open ? 'hidden' : '' }} text-xs text-gray-400 flex-1">Cerrado</span>
+                        <span id="est-closed-{{ $k }}" class="{{ $open ? 'hidden' : '' }} text-xs text-gray-400 flex-1"
+                              style="{{ $open ? 'display: none;' : '' }}">Cerrado</span>
                     </div>
                 @endforeach
             </div>
@@ -340,16 +348,18 @@
     });
 
     async function initInteractiveFormMap() {
-        const { Map } = await google.maps.importLibrary("maps");
-        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-        const { Place, AutocompleteSuggestion } = await google.maps.importLibrary("places");
+        try {
+            if (typeof google === 'undefined' || !google.maps || !google.maps.importLibrary) return;
+            const { Map } = await google.maps.importLibrary("maps");
+            const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+            const { Place, AutocompleteSuggestion } = await google.maps.importLibrary("places");
 
-        const latInput = document.getElementById('latitud_input');
-        const lngInput = document.getElementById('longitud_input');
-        const searchInput = document.getElementById('map_search');
-        const suggestionsList = document.getElementById('map_suggestions');
+            const latInput = document.getElementById('latitud_input');
+            const lngInput = document.getElementById('longitud_input');
+            const searchInput = document.getElementById('map_search');
+            const suggestionsList = document.getElementById('map_suggestions');
 
-        if (!latInput || !lngInput || !document.getElementById("interactive_form_map")) return;
+            if (!latInput || !lngInput || !document.getElementById("interactive_form_map")) return;
 
         // Posición Inicial (Perú por defecto)
         let initialLat = parseFloat(latInput.value) || -9.1900;
@@ -460,13 +470,16 @@
                 if (e.key === 'Enter') e.preventDefault();
             });
         }
+        } catch (e) {
+            console.warn("Interactive map could not load:", e);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════
     // OTRAS FUNCIONALIDADES (TIPOS, RANGOS, HORARIOS, PREVIEWS)
     // ══════════════════════════════════════════════════════════════
     var tiposDisponibles = ['restaurante','hotel','transporte','agencia','otro'];
-    var rangosDisponibles = ['bajo','medio','alto','lujo'];
+    var rangosDisponibles = ['Bajo', 'Medio', 'Alto', 'Lujoso'];
 
     function selectTipo(val) {
         tiposDisponibles.forEach(function(t) {
@@ -515,42 +528,68 @@
 
         if (open) {
             times.classList.remove('hidden'); times.classList.add('flex');
+            times.style.display = 'flex';
             closed.classList.add('hidden');
+            closed.style.display = 'none';
             abre.name   = 'horarios[' + dia + '][abre]';
             cierra.name = 'horarios[' + dia + '][cierra]';
+            abre.disabled = false;
+            cierra.disabled = false;
         } else {
             times.classList.add('hidden'); times.classList.remove('flex');
+            times.style.display = 'none';
             closed.classList.remove('hidden');
+            closed.style.display = '';
             abre.removeAttribute('name');
             cierra.removeAttribute('name');
+            abre.disabled = true;
+            cierra.disabled = true;
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar Mapa
-        initInteractiveFormMap();
+    // ── Chips categoría (Interés) ──
+    function toggleChipEstCat(cb, id) {
+        var span = document.getElementById('chip-estcat-' + id);
+        if (!span && cb && cb.closest) {
+            span = cb.closest('label') ? cb.closest('label').querySelector('span') : null;
+        }
+        if (!span) return;
+        if (cb.checked) {
+            span.style.backgroundColor = 'var(--color-primary-500, #00626A)';
+            span.style.color           = '#ffffff';
+            span.style.borderColor     = 'var(--color-primary-500, #00626A)';
+        } else {
+            span.style.backgroundColor = '#ffffff';
+            span.style.color           = '#374151';
+            span.style.borderColor     = '#d1d5db';
+        }
+    }
+    window.toggleChipEstCat = toggleChipEstCat;
 
-        // Inicializar días cerrados
+    // Delegación global inmediata (no depende de DOMContentLoaded ni Maps)
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.name === 'categorias[]') {
+            toggleChipEstCat(e.target, e.target.value);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar Mapa de manera protegida
+        try {
+            initInteractiveFormMap();
+        } catch(err) {
+            console.warn("Map init:", err);
+        }
+
+        // Inicializar horarios
         ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'].forEach(function(d) {
             var t = document.getElementById('est-tog-' + d);
-            if (t && !t.checked) toggleEstHorario(d, false);
+            if (t) toggleEstHorario(d, t.checked);
         });
 
-        // Chips categoría
+        // Asegurar estado visual de chips de categoría
         document.querySelectorAll('input[type="checkbox"][name="categorias[]"]').forEach(function(cb) {
-            cb.addEventListener('change', function() {
-                var span = document.getElementById('chip-estcat-' + this.value);
-                if (!span) return;
-                if (this.checked) {
-                    span.style.background   = 'var(--color-primary-500)';
-                    span.style.color        = 'white';
-                    span.style.borderColor  = 'var(--color-primary-500)';
-                } else {
-                    span.style.background   = 'white';
-                    span.style.color        = '#374151';
-                    span.style.borderColor  = '#d1d5db';
-                }
-            });
+            toggleChipEstCat(cb, cb.value);
         });
     });
 

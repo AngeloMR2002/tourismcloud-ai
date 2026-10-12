@@ -54,7 +54,7 @@ class CatalogoAtractivoController extends Controller
         // Solo se muestran atractivos activos al público.
         abort_unless($atractivo->estado === 'activo', 404);
 
-        $atractivo->load(['destino', 'categorias', 'imagenes']);
+        $atractivo->load(['destino', 'categorias', 'imagenes', 'valoraciones.usuario']);
 
         return view('catalogo.atractivos.show', compact('atractivo'));
     }

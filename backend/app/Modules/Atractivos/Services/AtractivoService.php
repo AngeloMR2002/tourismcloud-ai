@@ -27,7 +27,7 @@ class AtractivoService
      */
     public function listar(array $filtros = [], int $porPagina = 15): LengthAwarePaginator
     {
-        $query = Atractivo::with(['destino', 'categorias'])
+        $query = Atractivo::with(['destino', 'categorias', 'valoraciones'])
             ->withCount('imagenes');
 
         // Filtro por destino.
@@ -122,7 +122,8 @@ class AtractivoService
         array $eliminarImagenes = []
     ): Atractivo {
         return DB::transaction(function () use ($atractivo, $datos, $categorias, $portada, $galeria, $eliminarImagenes) {
-            $horarios = $datos['horarios'] ?? null;
+            $actualizarHorarios = array_key_exists('horarios', $datos);
+            $horarios = $datos['horarios'] ?? [];
             unset($datos['horarios']);
 
             // Reemplazar imagen de portada si se subió una nueva.
@@ -137,8 +138,8 @@ class AtractivoService
             $atractivo->update($datos);
 
             $this->sincronizarCategorias($atractivo, $categorias);
-            if ($horarios !== null) {
-                $this->guardarHorarios($atractivo, $horarios);
+            if ($actualizarHorarios) {
+                $this->guardarHorarios($atractivo, (array) $horarios);
             }
 
             // Eliminar imágenes seleccionadas
@@ -165,14 +166,22 @@ class AtractivoService
 
         DB::table('horarios')->where('atractivo_id', $atractivo->id)->delete();
 
+        $diasValidos = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+
         foreach ($horarios as $dia => $horas) {
+            $diaNorm = strtolower(str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], trim((string)$dia)));
+
+            if (!in_array($diaNorm, $diasValidos, true)) {
+                continue;
+            }
+
             if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
                 DB::table('horarios')->insert([
                     'atractivo_id'       => $atractivo->id,
                     'establecimiento_id' => null,
-                    'dia'                => $dia,
-                    'hora_inicio'        => $horas['abre'],
-                    'hora_fin'           => $horas['cierra'],
+                    'dia'                => $diaNorm,
+                    'hora_inicio'        => substr((string)$horas['abre'], 0, 5) . ':00',
+                    'hora_fin'           => substr((string)$horas['cierra'], 0, 5) . ':00',
                     'created_at'         => now(),
                     'updated_at'         => now(),
                 ]);

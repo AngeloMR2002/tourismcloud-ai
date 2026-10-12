@@ -11,6 +11,7 @@ use App\Modules\Rutas\Providers\RutaServiceProvider;
 use App\Modules\Dashboard\Providers\DashboardServiceProvider;
 use App\Modules\Itinerarios\Providers\ItinerarioServiceProvider;
 use App\Modules\Agenda\Providers\AgendaServiceProvider;
+use App\Modules\Valoraciones\Providers\ValoracionServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -24,4 +25,5 @@ return [
     DashboardServiceProvider::class,
     ItinerarioServiceProvider::class,
     AgendaServiceProvider::class,
+    ValoracionServiceProvider::class,
 ];

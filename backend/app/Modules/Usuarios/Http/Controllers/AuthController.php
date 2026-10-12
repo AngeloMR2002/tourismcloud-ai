@@ -12,9 +12,89 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
+    // Iniciar redirección a Google
+    public function redirectToGoogle()
+    {
+        $clientId = config('services.google.client_id');
+        $clientSecret = config('services.google.client_secret');
+
+        if (empty($clientId) || empty($clientSecret)) {
+            return redirect()->route('login')->with('error', 'El inicio de sesión con Google requiere configurar GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en el archivo .env.');
+        }
+
+        return Socialite::driver('google')->redirect();
+    }
+
+    // Callback de autenticación con Google
+    public function handleGoogleCallback()
+    {
+        try {
+            //$googleUser = Socialite::driver('google')->user(); //Activalor en producción
+            // Creamos un cliente Guzzle que desactiva 'verify' solo para desarrollo local
+            /** @var \Laravel\Socialite\Two\AbstractProvider $provider */
+            $provider = Socialite::driver('google');
+
+            $googleUser = $provider
+                ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
+                ->stateless()
+                ->user();
+        } catch (\Throwable $e) {
+            Log::error('Error en autenticación Google: ' . $e->getMessage());
+            return redirect()->route('login')->with('error', 'Ocurrió un error al autenticar con Google. Por favor intenta de nuevo.');
+        }
+
+        // Buscar si ya existe por google_id o por email
+        $usuario = Usuario::where('google_id', $googleUser->getId())
+            ->orWhere('email', $googleUser->getEmail())
+            ->first();
+
+        if ($usuario) {
+            $updates = [];
+            if (!$usuario->google_id) {
+                $updates['google_id'] = $googleUser->getId();
+            }
+            if (!$usuario->email_verified_at) {
+                $updates['email_verified_at'] = Carbon::now();
+            }
+            if (!empty($updates)) {
+                $usuario->update($updates);
+            }
+
+            if ($usuario->estado !== 'activo') {
+                return redirect()->route('login')->with('error', 'Tu cuenta se encuentra inactiva. Contacta al administrador.');
+            }
+
+            Auth::login($usuario, true);
+            request()->session()->regenerate();
+            return redirect()->intended($usuario->homeUrl());
+        }
+
+        // Si no existe, crear nuevo usuario con rol turista
+        $fullName = trim($googleUser->getName() ?? '');
+        $parts = $fullName ? explode(' ', $fullName, 2) : ['Turista', 'Google'];
+        $nombre = $parts[0] ?: 'Turista';
+        $apellido = isset($parts[1]) && $parts[1] !== '' ? $parts[1] : 'Google';
+
+        $nuevoUsuario = Usuario::create([
+            'nombre'            => $nombre,
+            'apellido'          => $apellido,
+            'email'             => $googleUser->getEmail(),
+            'google_id'         => $googleUser->getId(),
+            'password'          => Hash::make(Str::random(32)),
+            'rol'               => 'turista',
+            'estado'            => 'activo',
+            'email_verified_at' => Carbon::now(),
+        ]);
+
+        Auth::login($nuevoUsuario, true);
+        request()->session()->regenerate();
+        return redirect()->intended($nuevoUsuario->homeUrl());
+    }
+
     // Mostrar formulario de Login
     public function showLogin()
     {

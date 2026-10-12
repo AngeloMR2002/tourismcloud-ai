@@ -27,5 +27,11 @@ class AppServiceProvider extends ServiceProvider
                 View::addLocation($moduleViews);
             }
         }
+
+        // Mapeo polimórfico limpio para tablas compartidas (valoraciones, etc.)
+        \Illuminate\Database\Eloquent\Relations\Relation::morphMap([
+            'atractivo'       => \App\Modules\Atractivos\Models\Atractivo::class,
+            'establecimiento' => \App\Modules\Establecimientos\Models\Establecimiento::class,
+        ]);
     }
 }
