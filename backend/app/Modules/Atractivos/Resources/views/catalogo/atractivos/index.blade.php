@@ -1,279 +1,128 @@
 @extends('layouts.app')
 
-@section('title', 'Atractivos Turisticos')
+@section('title', 'Atractivos turísticos')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+@php
+    $filtroActivo = collect($filtros)->only(['destino_id', 'categoria_id', 'busqueda', 'costo_min', 'costo_max'])->contains(fn ($valor) => filled($valor));
+@endphp
 
-    {{-- ── Hero --}}
-    <div class="mb-6">
-        <p class="text-sm text-gray-400 mb-0.5">Descubre el Perú</p>
-        <h1 style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: #1a2232; line-height: 1.15;">
-            Atractivos Turísticos
-        </h1>
-    </div>
+<div class="tc-catalog-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <header class="tc-page-heading" aria-labelledby="atractivos-titulo">
+        <p class="tc-home-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 21s7-5 7-12a7 7 0 1 0-14 0c0 7 7 12 7 12Z" stroke-width="1.8"/><circle cx="12" cy="9" r="2.2"/></svg><span>Explora · Qué visitar</span></p>
+        <h1 id="atractivos-titulo">Atractivos</h1>
+        <p>Descubre lugares de interés y compara la información disponible para preparar tu visita.</p>
+    </header>
 
-    {{-- ── Layout: sidebar izquierdo + contenido derecho --}}
-    <div class="flex gap-6 items-start">
-
-        {{-- ════════════════════════════════
-             SIDEBAR DE FILTROS
-        ════════════════════════════════ --}}
-        <aside class="w-64 shrink-0">
-            <form method="GET" action="{{ route('catalogo.atractivos.index') }}" id="form-filtros-atractivos">
-                <div class="tc-card p-5">
-                    <h2 style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #1a2232;" class="mb-5">
-                        Filtros
-                    </h2>
-
-                    {{-- Destinos --}}
-                    <div class="mb-5">
-                        <label class="block text-xs font-bold mb-2" style="color: var(--color-primary-700);">Destinos</label>
-                        <select name="destino_id" class="tc-select text-sm"
-                                onchange="document.getElementById('form-filtros-atractivos').submit()">
+    <div class="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start">
+        @foreach(['movil', 'escritorio'] as $modo)
+            @if($modo === 'movil')
+                <details class="tc-filter-panel p-4 lg:hidden" aria-label="Filtros de atractivos">
+                    <summary class="tc-filter-summary"><span class="font-bold text-gray-900">Ajustar filtros</span>@if($filtroActivo)<span class="tc-filter-chip">Activos</span>@endif</summary>
+            @else
+                <aside class="hidden w-60 shrink-0 lg:block" aria-label="Filtros de atractivos">
+            @endif
+                <form method="GET" action="{{ route('catalogo.atractivos.index') }}" class="{{ $modo === 'movil' ? 'mt-5' : 'tc-filter-panel p-5' }} space-y-5">
+                    @if($modo === 'escritorio')<h2 class="border-b border-gray-100 pb-4 font-bold text-gray-900">Filtros</h2>@endif
+                    @if(filled($filtros['busqueda'] ?? null))<input type="hidden" name="busqueda" value="{{ $filtros['busqueda'] }}">@endif
+                    @if(filled($filtros['por_pagina'] ?? null))<input type="hidden" name="por_pagina" value="{{ $filtros['por_pagina'] }}">@endif
+                    <div>
+                        <label for="atractivo-destino-{{ $modo }}" class="mb-2 block text-xs font-bold text-gray-700">Destino</label>
+                        <select id="atractivo-destino-{{ $modo }}" name="destino_id" class="tc-select text-sm">
                             <option value="">Todos los destinos</option>
-                            @foreach($destinos as $d)
-                                <option value="{{ $d->id }}" @selected(($filtros['destino_id'] ?? '') == $d->id)>
-                                    {{ $d->nombre }}
-                                </option>
-                            @endforeach
+                            @foreach($destinos as $destino)<option value="{{ $destino->id }}" @selected(($filtros['destino_id'] ?? '') == $destino->id)>{{ $destino->nombre }}</option>@endforeach
                         </select>
                     </div>
-
-                    {{-- Categorías como chips seleccionables --}}
-                    <div class="mb-5">
-                        <label class="block text-xs font-bold mb-2" style="color: var(--color-primary-700);">Categoría</label>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($categorias as $cat)
-                                @php $seleccionada = ($filtros['categoria_id'] ?? '') == $cat->id; @endphp
-                                <button type="submit" name="categoria_id" value="{{ $cat->id }}"
-                                        class="text-xs font-medium px-3 py-1.5 rounded-full border transition-all"
-                                        style="{{ $seleccionada
-                                            ? 'background: var(--color-primary-500); color: white; border-color: var(--color-primary-500);'
-                                            : 'background: white; color: #374151; border-color: #d1d5db;' }}">
-                                    {{ $cat->nombre }}
-                                </button>
-                            @endforeach
-                        </div>
+                    <div>
+                        <label for="atractivo-categoria-{{ $modo }}" class="mb-2 block text-xs font-bold text-gray-700">Categoría de interés</label>
+                        <select id="atractivo-categoria-{{ $modo }}" name="categoria_id" class="tc-select text-sm">
+                            <option value="">Todas las categorías</option>
+                            @foreach($categorias as $categoria)<option value="{{ $categoria->id }}" @selected(($filtros['categoria_id'] ?? '') == $categoria->id)>{{ $categoria->nombre }}</option>@endforeach
+                        </select>
                     </div>
-
-                    {{-- Costo mínimo (slider) --}}
-                    <div class="mb-4">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-xs font-bold" style="color: var(--color-primary-700);">Costo mínimo</label>
-                            <span class="text-xs font-semibold" style="color: var(--color-primary-600);">
-                                S/ <span id="label-costo-min">{{ $filtros['costo_min'] ?? 0 }}</span>
-                            </span>
+                    <fieldset>
+                        <legend class="mb-2 text-xs font-bold text-gray-700">Entrada referencial (S/)</legend>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label for="atractivo-costo-min-{{ $modo }}" class="mb-1 block text-xs text-gray-500">Desde</label><input id="atractivo-costo-min-{{ $modo }}" type="number" name="costo_min" min="0" step="0.01" value="{{ $filtros['costo_min'] ?? '' }}" placeholder="0" class="tc-input text-sm"></div>
+                            <div><label for="atractivo-costo-max-{{ $modo }}" class="mb-1 block text-xs text-gray-500">Hasta</label><input id="atractivo-costo-max-{{ $modo }}" type="number" name="costo_max" min="0" step="0.01" value="{{ $filtros['costo_max'] ?? '' }}" placeholder="Sin límite" class="tc-input text-sm"></div>
                         </div>
-                        <input type="range" id="costo_min" name="costo_min"
-                               min="0" max="1000" step="10"
-                               value="{{ $filtros['costo_min'] ?? 0 }}"
-                               class="tc-range w-full h-1.5 rounded-full appearance-none cursor-pointer"
-                               oninput="document.getElementById('label-costo-min').textContent = this.value; updateRangeStyle(this, 'min')">
-                    </div>
+                    </fieldset>
+                    <button type="submit" class="tc-btn-primary w-full justify-center">Aplicar filtros</button>
+                    <a href="{{ route('catalogo.atractivos.index') }}" class="block text-center text-sm font-semibold text-gray-600 hover:underline">Limpiar filtros</a>
+                </form>
+            @if($modo === 'movil')</details>@else</aside>@endif
+        @endforeach
 
-                    {{-- Costo máximo (slider) --}}
-                    <div class="mb-6">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="text-xs font-bold" style="color: var(--color-primary-700);">Costo máximo</label>
-                            <span class="text-xs font-semibold" style="color: var(--color-primary-600);">
-                                S/ <span id="label-costo-max">{{ $filtros['costo_max'] ?? 1000 }}</span>
-                            </span>
-                        </div>
-                        <input type="range" id="costo_max" name="costo_max"
-                               min="0" max="1000" step="10"
-                               value="{{ $filtros['costo_max'] ?? 1000 }}"
-                               class="tc-range w-full h-1.5 rounded-full appearance-none cursor-pointer"
-                               oninput="document.getElementById('label-costo-max').textContent = this.value; updateRangeStyle(this, 'max')">
-                    </div>
-
-                    {{-- Limpiar filtros --}}
-                    <a href="{{ route('catalogo.atractivos.index') }}"
-                       class="block w-full text-center text-sm font-semibold py-2 rounded-lg border transition-colors"
-                       style="border-color: #d1d5db; color: #6b7280;"
-                       onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
-                        Limpiar filtros
-                    </a>
+        <section class="min-w-0 flex-1" aria-label="Resultados de atractivos">
+            <form method="GET" action="{{ route('catalogo.atractivos.index') }}" class="mb-5 flex flex-col gap-2 sm:flex-row">
+                @foreach(['destino_id', 'categoria_id', 'costo_min', 'costo_max', 'por_pagina'] as $campo)
+                    @if(filled($filtros[$campo] ?? null))<input type="hidden" name="{{ $campo }}" value="{{ $filtros[$campo] }}">@endif
+                @endforeach
+                <div class="tc-search-input-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.15a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
+                    <input type="search" name="busqueda" value="{{ $filtros['busqueda'] ?? '' }}" placeholder="Buscar por nombre o descripción" aria-label="Buscar atractivos" class="tc-input">
                 </div>
-
-                {{-- Aplicar sliders al hacer submit --}}
-                <button type="submit" class="sr-only">Aplicar</button>
+                <button type="submit" class="tc-btn-primary justify-center">Buscar</button>
             </form>
-        </aside>
+            @if($errors->any())<div class="tc-alert-error mb-5" role="alert">{{ $errors->first() }}</div>@endif
 
-        {{-- ════════════════════════════════
-             CONTENIDO DERECHO
-        ════════════════════════════════ --}}
-        <div class="flex-1 min-w-0">
+            <div class="tc-result-toolbar">
+                <div>
+                    <p class="font-bold text-gray-900">{{ number_format($atractivos->total()) }} {{ $atractivos->total() === 1 ? 'resultado' : 'resultados' }}</p>
+                    <p class="mt-1 text-xs sm:text-sm text-gray-500">Los costos de entrada y tiempos de visita son referenciales.</p>
+                </div>
+                @if($filtroActivo)<a href="{{ route('catalogo.atractivos.index') }}" class="text-xs font-bold text-primary-700 hover:underline">Limpiar filtros</a>@endif
+            </div>
 
-            {{-- Barra de búsqueda --}}
-            <form method="GET" action="{{ route('catalogo.atractivos.index') }}" class="flex gap-2 mb-6">
-                {{-- Preservar filtros activos en la búsqueda --}}
-                @if(!empty($filtros['destino_id']))
-                    <input type="hidden" name="destino_id" value="{{ $filtros['destino_id'] }}">
-                @endif
-                @if(!empty($filtros['categoria_id']))
-                    <input type="hidden" name="categoria_id" value="{{ $filtros['categoria_id'] }}">
-                @endif
-                @if(!empty($filtros['costo_min']))
-                    <input type="hidden" name="costo_min" value="{{ $filtros['costo_min'] }}">
-                @endif
-                @if(!empty($filtros['costo_max']))
-                    <input type="hidden" name="costo_max" value="{{ $filtros['costo_max'] }}">
-                @endif
-
-                <input type="text" name="busqueda"
-                       value="{{ $filtros['busqueda'] ?? '' }}"
-                       placeholder="Buscar atractivos..."
-                       class="tc-input flex-1">
-                <button type="submit" class="tc-btn-primary px-5">
-                    Buscar
-                </button>
-            </form>
-
-            {{-- Grid de resultados --}}
             @if($atractivos->isEmpty())
-                <div class="text-center py-20">
-                    <svg class="w-14 h-14 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                    </svg>
-                    <p class="text-gray-500 font-medium">No se encontraron atractivos.</p>
-                    <a href="{{ route('catalogo.atractivos.index') }}" class="mt-3 inline-block tc-btn-outline text-sm">
-                        Ver todos
-                    </a>
+                <div class="tc-empty-state p-8 sm:p-12 text-center">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary-600"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 21s7-4.35 7-11.3A7 7 0 0 0 5 9.7C5 16.65 12 21 12 21Z"/><circle cx="12" cy="10" r="2.25"/></svg></div>
+                    @if($filtroActivo)
+                        <h2 class="mt-4 text-xl font-bold text-gray-900">No encontramos coincidencias</h2>
+                        <p class="mt-2 text-sm leading-6 text-gray-500">Cambia el destino, la categoría o el presupuesto para ampliar tu búsqueda.</p>
+                        <a href="{{ route('catalogo.atractivos.index') }}" class="tc-btn-outline mt-5">Limpiar filtros</a>
+                    @else
+                        <h2 class="mt-4 text-xl font-bold text-gray-900">Todavía no hay atractivos publicados</h2>
+                        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">Aquí aparecerán los lugares disponibles cuando los operadores los publiquen.</p>
+                        <a href="{{ route('inicio') }}" class="tc-btn-outline mt-5">Volver al inicio</a>
+                    @endif
                 </div>
             @else
-                {{-- 2 columnas --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                     @foreach($atractivos as $atractivo)
-                        <a href="{{ route('catalogo.atractivos.show', $atractivo) }}"
-                           class="tc-card overflow-hidden group flex flex-col">
-
-                            {{-- Imagen --}}
-                            <div class="relative overflow-hidden" style="aspect-ratio: 16/10; background: var(--color-teal-light);">
+                        @php
+                            $duracion = null;
+                            if ($atractivo->duracion_estimada_min) {
+                                $horas = intdiv($atractivo->duracion_estimada_min, 60);
+                                $minutos = $atractivo->duracion_estimada_min % 60;
+                                $duracion = ($horas ? $horas.' h' : '').($horas && $minutos ? ' ' : '').($minutos ? $minutos.' min' : '');
+                            }
+                        @endphp
+                        <a href="{{ route('catalogo.atractivos.show', $atractivo) }}" class="tc-card tc-card-interactive tc-experience-card focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-200">
+                            <div class="tc-experience-card__media">
                                 @if($atractivo->imagen_portada)
-                                    <img src="{{ asset('storage/' . $atractivo->imagen_portada) }}"
-                                         alt="{{ $atractivo->nombre }}"
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <img src="{{ asset('storage/'.$atractivo->imagen_portada) }}" alt="{{ $atractivo->nombre }}" loading="lazy">
                                 @else
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <svg class="w-10 h-10" style="color: var(--color-primary-300);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        </svg>
-                                    </div>
+                                    <div class="tc-cover-fallback" aria-hidden="true"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="M12 21s7-4.35 7-11.3A7 7 0 0 0 5 9.7C5 16.65 12 21 12 21Z"/><circle cx="12" cy="10" r="2.25"/></svg></div>
                                 @endif
-
-                                {{-- Costo badge --}}
-                                <span class="absolute top-2.5 right-2.5 text-xs font-bold px-2.5 py-1 rounded-full"
-                                      style="background: rgba(255,255,255,0.92); color: var(--color-primary-700);">
-                                    @if($atractivo->costo_entrada > 0)
-                                        S/ {{ number_format($atractivo->costo_entrada, 0) }}
-                                    @else
-                                        Gratuito
-                                    @endif
-                                </span>
+                                <span class="tc-media-badge">{{ $atractivo->destino?->nombre ?? 'Destino por confirmar' }}</span>
                             </div>
-
-                            {{-- Info tarjeta --}}
-                            <div class="p-4 flex flex-col flex-1">
-                                <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #1a2232;" class="mb-1.5 leading-snug">
-                                    {{ $atractivo->nombre }}
-                                </h3>
-
-                                {{-- Separador --}}
-                                <div class="h-px mb-2" style="background: #f0f0f0;"></div>
-
-                                {{-- Categorías --}}
-                                @if($atractivo->categorias->isNotEmpty())
-                                    <p class="text-xs font-medium mb-1" style="color: var(--color-primary-600);">
-                                        {{ $atractivo->categorias->pluck('nombre')->take(2)->join(' · ') }}
-                                    </p>
-                                @endif
-
-                                {{-- Lugar · Duración --}}
-                                <div class="flex items-center gap-1.5 text-xs text-gray-400 mt-auto flex-wrap">
-                                    @if($atractivo->destino)
-                                        <span>{{ $atractivo->destino->nombre }}</span>
-                                    @endif
-                                    @if($atractivo->duracion_estimada_min)
-                                        @php $h = intdiv($atractivo->duracion_estimada_min, 60); $m = $atractivo->duracion_estimada_min % 60; @endphp
-                                        @if($atractivo->destino)<span>·</span>@endif
-                                        <span>{{ $h > 0 ? "{$h}h " : '' }}{{ $m > 0 ? "{$m}min" : '' }}</span>
-                                    @endif
+                            <div class="tc-experience-card__body">
+                                @if($atractivo->categorias->first())<p class="text-xs font-semibold text-primary-700">{{ $atractivo->categorias->first()->nombre }}</p>@endif
+                                <h2 class="mt-2 text-xl font-bold leading-tight text-gray-900">{{ $atractivo->nombre }}</h2>
+                                <p class="mt-2 line-clamp-2 text-sm leading-6 text-gray-500">{{ $atractivo->descripcion ?: 'Consulta la información disponible para planificar tu visita.' }}</p>
+                                <div class="tc-card-meta">
+                                    @if($duracion)<span>{{ $duracion }}</span>@endif
+                                    <span class="font-bold text-primary-700">{{ $atractivo->costo_entrada > 0 ? 'S/ '.number_format((float) $atractivo->costo_entrada, 2) : 'Entrada libre' }}</span>
                                 </div>
+                                <span class="tc-card-cta">Ver atractivo <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></span>
                             </div>
                         </a>
                     @endforeach
                 </div>
-
-                {{-- Paginación --}}
-                <div class="mt-8">
-                    {{ $atractivos->appends(request()->query())->links() }}
-                </div>
+                <div class="mt-8">{{ $atractivos->appends(request()->query())->links() }}</div>
             @endif
-        </div>
+        </section>
     </div>
 </div>
-
-@push('scripts')
-<script>
-// Aplicar sliders al soltar
-['costo_min', 'costo_max'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) {
-        el.addEventListener('change', function() {
-            document.getElementById('form-filtros-atractivos').submit();
-        });
-    }
-});
-</script>
-@endpush
-@push('scripts')
-<style>
-.tc-range {
-    -webkit-appearance: none;
-    appearance: none;
-    background: #e5e7eb;
-    outline: none;
-}
-.tc-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--color-primary-600);
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    transition: transform 0.1s;
-}
-.tc-range::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
-}
-</style>
-<script>
-function updateRangeStyle(el, type) {
-    var min = parseFloat(el.min) || 0;
-    var max = parseFloat(el.max) || 100;
-    var val = parseFloat(el.value);
-    var pct = ((val - min) / (max - min)) * 100;
-    
-    // Para 'min': pinta el track a la DERECHA del thumb (desde el pct hasta 100%)
-    // Para 'max': pinta el track a la IZQUIERDA del thumb (desde 0% hasta el pct)
-    if (type === 'min') {
-        el.style.background = 'linear-gradient(to right, #e5e7eb ' + pct + '%, var(--color-primary-500) ' + pct + '%)';
-    } else {
-        el.style.background = 'linear-gradient(to right, var(--color-primary-500) ' + pct + '%, #e5e7eb ' + pct + '%)';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var cMin = document.getElementById('costo_min');
-    var cMax = document.getElementById('costo_max');
-    if(cMin) updateRangeStyle(cMin, 'min');
-    if(cMax) updateRangeStyle(cMax, 'max');
-});
-</script>
-@endpush
 @endsection

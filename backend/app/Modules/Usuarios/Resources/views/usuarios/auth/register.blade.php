@@ -1,94 +1,58 @@
 @extends('layouts.auth')
 
 @section('content')
-<div class="h-screen flex flex-col md:flex-row w-full overflow-hidden bg-white">
-    
-    <!-- Columna Izquierda: Formulario (Con scroll oculto) -->
-    <section class="flex-1 flex items-center justify-center p-8 lg:p-12 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]">
-        <div class="w-full max-w-md">
-            <div class="flex flex-col gap-4">
-                <div>
-                    <h1 class="text-4xl font-semibold leading-tight text-gray-900">Crear cuenta</h1>
-                    <p class="text-gray-500 mt-2">Únete a la nueva forma de viajar inteligente.</p>
+<main class="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 sm:py-7">
+    <nav class="flex items-center justify-between gap-4" aria-label="Navegación de registro">
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5 text-sm font-bold text-[#00626A]"><span class="grid h-9 w-9 place-items-center rounded-xl bg-[#00626A] text-white"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 17 8 11l4 4 5-8 4 10M4 21h16"/></svg></span> TourismCloud AI</a>
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#00626A]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg> Inicio</a>
+    </nav>
+
+    <div class="flex flex-1 items-center justify-center py-8 sm:py-12">
+        <section class="w-full max-w-[32rem] rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_16px_50px_rgba(16,47,46,.07)] sm:p-9" aria-labelledby="register-title">
+            <p class="text-xs font-bold uppercase tracking-[.14em] text-[#9A442D]">Empieza tu viaje</p>
+            <h1 id="register-title" class="mt-2 font-display text-3xl font-bold tracking-tight text-slate-900">Crear cuenta</h1>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Regístrate como turista para organizar tus planes.</p>
+
+            <form method="POST" action="{{ route('register.post') }}" class="mt-6 space-y-4">
+                @csrf
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="register-nombre" class="mb-2 block text-sm font-semibold text-slate-700">Nombre</label>
+                        <input id="register-nombre" name="nombre" type="text" autocomplete="given-name" value="{{ old('nombre') }}" required autofocus class="tc-input h-12 w-full">
+                        @error('nombre') <p role="alert" class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="register-apellido" class="mb-2 block text-sm font-semibold text-slate-700">Apellido</label>
+                        <input id="register-apellido" name="apellido" type="text" autocomplete="family-name" value="{{ old('apellido') }}" required class="tc-input h-12 w-full">
+                        @error('apellido') <p role="alert" class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
                 </div>
-
-                <form method="POST" action="{{ route('register.post') }}" class="space-y-4 mt-2">
-                    @csrf
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <!-- Nombre -->
-                        <div>
-                            <label class="text-xs font-medium text-gray-500 mb-1 block">Nombre</label>
-                            <div class="rounded-2xl border border-gray-200 bg-gray-50/50 focus-within:border-[#00626A]">
-                                <input name="nombre" type="text" value="{{ old('nombre') }}" required
-                                    class="w-full bg-transparent text-sm p-3.5 rounded-2xl focus:outline-none focus:ring-0 border-none">
-                            </div>
-                            @error('nombre') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                        </div>
-
-                        <!-- Apellido -->
-                        <div>
-                            <label class="text-xs font-medium text-gray-500 mb-1 block">Apellido</label>
-                            <div class="rounded-2xl border border-gray-200 bg-gray-50/50 focus-within:border-[#00626A]">
-                                <input name="apellido" type="text" value="{{ old('apellido') }}" required
-                                    class="w-full bg-transparent text-sm p-3.5 rounded-2xl focus:outline-none focus:ring-0 border-none">
-                            </div>
-                            @error('apellido') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                        </div>
+                <div>
+                    <label for="register-email" class="mb-2 block text-sm font-semibold text-slate-700">Correo electrónico</label>
+                    <input id="register-email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" required placeholder="ejemplo@correo.com" class="tc-input h-12 w-full">
+                    @error('email') <p role="alert" class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div x-data="{ show: false }">
+                    <label for="register-password" class="mb-2 block text-sm font-semibold text-slate-700">Contraseña</label>
+                    <div class="relative">
+                        <input id="register-password" name="password" type="password" x-bind:type="show ? 'text' : 'password'" autocomplete="new-password" required minlength="8" placeholder="Mínimo 8 caracteres" class="tc-input h-12 w-full" style="padding-right: 3rem;">
+                        <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-xl text-slate-500 hover:text-[#00626A]" x-bind:aria-label="show ? 'Ocultar contraseña' : 'Mostrar contraseña'" x-bind:aria-pressed="show">
+                            <svg x-show="!show" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                            <svg x-show="show" style="display: none;" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m3 3 18 18M9.9 5.7A10.2 10.2 0 0 1 12 5.5C18.5 5.5 22 12 22 12a18.2 18.2 0 0 1-3.4 4.2M6.2 6.2C3.5 8.1 2 12 2 12s3.5 6.5 10 6.5a9.7 9.7 0 0 0 4.1-.9"/></svg>
+                        </button>
                     </div>
+                    @error('password') <p role="alert" class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label for="register-password-confirmation" class="mb-2 block text-sm font-semibold text-slate-700">Confirmar contraseña</label>
+                    <input id="register-password-confirmation" name="password_confirmation" type="password" autocomplete="new-password" required minlength="8" placeholder="Repite tu contraseña" class="tc-input h-12 w-full">
+                    @error('password_confirmation') <p role="alert" class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <button type="submit" class="tc-btn tc-btn-primary min-h-12 w-full justify-center">Crear mi cuenta <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/></svg></button>
+            </form>
 
-                    <!-- Email -->
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 mb-1 block">Correo Electrónico</label>
-                        <div class="rounded-2xl border border-gray-200 bg-gray-50/50 focus-within:border-[#00626A]">
-                            <input name="email" type="email" value="{{ old('email') }}" required
-                                class="w-full bg-transparent text-sm p-3.5 rounded-2xl focus:outline-none focus:ring-0 border-none">
-                        </div>
-                        @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Password -->
-                    <div x-data="{ show: false }">
-                        <label class="text-xs font-medium text-gray-500 mb-1 block">Contraseña</label>
-                        <div class="rounded-2xl border border-gray-200 bg-gray-50/50 focus-within:border-[#00626A] relative">
-                            <input name="password" x-bind:type="show ? 'text' : 'password'" required
-                                class="w-full bg-transparent text-sm p-3.5 pr-12 rounded-2xl focus:outline-none focus:ring-0 border-none">
-                            <button type="button" @click="show = !show" class="absolute inset-y-0 right-3 flex items-center text-gray-400">
-                                <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                <svg x-show="show" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
-                            </button>
-                        </div>
-                        @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Confirm Password -->
-                    <div>
-                        <label class="text-xs font-medium text-gray-500 mb-1 block">Confirmar Contraseña</label>
-                        <div class="rounded-2xl border border-gray-200 bg-gray-50/50 focus-within:border-[#00626A]">
-                            <input name="password_confirmation" type="password" required
-                                class="w-full bg-transparent text-sm p-3.5 rounded-2xl focus:outline-none focus:ring-0 border-none">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full rounded-2xl bg-[#00626A] py-4 font-medium text-white hover:bg-[#004e55] transition-colors shadow-lg shadow-[#00626A]/30 mt-2">
-                        Registrarse
-                    </button>
-                </form>
-
-                <p class="text-center text-sm text-gray-500 mt-2">
-                    ¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="font-semibold text-[#00626A] hover:underline">Inicia sesión</a>
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Columna Derecha: Imagen -->
-    <section class="hidden md:block flex-1 relative p-4 bg-white">
-        <div class="absolute inset-4 rounded-3xl bg-cover bg-center shadow-2xl" 
-             style="background-image: url('https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
-            <div class="absolute inset-0 bg-black/10 rounded-3xl"></div>
-        </div>
-    </section>
-
-</div>
+            <p class="mt-6 border-t border-slate-100 pt-5 text-center text-sm text-slate-600">¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="font-semibold text-[#00626A] hover:underline">Iniciar sesión</a></p>
+        </section>
+    </div>
+</main>
 @endsection

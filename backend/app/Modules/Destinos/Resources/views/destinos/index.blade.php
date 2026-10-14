@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="tc-workspace max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     
     <!-- Encabezado -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div class="tc-page-heading flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Gestión de Destinos</h1>
             <p class="mt-1 text-sm text-gray-500">Administra las ciudades y regiones turísticas de la plataforma.</p>
         </div>
         <div class="mt-4 sm:mt-0">
-            <a href="{{ route('admin.destinos.create') }}" class="inline-flex items-center px-4 py-2 bg-[#00626A] border border-transparent rounded-lg font-medium text-sm text-white hover:bg-[#004e55] transition-colors shadow-sm">
+            <a href="{{ route('admin.destinos.create') }}" class="tc-btn-primary shrink-0">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Nuevo Destino
             </a>
@@ -18,9 +18,9 @@
     </div>
 
     <!-- Tabla -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="tc-card border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="tc-table min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
                         <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Destino</th>

@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-6 flex items-center justify-between gap-3">
+<div class="tc-workspace max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="tc-page-heading flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
             <a href="{{ route('admin.usuarios.index') }}" class="p-2 bg-white border border-gray-200 rounded-lg text-gray-500 hover:text-[#00626A] hover:bg-gray-50 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -15,16 +15,16 @@
                       onsubmit="return confirm('{{ $usuario->estado === 'activo' ? '¿Desactivar' : '¿Activar' }} a este usuario?');">
                     @csrf
                     @method('PATCH')
-                    <button type="submit" class="px-5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm font-medium {{ $usuario->estado === 'activo' ? 'text-red-600 hover:bg-red-50' : 'text-emerald-700 hover:bg-emerald-50' }} transition-colors">
+                    <button type="submit" class="{{ $usuario->estado === 'activo' ? 'tc-btn-danger' : 'tc-btn-outline' }}">
                         {{ $usuario->estado === 'activo' ? 'Desactivar' : 'Activar' }}
                     </button>
                 </form>
             @endif
-            <a href="{{ route('admin.usuarios.edit', $usuario->id) }}" class="px-5 py-2.5 bg-[#00626A] rounded-lg text-sm font-medium text-white hover:bg-[#004e55] shadow-sm transition-colors">Editar</a>
+            <a href="{{ route('admin.usuarios.edit', $usuario->id) }}" class="tc-btn-primary">Editar</a>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+    <div class="tc-card border border-gray-100 p-6 sm:p-8">
         <div class="flex items-center gap-4 pb-6 border-b border-gray-100">
             <div class="w-16 h-16 rounded-full bg-[#00626A]/10 text-[#00626A] flex items-center justify-center font-bold text-xl">
                 {{ substr($usuario->nombre, 0, 1) }}{{ substr($usuario->apellido, 0, 1) }}

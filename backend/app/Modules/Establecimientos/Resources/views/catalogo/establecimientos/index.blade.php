@@ -3,225 +3,127 @@
 @section('title', 'Establecimientos')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+@php
+    $rangoPrecio = ['bajo' => 'Bajo $', 'medio' => 'Medio $$', 'alto' => 'Alto $$$', 'lujo' => 'Lujoso $$$$'];
+    $tipos = ['hotel' => 'Hotel', 'restaurante' => 'Restaurante', 'transporte' => 'Transporte', 'agencia' => 'Agencia', 'otro' => 'Otro'];
+    $filtroActivo = collect($filtros)->only(['destino_id', 'tipo', 'categoria_id', 'rango_precio', 'busqueda'])->contains(fn ($valor) => filled($valor));
+@endphp
 
-    {{-- Hero --}}
-    <div class="mb-6">
-        <p class="text-sm text-gray-400 mb-0.5">Hospedaje, gastronomía y más</p>
-        <h1 style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: #1a2232; line-height: 1.15;">
-            Establecimientos
-        </h1>
-    </div>
+<div class="tc-catalog-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <header class="tc-page-heading" aria-labelledby="establecimientos-titulo">
+        <p class="tc-home-eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5" stroke-width="1.8"/><circle cx="12" cy="10" r="1.5"/></svg><span>Explora · Dónde alojarte y comer</span></p>
+        <h1 id="establecimientos-titulo">Establecimientos</h1>
+        <p>Encuentra hospedajes, restaurantes y otros servicios para acompañar tu viaje.</p>
+    </header>
 
-    {{-- Layout sidebar + contenido --}}
-    <div class="flex gap-6 items-start">
-
-        {{-- ════════════════════════════════
-             SIDEBAR DE FILTROS
-        ════════════════════════════════ --}}
-        <aside class="w-64 shrink-0">
-            <form method="GET" action="{{ route('catalogo.establecimientos.index') }}" id="form-filtros-est">
-                <div class="tc-card p-5">
-                    <h2 style="font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; color: #1a2232;" class="mb-5">
-                        Filtros
-                    </h2>
-
-                    {{-- Destinos --}}
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold mb-2" style="color: var(--color-primary-700);">Destinos</label>
-                        <select name="destino_id" class="tc-select text-sm"
-                                onchange="document.getElementById('form-filtros-est').submit()">
+    <div class="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start">
+        @foreach(['movil', 'escritorio'] as $modo)
+            @if($modo === 'movil')
+                <details class="tc-filter-panel p-4 lg:hidden" aria-label="Filtros de establecimientos">
+                    <summary class="tc-filter-summary"><span class="font-bold text-gray-900">Ajustar filtros</span>@if($filtroActivo)<span class="tc-filter-chip">Activos</span>@endif</summary>
+            @else
+                <aside class="hidden w-60 shrink-0 lg:block" aria-label="Filtros de establecimientos">
+            @endif
+                <form method="GET" action="{{ route('catalogo.establecimientos.index') }}" class="{{ $modo === 'movil' ? 'mt-5' : 'tc-filter-panel p-5' }} space-y-5">
+                    @if($modo === 'escritorio')<h2 class="border-b border-gray-100 pb-4 font-bold text-gray-900">Filtros</h2>@endif
+                    @if(filled($filtros['busqueda'] ?? null))<input type="hidden" name="busqueda" value="{{ $filtros['busqueda'] }}">@endif
+                    @if(filled($filtros['por_pagina'] ?? null))<input type="hidden" name="por_pagina" value="{{ $filtros['por_pagina'] }}">@endif
+                    <div>
+                        <label for="establecimiento-destino-{{ $modo }}" class="mb-2 block text-xs font-bold text-gray-700">Destino</label>
+                        <select id="establecimiento-destino-{{ $modo }}" name="destino_id" class="tc-select text-sm">
                             <option value="">Todos los destinos</option>
-                            @foreach($destinos as $d)
-                                <option value="{{ $d->id }}" @selected(($filtros['destino_id'] ?? '') == $d->id)>
-                                    {{ $d->nombre }}
-                                </option>
-                            @endforeach
+                            @foreach($destinos as $destino)<option value="{{ $destino->id }}" @selected(($filtros['destino_id'] ?? '') == $destino->id)>{{ $destino->nombre }}</option>@endforeach
                         </select>
                     </div>
-
-                    {{-- Tipo --}}
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold mb-2" style="color: var(--color-primary-700);">Tipo</label>
-                        <select name="tipo" class="tc-select text-sm"
-                                onchange="document.getElementById('form-filtros-est').submit()">
-                            <option value="">Todos los Tipos</option>
-                            <option value="hotel"       @selected(($filtros['tipo'] ?? '') === 'hotel')>Hotel</option>
-                            <option value="restaurante" @selected(($filtros['tipo'] ?? '') === 'restaurante')>Restaurante</option>
-                            <option value="transporte"  @selected(($filtros['tipo'] ?? '') === 'transporte')>Transporte</option>
-                            <option value="agencia"     @selected(($filtros['tipo'] ?? '') === 'agencia')>Agencia</option>
-                            <option value="otro"        @selected(($filtros['tipo'] ?? '') === 'otro')>Otro</option>
+                    <div>
+                        <label for="establecimiento-tipo-{{ $modo }}" class="mb-2 block text-xs font-bold text-gray-700">Tipo de servicio</label>
+                        <select id="establecimiento-tipo-{{ $modo }}" name="tipo" class="tc-select text-sm">
+                            <option value="">Todos los tipos</option>
+                            @foreach($tipos as $valor => $etiqueta)<option value="{{ $valor }}" @selected(($filtros['tipo'] ?? '') === $valor)>{{ $etiqueta }}</option>@endforeach
                         </select>
                     </div>
-
-                    {{-- Categorías como chips --}}
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold mb-2" style="color: var(--color-primary-700);">Categoría</label>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($categorias as $cat)
-                                @php $seleccionada = ($filtros['categoria_id'] ?? '') == $cat->id; @endphp
-                                <button type="submit" name="categoria_id" value="{{ $cat->id }}"
-                                        class="text-xs font-medium px-3 py-1.5 rounded-full border transition-all"
-                                        style="{{ $seleccionada
-                                            ? 'background: var(--color-primary-500); color: white; border-color: var(--color-primary-500);'
-                                            : 'background: white; color: #374151; border-color: #d1d5db;' }}">
-                                    {{ $cat->nombre }}
-                                </button>
-                            @endforeach
-                        </div>
+                    <div>
+                        <label for="establecimiento-categoria-{{ $modo }}" class="mb-2 block text-xs font-bold text-gray-700">Categoría de interés</label>
+                        <select id="establecimiento-categoria-{{ $modo }}" name="categoria_id" class="tc-select text-sm">
+                            <option value="">Todas las categorías</option>
+                            @foreach($categorias as $categoria)<option value="{{ $categoria->id }}" @selected(($filtros['categoria_id'] ?? '') == $categoria->id)>{{ $categoria->nombre }}</option>@endforeach
+                        </select>
                     </div>
-
-                    {{-- Rango de precio — botones tipo toggle 2x2 --}}
-                    <div class="mb-6">
-                        <label class="block text-xs font-bold mb-2" style="color: var(--color-primary-700);">Rango de precio</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            @php
-                                $rangos = [
-                                    'bajo'  => 'Bajo $',
-                                    'medio' => 'Medio $$',
-                                    'alto'  => 'Alto $$$',
-                                    'lujo'  => 'Lujoso $$$$',
-                                ];
-                            @endphp
-                            @foreach($rangos as $valor => $etiqueta)
-                                @php $activo = ($filtros['rango_precio'] ?? '') === $valor; @endphp
-                                <button type="submit" name="rango_precio" value="{{ $valor }}"
-                                        class="text-xs font-semibold py-2 px-2 rounded-lg border transition-all text-center"
-                                        style="{{ $activo
-                                            ? 'background: var(--color-primary-500); color: white; border-color: var(--color-primary-500);'
-                                            : 'background: white; color: #374151; border-color: #d1d5db;' }}">
-                                    {{ $etiqueta }}
-                                </button>
-                            @endforeach
-                        </div>
+                    <div>
+                        <label for="establecimiento-precio-{{ $modo }}" class="mb-2 block text-xs font-bold text-gray-700">Nivel de precio</label>
+                        <select id="establecimiento-precio-{{ $modo }}" name="rango_precio" class="tc-select text-sm">
+                            <option value="">Todos los niveles</option>
+                            @foreach($rangoPrecio as $valor => $etiqueta)<option value="{{ $valor }}" @selected(($filtros['rango_precio'] ?? '') === $valor)>{{ $etiqueta }}</option>@endforeach
+                        </select>
                     </div>
+                    <button type="submit" class="tc-btn-primary w-full justify-center">Aplicar filtros</button>
+                    <a href="{{ route('catalogo.establecimientos.index') }}" class="block text-center text-sm font-semibold text-gray-600 hover:underline">Limpiar filtros</a>
+                </form>
+            @if($modo === 'movil')</details>@else</aside>@endif
+        @endforeach
 
-                    {{-- Limpiar filtros --}}
-                    <a href="{{ route('catalogo.establecimientos.index') }}"
-                       class="block w-full text-center text-sm font-semibold py-2 rounded-lg border transition-colors"
-                       style="border-color: #d1d5db; color: #6b7280;"
-                       onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='transparent'">
-                        Limpiar filtros
-                    </a>
+        <section class="min-w-0 flex-1" aria-label="Resultados de establecimientos">
+            <form method="GET" action="{{ route('catalogo.establecimientos.index') }}" class="mb-5 flex flex-col gap-2 sm:flex-row">
+                @foreach(['destino_id', 'tipo', 'categoria_id', 'rango_precio', 'por_pagina'] as $campo)
+                    @if(filled($filtros[$campo] ?? null))<input type="hidden" name="{{ $campo }}" value="{{ $filtros[$campo] }}">@endif
+                @endforeach
+                <div class="tc-search-input-wrap">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.15a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z"/></svg>
+                    <input type="search" name="busqueda" value="{{ $filtros['busqueda'] ?? '' }}" placeholder="Buscar por nombre o descripción" aria-label="Buscar establecimientos" class="tc-input">
                 </div>
+                <button type="submit" class="tc-btn-primary justify-center">Buscar</button>
             </form>
-        </aside>
+            @if($errors->any())<div class="tc-alert-error mb-5" role="alert">{{ $errors->first() }}</div>@endif
 
-        {{-- ════════════════════════════════
-             CONTENIDO DERECHO
-        ════════════════════════════════ --}}
-        <div class="flex-1 min-w-0">
+            <div class="tc-result-toolbar">
+                <div>
+                    <p class="font-bold text-gray-900">{{ number_format($establecimientos->total()) }} {{ $establecimientos->total() === 1 ? 'resultado' : 'resultados' }}</p>
+                    <p class="mt-1 text-xs sm:text-sm text-gray-500">Consulta los servicios y datos de contacto publicados por cada proveedor.</p>
+                </div>
+                @if($filtroActivo)<a href="{{ route('catalogo.establecimientos.index') }}" class="text-xs font-bold text-primary-700 hover:underline">Limpiar filtros</a>@endif
+            </div>
 
-            {{-- Barra de búsqueda --}}
-            <form method="GET" action="{{ route('catalogo.establecimientos.index') }}" class="flex gap-2 mb-6">
-                @if(!empty($filtros['destino_id']))
-                    <input type="hidden" name="destino_id" value="{{ $filtros['destino_id'] }}">
-                @endif
-                @if(!empty($filtros['tipo']))
-                    <input type="hidden" name="tipo" value="{{ $filtros['tipo'] }}">
-                @endif
-                @if(!empty($filtros['categoria_id']))
-                    <input type="hidden" name="categoria_id" value="{{ $filtros['categoria_id'] }}">
-                @endif
-                @if(!empty($filtros['rango_precio']))
-                    <input type="hidden" name="rango_precio" value="{{ $filtros['rango_precio'] }}">
-                @endif
-
-                <input type="text" name="busqueda"
-                       value="{{ $filtros['busqueda'] ?? '' }}"
-                       placeholder="Buscar establecimientos..."
-                       class="tc-input flex-1">
-                <button type="submit" class="tc-btn-primary px-5">
-                    Buscar
-                </button>
-            </form>
-
-            {{-- Grid 2 columnas --}}
             @if($establecimientos->isEmpty())
-                <div class="text-center py-20">
-                    <svg class="w-14 h-14 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
-                    <p class="text-gray-500 font-medium">No se encontraron establecimientos.</p>
-                    <a href="{{ route('catalogo.establecimientos.index') }}" class="mt-3 inline-block tc-btn-outline text-sm">
-                        Ver todos
-                    </a>
+                <div class="tc-empty-state p-8 sm:p-12 text-center">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary-600"><svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01"/></svg></div>
+                    @if($filtroActivo)
+                        <h2 class="mt-4 text-xl font-bold text-gray-900">No encontramos coincidencias</h2>
+                        <p class="mt-2 text-sm leading-6 text-gray-500">Prueba otro destino, tipo de servicio o nivel de precio.</p>
+                        <a href="{{ route('catalogo.establecimientos.index') }}" class="tc-btn-outline mt-5">Limpiar filtros</a>
+                    @else
+                        <h2 class="mt-4 text-xl font-bold text-gray-900">Todavía no hay establecimientos publicados</h2>
+                        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">Aquí aparecerán los servicios disponibles cuando los proveedores los publiquen.</p>
+                        <a href="{{ route('catalogo.atractivos.index') }}" class="tc-btn-outline mt-5">Explorar atractivos</a>
+                    @endif
                 </div>
             @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                     @foreach($establecimientos as $est)
-                        <a href="{{ route('catalogo.establecimientos.show', $est) }}"
-                           class="tc-card overflow-hidden group flex flex-col">
-
-                            {{-- Imagen --}}
-                            <div class="relative overflow-hidden" style="aspect-ratio: 16/10; background: var(--color-amber-soft);">
+                        <a href="{{ route('catalogo.establecimientos.show', $est) }}" class="tc-card tc-card-interactive tc-experience-card focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-200">
+                            <div class="tc-experience-card__media">
                                 @if($est->imagen_portada)
-                                    <img src="{{ asset('storage/' . $est->imagen_portada) }}"
-                                         alt="{{ $est->nombre }}"
-                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <img src="{{ asset('storage/'.$est->imagen_portada) }}" alt="{{ $est->nombre }}" loading="lazy">
                                 @else
-                                    @php $iconos = ['hotel'=>'🏨','restaurante'=>'🍽️','transporte'=>'🚌','agencia'=>'🏢','otro'=>'📋']; @endphp
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <span class="text-4xl">{{ $iconos[$est->tipo] ?? '🏢' }}</span>
-                                    </div>
+                                    <div class="tc-cover-fallback" aria-hidden="true"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01"/></svg></div>
                                 @endif
-
-                                {{-- Tipo badge --}}
-                                <span class="absolute top-2.5 left-2.5 text-xs font-bold px-2.5 py-1 rounded-full"
-                                      style="background: rgba(255,255,255,0.92); color: var(--color-tertiary-500); text-transform: uppercase; letter-spacing: 0.03em;">
-                                    {{ ucfirst($est->tipo) }}
-                                </span>
+                                <span class="tc-media-badge">{{ $est->destino?->nombre ?? 'Destino por confirmar' }}</span>
                             </div>
-
-                            {{-- Info tarjeta --}}
-                            <div class="p-4 flex flex-col flex-1">
-                                <h3 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: #1a2232;" class="mb-1.5 leading-snug">
-                                    {{ $est->nombre }}
-                                </h3>
-
-                                {{-- Badges tipo + precio --}}
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    @if($est->rango_precio)
-                                        <span class="tc-badge-precio-{{ $est->rango_precio }}">
-                                            {{ ucfirst($est->rango_precio) }}
-                                        </span>
-                                    @endif
-                                    @if($est->categorias->isNotEmpty())
-                                        <span class="tc-chip">{{ $est->categorias->first()->nombre }}</span>
-                                    @endif
+                            <div class="tc-experience-card__body">
+                                <p class="text-xs font-semibold text-primary-700">{{ $tipos[$est->tipo] ?? ucfirst($est->tipo) }}</p>
+                                <h2 class="mt-2 text-xl font-bold leading-tight text-gray-900">{{ $est->nombre }}</h2>
+                                <p class="mt-2 line-clamp-2 text-sm leading-6 text-gray-500">{{ $est->descripcion ?: 'Consulta los servicios y datos disponibles de este establecimiento.' }}</p>
+                                <div class="tc-card-meta">
+                                    @if($est->rango_precio)<span class="font-semibold">{{ $rangoPrecio[$est->rango_precio] ?? ucfirst($est->rango_precio) }}</span>@endif
+                                    @foreach($est->categorias->take(2) as $categoria)<span>{{ $categoria->nombre }}</span>@endforeach
                                 </div>
-
-                                {{-- Separador --}}
-                                <div class="h-px mb-2" style="background: #f0f0f0;"></div>
-
-                                {{-- Categoría (etiqueta) --}}
-                                @if($est->categorias->isNotEmpty())
-                                    <p class="text-xs font-medium mb-1" style="color: var(--color-primary-600);">
-                                        {{ $est->categorias->pluck('nombre')->take(2)->join(' · ') }}
-                                    </p>
-                                @endif
-
-                                {{-- Lugar · Valoración --}}
-                                <div class="flex items-center gap-1.5 text-xs text-gray-400 mt-auto flex-wrap">
-                                    @if($est->destino)
-                                        <span>{{ $est->destino->nombre }}</span>
-                                    @endif
-                                    @if($est->direccion && $est->destino)
-                                        <span>·</span>
-                                        <span class="truncate max-w-32">{{ $est->direccion }}</span>
-                                    @endif
-                                </div>
+                                <span class="tc-card-cta">Ver establecimiento <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></span>
                             </div>
                         </a>
                     @endforeach
                 </div>
-
-                {{-- Paginación --}}
-                <div class="mt-8">
-                    {{ $establecimientos->appends(request()->query())->links() }}
-                </div>
+                <div class="mt-8">{{ $establecimientos->appends(request()->query())->links() }}</div>
             @endif
-        </div>
+        </section>
     </div>
 </div>
 @endsection

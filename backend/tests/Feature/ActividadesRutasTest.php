@@ -152,7 +152,11 @@ class ActividadesRutasTest extends TestCase
         $actividad = Actividad::where('nombre', 'Taller andino')->firstOrFail();
         Storage::disk('public')->assertExists($actividad->imagen_portada);
         $this->get(route('operador.actividades.edit', $actividad))->assertOk();
-        $this->get(route('catalogo.actividades.show', $actividad))->assertOk()->assertSee('Taller andino')->assertSee('maps');
+        $this->get(route('catalogo.actividades.show', $actividad))
+            ->assertOk()
+            ->assertSee('Taller andino')
+            ->assertSee('actividad-public-map')
+            ->assertSee('maps');
         $this->put(route('operador.actividades.update', $actividad), ['destino_id' => $this->destino->id, 'nombre' => 'Taller editado', 'costo' => 40, 'estado' => 'activo', 'quitar_portada' => 1])->assertSessionHasNoErrors()->assertRedirect();
         $this->assertNull($actividad->fresh()->imagen_portada);
         $this->patch(route('operador.actividades.toggle-estado', $actividad))->assertRedirect();
@@ -210,7 +214,11 @@ class ActividadesRutasTest extends TestCase
         $ruta = Ruta::firstOrFail();
         Storage::disk('public')->assertExists($ruta->imagen_portada);
         $this->get(route('operador.rutas.edit', $ruta))->assertOk()->assertSee('Subir')->assertSee('Bajar');
-        $this->get(route('catalogo.rutas.show', $ruta))->assertOk()->assertSee('25.00')->assertSee(route('catalogo.atractivos.show', $this->primero), false);
+        $this->get(route('catalogo.rutas.show', $ruta))
+            ->assertOk()
+            ->assertSee('25.00')
+            ->assertSee('mapa-ruta-publica')
+            ->assertSee(route('catalogo.atractivos.show', $this->primero), false);
         $this->put(route('operador.rutas.update', $ruta), $this->datosRuta(['nombre' => 'Ruta editada', 'paradas' => [$this->segundo->id, $this->primero->id], 'quitar_portada' => 1]))->assertSessionHasNoErrors()->assertRedirect();
         $this->assertSame([$this->segundo->id, $this->primero->id], DB::table('ruta_paradas')->where('ruta_id', $ruta->id)->orderBy('orden')->pluck('atractivo_id')->all());
         $this->assertNull($ruta->fresh()->imagen_portada);

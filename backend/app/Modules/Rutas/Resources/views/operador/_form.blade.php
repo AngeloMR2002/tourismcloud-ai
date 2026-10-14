@@ -3,6 +3,7 @@
     $destinoFormulario = old('destino_id', $esEdicion ? $ruta->destino_id : ($destinoSeleccionado ?? ''));
     $paradasIniciales = old('paradas', $esEdicion ? $ruta->paradas->pluck('atractivo_id')->all() : []);
     $accion = $esEdicion ? route('operador.rutas.update', $ruta) : route('operador.rutas.store');
+    $googleMapsApiKey = trim((string) config('services.google_maps.key', ''));
 @endphp
 
 <form method="POST" action="{{ $accion }}" enctype="multipart/form-data" class="space-y-6">
@@ -19,17 +20,18 @@
         <div class="tc-alert-error" role="alert">No tienes destinos activos asignados. Solicita la asignación de un destino antes de crear una ruta.</div>
     @endif
 
-    <section class="tc-card p-5 sm:p-6">
-        <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+    <section class="tc-card tc-form-section p-5 sm:p-6">
+        <div class="tc-form-section__heading">
             <div>
-                <h2 class="text-lg font-bold text-slate-900">Información de la ruta</h2>
-                <p class="mt-1 text-sm text-slate-500">Define el recorrido, su duración aproximada y sus paradas ordenadas.</p>
+                <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 5h7a4 4 0 0 1 0 8H9a3 3 0 0 0 0 6h10" stroke-width="1.7" stroke-linecap="round"/><circle cx="5" cy="5" r="1.5" stroke-width="1.7"/><circle cx="19" cy="19" r="1.5" stroke-width="1.7"/></svg>Ruta</p>
+                <h2>Información del recorrido</h2>
+                <p>Define el destino, la distancia y una duración referencial antes de organizar las paradas.</p>
             </div>
-            <span class="inline-flex w-fit rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">Paso 1 de 2</span>
+            <span class="tc-step-badge">Paso 1 de 4</span>
         </div>
 
-        <div class="mt-6 grid gap-5 md:grid-cols-2">
-            <div>
+        <div class="tc-form-grid tc-form-grid--two">
+            <div class="tc-form-field">
                 <label for="destino_id" class="mb-1.5 block text-sm font-semibold text-slate-700">Destino <span class="text-red-500">*</span></label>
                 <select id="destino_id" name="destino_id" class="tc-select w-full" required>
                     <option value="">Selecciona un destino</option>
@@ -48,7 +50,7 @@
                 @error('destino_id')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
 
-            <div>
+            <div class="tc-form-field">
                 <label for="estado" class="mb-1.5 block text-sm font-semibold text-slate-700">Estado <span class="text-red-500">*</span></label>
                 <select id="estado" name="estado" class="tc-select w-full" required>
                     <option value="activo" @selected(old('estado', $esEdicion ? $ruta->estado : 'activo') === 'activo')>Activo</option>
@@ -57,28 +59,28 @@
                 @error('estado')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
 
-            <div class="md:col-span-2">
+            <div class="tc-form-field tc-form-field--wide">
                 <label for="nombre" class="mb-1.5 block text-sm font-semibold text-slate-700">Nombre de la ruta <span class="text-red-500">*</span></label>
                 <input id="nombre" name="nombre" type="text" maxlength="150" class="tc-input w-full"
                     value="{{ old('nombre', $esEdicion ? $ruta->nombre : '') }}" placeholder="Ej. Ruta histórica por el centro" required>
                 @error('nombre')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
 
-            <div class="md:col-span-2">
+            <div class="tc-form-field tc-form-field--wide">
                 <label for="descripcion" class="mb-1.5 block text-sm font-semibold text-slate-700">Descripción</label>
                 <textarea id="descripcion" name="descripcion" rows="4" maxlength="5000" class="tc-input w-full resize-y"
                     placeholder="Describe la experiencia y lo que el visitante encontrará en el recorrido.">{{ old('descripcion', $esEdicion ? $ruta->descripcion : '') }}</textarea>
                 @error('descripcion')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
 
-            <div>
+            <div class="tc-form-field">
                 <label for="distancia_km" class="mb-1.5 block text-sm font-semibold text-slate-700">Distancia estimada (km)</label>
                 <input id="distancia_km" name="distancia_km" type="number" min="0" step="0.01" class="tc-input w-full"
                     value="{{ old('distancia_km', $esEdicion ? $ruta->distancia_km : '') }}" placeholder="Ej. 8.50">
                 @error('distancia_km')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
             </div>
 
-            <div>
+            <div class="tc-form-field">
                 <label for="duracion_estimada_min" class="mb-1.5 block text-sm font-semibold text-slate-700">Duración estimada (minutos)</label>
                 <input id="duracion_estimada_min" name="duracion_estimada_min" type="number" min="1" max="10080" class="tc-input w-full"
                     value="{{ old('duracion_estimada_min', $esEdicion ? $ruta->duracion_estimada_min : '') }}" placeholder="Ej. 180">
@@ -87,17 +89,18 @@
         </div>
     </section>
 
-    <section class="tc-card p-5 sm:p-6">
-        <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+    <section class="tc-card tc-form-section p-5 sm:p-6">
+        <div class="tc-form-section__heading">
             <div>
-                <h2 class="text-lg font-bold text-slate-900">Paradas del recorrido <span class="text-red-500">*</span></h2>
-                <p class="mt-1 text-sm text-slate-500">Agrega al menos dos atractivos activos. Usa Subir y Bajar para definir el orden del recorrido.</p>
+                <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 4h12v5H6zM6 15h12v5H6zM12 9v6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Paradas</p>
+                <h2>Paradas del recorrido <span class="text-red-500">*</span></h2>
+                <p>Agrega al menos dos atractivos activos del destino elegido. Usa Subir y Bajar para definir su orden.</p>
             </div>
-            <span class="inline-flex w-fit rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">Paso 2 de 2</span>
+            <span class="tc-step-badge tc-step-badge--warm">Paso 2 de 4</span>
         </div>
 
         <div class="mt-5 grid gap-5 lg:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="tc-route-stop-panel rounded-2xl border p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h3 class="font-semibold text-slate-800">Atractivos disponibles</h3>
                     <span id="contador-disponibles" class="text-xs font-medium text-slate-500"></span>
@@ -106,7 +109,7 @@
                 <div id="atractivos-disponibles" class="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1" aria-live="polite"></div>
             </div>
 
-            <div class="rounded-2xl border border-primary-100 bg-primary-50/40 p-4">
+            <div class="tc-route-stop-panel tc-route-stop-panel--selected rounded-2xl border p-4">
                 <div class="flex items-center justify-between gap-3">
                     <h3 class="font-semibold text-slate-800">Orden de la ruta</h3>
                     <span id="contador-paradas" class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-primary-700 shadow-sm">0 paradas</span>
@@ -119,12 +122,26 @@
         <noscript><p class="mt-3 text-sm text-red-700">Activa JavaScript para seleccionar y ordenar las paradas.</p></noscript>
     </section>
 
-    <section class="tc-card p-5 sm:p-6">
-        <h2 class="text-lg font-bold text-slate-900">Imagen de portada</h2>
-        <p class="mt-1 text-sm text-slate-500">Opcional. Formatos JPG, PNG o WebP; máximo 5 MB.</p>
+    @include('rutas::partials.mapa-paradas', [
+        'mapId' => 'mapa-ruta-formulario',
+        'mapEyebrow' => 'Vista previa geográfica',
+        'mapTitle' => 'Recorrido según tus paradas',
+        'mapDescription' => 'El mapa toma las coordenadas de los atractivos seleccionados y mantiene el orden que definas arriba.',
+        'mapLabel' => 'Mapa de previsualización de las paradas de la ruta',
+    ])
 
-        <div class="mt-4 grid gap-5 sm:grid-cols-[180px_1fr] sm:items-start">
-            <div class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-sm text-slate-500">
+    <section class="tc-card tc-form-section p-5 sm:p-6">
+        <div class="tc-form-section__heading">
+            <div>
+                <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" stroke-width="1.7"/><circle cx="9" cy="10" r="1.4" stroke-width="1.7"/><path d="m6.5 17 4.2-4.2 2.8 2.7 2-2 2 3.5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Portada</p>
+                <h2>Imagen principal</h2>
+                <p>Opcional. Formatos JPG, PNG o WebP; máximo 5 MB.</p>
+            </div>
+            <span class="tc-step-badge tc-step-badge--warm">Paso 4 de 4</span>
+        </div>
+
+        <div class="tc-form-cover">
+            <div class="tc-form-cover__preview">
                 @if($esEdicion && $ruta->portada_url)
                     <img id="ruta-portada-preview" src="{{ $ruta->portada_url }}" alt="Portada actual de {{ $ruta->nombre }}" class="h-full w-full object-cover">
                 @else
@@ -132,7 +149,7 @@
                     <span id="ruta-portada-placeholder">Sin portada</span>
                 @endif
             </div>
-            <div class="space-y-3">
+            <div class="tc-form-field space-y-3">
                 <label for="imagen_portada" class="block text-sm font-semibold text-slate-700">Seleccionar imagen</label>
                 <input id="imagen_portada" name="imagen_portada" type="file" accept="image/jpeg,image/png,image/webp" class="tc-input w-full">
                 @error('imagen_portada')<p class="text-xs font-medium text-red-600">{{ $message }}</p>@enderror
@@ -154,6 +171,7 @@
 </form>
 
 @push('scripts')
+@include('rutas::partials.mapa-paradas-scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const atractivosPorDestino = {{ Illuminate\Support\Js::from($atractivosPorDestino) }};
@@ -164,6 +182,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const contadorDisponibles = document.getElementById('contador-disponibles');
     const contadorParadas = document.getElementById('contador-paradas');
     let paradas = [...new Set(paradasIniciales)];
+    const mapaRuta = window.TourismCloudRouteStopsMap.create({
+        mapId: 'mapa-ruta-formulario',
+        apiKey: @json($googleMapsApiKey),
+    });
 
     function atractivosDelDestino() {
         return atractivosPorDestino[String(destinoInput.value)] || [];
@@ -172,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function crearBoton(texto, etiqueta, accion, deshabilitado = false) {
         const boton = document.createElement('button');
         boton.type = 'button';
-        boton.className = 'rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-primary-300 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-40';
+        boton.className = 'tc-route-stop-action px-2.5 py-1.5';
         boton.textContent = texto;
         boton.setAttribute('aria-label', etiqueta);
         boton.disabled = deshabilitado;
@@ -183,6 +205,19 @@ document.addEventListener('DOMContentLoaded', function () {
     function datosDeParada(id) {
         return atractivosDelDestino().find(function (atractivo) {
             return Number(atractivo.id) === Number(id);
+        });
+    }
+
+    function paradasParaMapa() {
+        return paradas.map(function (id, indice) {
+            const atractivo = datosDeParada(id);
+
+            return {
+                orden: indice + 1,
+                nombre: atractivo ? atractivo.nombre : 'Parada ' + (indice + 1),
+                latitud: atractivo ? atractivo.latitud : null,
+                longitud: atractivo ? atractivo.longitud : null,
+            };
         });
     }
 
@@ -214,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         disponiblesAtractivos.forEach(function (atractivo) {
             const fila = document.createElement('div');
-            fila.className = 'flex items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm';
+            fila.className = 'tc-route-stop-row flex items-center justify-between gap-3 rounded-xl bg-white p-3';
             const detalle = document.createElement('div');
             const nombre = document.createElement('p');
             nombre.className = 'text-sm font-semibold text-slate-800';
@@ -249,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
         paradas.forEach(function (id, indice) {
             const atractivo = datosDeParada(id);
             const fila = document.createElement('div');
-            fila.className = 'flex flex-wrap items-center gap-3 rounded-xl bg-white p-3 shadow-sm';
+            fila.className = 'tc-route-stop-row flex flex-wrap items-center gap-3 rounded-xl bg-white p-3';
 
             const orden = document.createElement('span');
             orden.className = 'flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white';
@@ -292,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderTodo() {
         renderDisponibles();
         renderParadas();
+        mapaRuta.actualizar(paradasParaMapa());
     }
 
     destinoInput.addEventListener('change', function () {

@@ -1,45 +1,33 @@
 @extends('layouts.auth')
 
 @section('content')
-<div class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 border border-gray-100">
-        
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#00626A]/10 mb-4">
-                <svg class="w-8 h-8 text-[#00626A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Recuperar Acceso</h1>
-            <p class="text-sm text-gray-500 mt-2">Ingresa tu correo electrónico y te enviaremos un código de seguridad de 6 dígitos.</p>
-        </div>
+<main class="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 sm:py-7">
+    <nav class="flex items-center justify-between gap-4" aria-label="Navegación de recuperación">
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5 text-sm font-bold text-[#00626A]"><span class="grid h-9 w-9 place-items-center rounded-xl bg-[#00626A] text-white"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 17 8 11l4 4 5-8 4 10M4 21h16"/></svg></span> TourismCloud AI</a>
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#00626A]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg> Inicio</a>
+    </nav>
+    <div class="flex flex-1 items-center justify-center py-8 sm:py-12">
+        <section class="w-full max-w-[29rem] rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_16px_50px_rgba(16,47,46,.07)] sm:p-9" aria-labelledby="recovery-title">
+            <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[#00626A] hover:underline"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg> Volver al acceso</a>
+            <div class="mt-6 flex items-center gap-2 text-xs font-semibold text-slate-500" aria-label="Paso 1 de 2"><span class="grid h-6 w-6 place-items-center rounded-full bg-[#00626A] text-white">1</span><span>Tu correo</span><span class="mx-1 h-px w-6 bg-slate-200"></span><span class="grid h-6 w-6 place-items-center rounded-full bg-slate-100">2</span><span>Nueva contraseña</span></div>
+            <h1 id="recovery-title" class="mt-5 font-display text-3xl font-bold tracking-tight text-slate-900">Recuperar acceso</h1>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Escribe el correo de tu cuenta. Te enviaremos un código de seis dígitos para cambiar tu contraseña.</p>
 
-        @if(session('error'))
-            <div class="mb-6 p-4 bg-red-50 border border-red-100 text-red-700 text-sm font-medium rounded-xl flex items-center gap-3">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                {{ session('error') }}
-            </div>
-        @endif
+            @if(session('error'))
+                <div role="alert" class="mt-5 rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-700">{{ session('error') }}</div>
+            @endif
 
-        <form action="{{ route('password.email') }}" method="POST" class="space-y-6">
-            @csrf
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico</label>
-                <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                    class="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A] focus:bg-white transition-all text-gray-900" 
-                    placeholder="ejemplo@correo.com">
-                @error('email') <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-            </div>
-
-            <button type="submit" class="w-full flex items-center justify-center py-3.5 px-4 bg-[#00626A] text-white font-semibold rounded-xl hover:bg-[#004e55] shadow-lg shadow-[#00626A]/20 transition-all active:scale-[0.98]">
-                Enviar Código de Verificación
-            </button>
-        </form>
-
-        <div class="mt-8 text-center">
-            <a href="{{ route('login') }}" class="text-sm font-medium text-gray-500 hover:text-[#00626A] transition-colors flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Volver al inicio de sesión
-            </a>
-        </div>
+            <form action="{{ route('password.email') }}" method="POST" class="mt-6 space-y-5">
+                @csrf
+                <div>
+                    <label for="recovery-email" class="mb-2 block text-sm font-semibold text-slate-700">Correo electrónico</label>
+                    <input id="recovery-email" type="email" name="email" autocomplete="email" value="{{ old('email') }}" required autofocus placeholder="ejemplo@correo.com" class="tc-input h-12 w-full">
+                    @error('email') <p role="alert" class="mt-1.5 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <button type="submit" class="tc-btn tc-btn-primary min-h-12 w-full justify-center">Enviar código <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/></svg></button>
+            </form>
+            <p class="mt-5 text-xs leading-5 text-slate-500">Después de enviarlo, revisa también la carpeta de correo no deseado.</p>
+        </section>
     </div>
-</div>
+</main>
 @endsection

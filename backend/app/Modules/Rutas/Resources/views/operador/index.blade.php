@@ -1,20 +1,23 @@
 @extends('layouts.app', ['title' => 'Mis rutas'])
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-7">
+<div class="tc-workspace max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    <div class="tc-page-heading">
         <div>
             <span class="tc-chip">Panel de operador</span>
-            <h1 class="mt-3 text-3xl font-extrabold text-primary-700">Mis rutas</h1>
-            <p class="mt-2 text-sm text-gray-500">Administra recorridos y ordena las paradas de tus destinos.</p>
+            <h1>Mis rutas</h1>
+            <p>Construye recorridos ordenados con atractivos de un mismo destino para orientar futuros itinerarios.</p>
         </div>
-        <a href="{{ route('operador.rutas.create') }}" class="tc-btn-primary justify-center">+ Nueva ruta</a>
+        <div class="tc-operator-heading__actions">
+            <a href="{{ route('operador.actividades.index') }}" class="tc-btn-outline justify-center">Ver mis actividades</a>
+            <a href="{{ route('operador.rutas.create') }}" class="tc-btn-primary justify-center">+ Nueva ruta</a>
+        </div>
     </div>
     @if($errors->any())
         <div class="tc-alert-error mb-4" role="alert">{{ $errors->first() }}</div>
     @endif
-    <form method="GET" action="{{ route('operador.rutas.index') }}" class="tc-card p-4 sm:p-5 mb-6">
-        <div class="grid gap-3 sm:grid-cols-3">
+    <form method="GET" action="{{ route('operador.rutas.index') }}" class="tc-operator-toolbar mb-6">
+        <div class="tc-operator-toolbar__fields">
             <div>
                 <label for="buscar" class="block text-xs font-semibold text-gray-600 mb-1.5">Buscar</label>
                 <input id="buscar" name="buscar" maxlength="100" value="{{ $filtros['buscar'] ?? '' }}" class="tc-input" placeholder="Nombre o descripción">
@@ -37,41 +40,64 @@
                 </select>
             </div>
         </div>
-        <div class="flex flex-wrap gap-3 mt-4">
+        <div class="tc-operator-toolbar__actions">
             <button type="submit" class="tc-btn-primary">Filtrar</button>
             <a href="{{ route('operador.rutas.index') }}" class="tc-btn-outline">Limpiar</a>
         </div>
     </form>
     @if($rutas->isEmpty())
-        <div class="tc-card p-8 text-center">
+        <div class="tc-card p-8 sm:p-12 text-center">
             <h2 class="text-lg font-bold text-gray-800">No hay rutas para mostrar</h2>
-            <p class="mt-2 text-sm text-gray-500">Crea tu primer recorrido o ajusta los filtros.</p>
-            <a href="{{ route('operador.rutas.create') }}" class="tc-btn-primary mt-5">Crear ruta</a>
+            <p class="mt-2 text-sm text-gray-500">Crea un recorrido con al menos dos atractivos activos del mismo destino.</p>
+            <div class="mt-5 flex flex-wrap justify-center gap-3">
+                <a href="{{ route('operador.rutas.create') }}" class="tc-btn-primary">Crear ruta</a>
+                <a href="{{ route('operador.atractivos.index') }}" class="tc-btn-outline">Revisar atractivos</a>
+            </div>
         </div>
     @else
+        <div class="tc-operator-summary">
+            <span class="tc-operator-summary__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 5h7a4 4 0 0 1 0 8H9a3 3 0 0 0 0 6h10" stroke-width="1.7" stroke-linecap="round"/><circle cx="5" cy="5" r="1.5" stroke-width="1.7"/><circle cx="19" cy="19" r="1.5" stroke-width="1.7"/></svg>{{ $rutas->total() }} rutas</span>
+            <span class="tc-operator-summary__item">Una ruta necesita al menos dos paradas activas para publicarse.</span>
+        </div>
         <div class="grid gap-4 md:grid-cols-2">
             @foreach($rutas as $ruta)
-                <article class="tc-card p-5">
+                <article class="tc-operator-card">
                     <div class="flex gap-3 items-start">
-                        <div class="w-20 h-20 shrink-0 overflow-hidden rounded-lg">@include('rutas::partials.portada', ['ruta' => $ruta])</div>
+                        <div class="tc-operator-card__media">@include('rutas::partials.portada', ['ruta' => $ruta])</div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-xs font-semibold text-primary-600">{{ $ruta->destino->nombre }}</p>
-                            <h2 class="mt-1 font-bold text-lg break-words">{{ $ruta->nombre }}</h2>
-                            <span class="{{ $ruta->estado === 'activo' ? 'tc-badge-activo' : 'tc-badge-inactivo' }}">{{ ucfirst($ruta->estado) }}</span>
+                            <p class="tc-operator-card__destination">{{ $ruta->destino->nombre }}</p>
+                            <h2 class="tc-operator-card__title mt-1 break-words">{{ $ruta->nombre }}</h2>
+                            <form method="POST" action="{{ route('operador.rutas.toggle-estado', $ruta) }}" id="tog-ruta-{{ $ruta->id }}">
+                                @csrf
+                                @method('PATCH')
+                                <label class="tc-toggle" title="{{ $ruta->estado === 'activo' ? 'Desactivar' : 'Activar' }} ruta">
+                                    <input type="checkbox" {{ $ruta->estado === 'activo' ? 'checked' : '' }}
+                                           aria-label="{{ $ruta->estado === 'activo' ? 'Desactivar' : 'Activar' }} {{ $ruta->nombre }}"
+                                           onchange="document.getElementById('tog-ruta-{{ $ruta->id }}').submit()">
+                                    <span class="tc-toggle-track"></span>
+                                    <span class="tc-toggle-thumb"></span>
+                                </label>
+                            </form>
                         </div>
                     </div>
                     @include('rutas::partials.credito', ['ruta' => $ruta])
-                    <p class="mt-4 text-sm text-gray-500">{{ $ruta->paradas_count }} paradas · {{ $ruta->distancia_km !== null ? $ruta->distancia_km.' km' : 'Sin distancia' }} · {{ $ruta->duracion_estimada_min !== null ? $ruta->duracion_estimada_min.' min' : 'Sin duración' }}</p>
-                    <p class="mt-2 text-xs text-gray-500">Solo se publica si la ruta y su destino están activos y todas las paradas siguen disponibles.</p>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        <a href="{{ route('operador.rutas.edit', $ruta) }}" class="tc-btn-outline">Editar</a>
-                        <form method="POST" action="{{ route('operador.rutas.toggle-estado', $ruta) }}">
-                            @csrf @method('PATCH')
-                            <button type="submit" class="tc-btn-outline">{{ $ruta->estado === 'activo' ? 'Desactivar' : 'Activar' }}</button>
-                        </form>
+                    @if($ruta->descripcion)
+                        <p class="tc-operator-card__copy mt-3">{{ $ruta->descripcion }}</p>
+                    @endif
+                    <p class="mt-3 text-xs text-gray-500">{{ $ruta->paradas_count }} paradas · {{ $ruta->distancia_km !== null ? $ruta->distancia_km.' km' : 'Sin distancia' }} · {{ $ruta->duracion_estimada_min !== null ? $ruta->duracion_estimada_min.' min' : 'Sin duración' }}</p>
+                    <p class="mt-2 text-[0.68rem] leading-5 text-gray-500">Se publica únicamente cuando la ruta, su destino y todas sus paradas siguen disponibles.</p>
+                    <div class="tc-operator-card__actions justify-end">
+                        <a href="{{ route('catalogo.rutas.show', $ruta) }}" target="_blank" rel="noopener" title="Ver en catálogo" aria-label="Ver {{ $ruta->nombre }} en catálogo" class="tc-icon-action tc-icon-action--view">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="2.6" stroke-width="1.8"/></svg>
+                        </a>
+                        <a href="{{ route('operador.rutas.edit', $ruta) }}" title="Editar" aria-label="Editar {{ $ruta->nombre }}" class="tc-icon-action tc-icon-action--edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m14.5 5.5 4 4M5 19l3.1-.7L19 7.4a2.8 2.8 0 0 0-4-4L4.1 14.3 3.5 17.5 5 19Z" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+                        </a>
                         <form method="POST" action="{{ route('operador.rutas.destroy', $ruta) }}" onsubmit="return confirm('¿Eliminar definitivamente esta ruta y sus paradas? Esta acción no se puede deshacer.');">
                             @csrf @method('DELETE')
-                            <button type="submit" class="tc-btn-outline text-red-700">Eliminar</button>
+                            <button type="submit" title="Eliminar" aria-label="Eliminar {{ $ruta->nombre }}" class="tc-icon-action tc-icon-action--danger">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 7h14m-9 4v5m4-5v5M9 7V4h6v3m-8 0 .8 12h8.4L17 7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
                         </form>
                     </div>
                 </article>

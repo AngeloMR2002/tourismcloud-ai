@@ -3,8 +3,8 @@
 @section('title', 'Tendencias de Preferencias de Turistas')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="tc-workspace max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <header class="tc-page-heading">
         <div>
             <p class="text-xs uppercase tracking-wider font-semibold text-neutral-400">Demanda Turística</p>
             <h1 class="text-2xl font-bold text-gray-900 mt-1">Tendencias de Preferencias Recientes</h1>
@@ -14,10 +14,10 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
             Últimas 10 Registradas
         </span>
-    </div>
+    </header>
 
     {{-- Presupuestos --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+    <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
         <h2 class="text-base font-semibold text-gray-900 mb-1">Presupuestos Máximos Solicitados</h2>
         <p class="text-xs text-gray-500 mb-4">Rangos de gasto proyectados por los turistas en sus viajes.</p>
 
@@ -42,7 +42,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Duraciones --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 class="text-base font-semibold text-gray-900 mb-1">Días Disponibles Más Solicitados</h2>
             <p class="text-xs text-gray-500 mb-4">Frecuencia de estadías planeadas por los turistas.</p>
 
@@ -66,7 +66,7 @@
         </div>
 
         {{-- Categorías de Interés --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 class="text-base font-semibold text-gray-900 mb-1">Categorías de Mayor Interés</h2>
             <p class="text-xs text-gray-500 mb-4">Actividades y experiencias más demandadas.</p>
 
