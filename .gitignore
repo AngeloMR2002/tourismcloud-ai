@@ -4,3 +4,6 @@ vendor/
 *.pyc
 __pycache__/
 .docker/
+
+# Material local de trabajo: no se versiona ni se publica.
+/LOCAL/

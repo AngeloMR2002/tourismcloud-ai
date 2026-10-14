@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Modules\Rutas\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class FiltroRutaPublicoRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'destino_id' => ['bail', 'nullable', 'integer', 'exists:destinos,id'],
+            'duracion_max' => ['bail', 'nullable', 'integer', 'min:1', 'max:10080'],
+            'distancia_max' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
+            'buscar' => ['nullable', 'string', 'max:100'],
+            'por_pagina' => ['bail', 'nullable', 'integer', Rule::in([9, 15, 30, 60])],
+        ];
+    }
+}
