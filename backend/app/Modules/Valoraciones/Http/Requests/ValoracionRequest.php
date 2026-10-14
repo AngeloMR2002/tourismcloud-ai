@@ -3,6 +3,7 @@
 namespace App\Modules\Valoraciones\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class ValoracionRequest extends FormRequest
@@ -12,7 +13,7 @@ class ValoracionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check();
+        return Auth::check();
     }
 
     /**

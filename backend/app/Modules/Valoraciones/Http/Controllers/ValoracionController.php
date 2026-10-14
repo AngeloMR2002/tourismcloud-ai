@@ -5,6 +5,7 @@ namespace App\Modules\Valoraciones\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Valoraciones\Http\Requests\ValoracionRequest;
 use App\Modules\Valoraciones\Models\Valoracion;
+use App\Modules\Usuarios\Models\Usuario;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -54,8 +55,11 @@ class ValoracionController extends Controller
      */
     public function destroy(Valoracion $valoracion): RedirectResponse
     {
+        /** @var Usuario|null $user */
+        $user = Auth::user();
+
         // Solo el autor o un administrador pueden eliminar la valoración
-        if (Auth::id() !== $valoracion->usuario_id && !Auth::user()->isAdmin()) {
+        if (!$user || ($user->id !== $valoracion->usuario_id && !$user->isAdmin())) {
             abort(403, 'No tienes permiso para eliminar esta valoración.');
         }
 
