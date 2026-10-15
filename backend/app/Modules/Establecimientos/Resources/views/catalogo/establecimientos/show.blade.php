@@ -3,81 +3,121 @@
 @section('title', $establecimiento->nombre)
 
 @section('content')
+@php
+    $tipoEstablecimiento = [
+        'hotel'       => 'Hospedaje',
+        'restaurante' => 'Gastronomía',
+        'transporte'  => 'Movilidad',
+        'agencia'     => 'Agencia',
+        'otro'        => 'Servicio turístico',
+    ][$establecimiento->tipo] ?? ucfirst($establecimiento->tipo);
 
-{{-- ══ Carrusel de galería ══════════════════════════════════════════════ --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-    @include('components.galeria-carousel', [
-        'imagenes'      => $establecimiento->imagenes,
-        'imagenPortada' => $establecimiento->imagen_portada,
-        'nombreEntidad' => $establecimiento->nombre,
-        'carouselId'    => 'est-' . $establecimiento->id,
-    ])
+    $rangoPrecio = [
+        'Bajo'   => ['etiqueta' => 'Bajo', 'simbolo' => '$', 'rango' => 'S/ 20 - 80'],
+        'Medio'  => ['etiqueta' => 'Medio', 'simbolo' => '$$', 'rango' => 'S/ 80 - 200'],
+        'Alto'   => ['etiqueta' => 'Alto', 'simbolo' => '$$$', 'rango' => 'S/ 200 - 500'],
+        'Lujoso' => ['etiqueta' => 'Lujoso', 'simbolo' => '$$$$', 'rango' => 'S/ 500 - 2,000'],
+    ][$establecimiento->rango_precio] ?? ($establecimiento->rango_precio ? [
+        'etiqueta' => $establecimiento->rango_precio,
+        'simbolo' => '$$',
+        'rango' => 'Consultar con el establecimiento',
+    ] : null);
 
-    @if(!$establecimiento->imagen_portada && $establecimiento->imagenes->isEmpty())
-        @php $iconos = ['hotel'=>'🏨','restaurante'=>'🍽️','transporte'=>'🚌','agencia'=>'🏢','otro'=>'📋']; @endphp
-        <div class="w-full rounded-xl flex items-center justify-center"
-             style="height: 280px; background: var(--color-amber-soft);">
-            <span class="text-8xl">{{ $iconos[$establecimiento->tipo] ?? '🏢' }}</span>
-        </div>
-    @endif
-</div>
+    $dias = [
+        'lunes'     => 'Lunes',
+        'martes'    => 'Martes',
+        'miercoles' => 'Miércoles',
+        'jueves'    => 'Jueves',
+        'viernes'   => 'Viernes',
+        'sabado'    => 'Sábado',
+        'domingo'   => 'Domingo',
+    ];
+    $horarios = $establecimiento->horarios;
+    $galeria = $establecimiento->imagenes;
+    $tieneCoordenadas = $establecimiento->latitud !== null && $establecimiento->longitud !== null;
+@endphp
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    {{-- Breadcrumb --}}
-    <nav class="flex items-center gap-1.5 text-sm text-gray-400 mb-6">
-        <a href="{{ route('catalogo.establecimientos.index') }}" class="hover:text-gray-600 transition-colors">Establecimientos</a>
-        <span>›</span>
-        @if($establecimiento->destino)
-            <span>{{ $establecimiento->destino->nombre }}</span>
-            <span>›</span>
-        @endif
-        <span class="font-medium" style="color: var(--color-primary-700);">{{ $establecimiento->nombre }}</span>
+<div class="tc-catalog-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <nav class="mb-5 flex flex-wrap items-center gap-2 text-sm" aria-label="Migas de pan">
+        <a href="{{ route('catalogo.establecimientos.index') }}" class="font-semibold text-primary-700 hover:underline">Establecimientos</a>
+        <span class="text-gray-400" aria-hidden="true">/</span>
+        <span class="text-gray-500">{{ $establecimiento->nombre }}</span>
     </nav>
+    <header class="tc-page-heading" aria-labelledby="establecimiento-titulo">
+        <p class="text-xs font-semibold uppercase tracking-widest text-primary-700">{{ $tipoEstablecimiento }}@if($establecimiento->destino) · {{ $establecimiento->destino->nombre }}@endif</p>
+        <h1 id="establecimiento-titulo" class="mt-2 text-3xl font-bold tracking-tight text-gray-900">{{ $establecimiento->nombre }}</h1>
+        @if($establecimiento->direccion)<p class="mt-2 text-sm leading-6 text-gray-600">{{ $establecimiento->direccion }}</p>@endif
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a href="#horarios" class="text-sm font-semibold text-primary-700 hover:underline">Ver horarios</a>
+            <a href="#ubicacion" class="text-sm font-semibold text-primary-700 hover:underline">Ver ubicación</a>
+            <a href="#resenas" class="text-sm font-semibold text-primary-700 hover:underline">Ver valoraciones</a>
+        </div>
+    </header>
+    @if($establecimiento->imagen_portada)
+        <figure class="mt-5 overflow-hidden rounded-2xl bg-gray-100">
+            <img src="{{ asset('storage/'.$establecimiento->imagen_portada) }}" alt="{{ $establecimiento->nombre }}" class="max-h-80 w-full object-cover">
+        </figure>
+    @endif
 
-    <div class="flex gap-8 items-start">
-
-        {{-- ══ COLUMNA IZQUIERDA ══════════════════════════════════════════ --}}
-        <div class="flex-1 min-w-0 space-y-5">
-
-            {{-- Chip tipo + Título + Lugar --}}
-            <div>
-                <div class="flex flex-wrap gap-2 mb-3">
-                    <span class="tc-badge-tipo">{{ ucfirst($establecimiento->tipo) }}</span>
+    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start">
+        <div class="min-w-0 space-y-7">
+            <section class="rounded-[1.6rem] border border-[#dce8e5] bg-white p-6 shadow-[0_18px_42px_-34px_rgba(8,75,80,0.55)] sm:p-8">
+                <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="max-w-2xl">
+                        <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.17em] text-[#4d8584]">Sobre este lugar</p>
+                        <h2 class="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-[#173f43]" style="font-family: var(--font-display);">Información para planificar tu visita</h2>
+                    </div>
+                    <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eaf5f3] text-[#00626A]" aria-hidden="true">
+                        @if($establecimiento->tipo === 'restaurante')
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M8 3v8m3-8v8m-6-8v5a3 3 0 0 0 6 0V3m4 0v18m0-9h4l-4-9"/></svg>
+                        @elseif($establecimiento->tipo === 'transporte')
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M5 17h14M6 17V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9M8 17v2m8-2v2M8 10h8"/></svg>
+                        @elseif($establecimiento->tipo === 'agencia')
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M3 21h18M4 10h16M5 10l7-6 7 6M6 10v9m4-9v9m4-9v9m4-9v9"/></svg>
+                        @else
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01"/></svg>
+                        @endif
+                    </span>
                 </div>
-                <h1 style="font-family: var(--font-display); font-size: 1.875rem; font-weight: 800; color: #1a2232; line-height: 1.2;">
-                    {{ $establecimiento->nombre }}
-                </h1>
-                <div class="flex items-center gap-2 mt-1.5 text-sm text-gray-400">
-                    @if($establecimiento->destino)<span>{{ $establecimiento->destino->nombre }}</span>@endif
-                    @if($establecimiento->direccion)
-                        @if($establecimiento->destino)<span>·</span>@endif
-                        <span>{{ $establecimiento->direccion }}</span>
-                    @endif
-                </div>
-            </div>
 
-            {{-- Sobre el establecimiento + categorías --}}
-            <div class="tc-card p-5">
-                <h2 class="text-xs font-bold uppercase tracking-wide mb-3" style="color: var(--color-primary-700);">
-                    Sobre el establecimiento
-                </h2>
-                @if($establecimiento->descripcion)
-                    <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line mb-4">
-                        {{ $establecimiento->descripcion }}
-                    </p>
+                @if(filled($establecimiento->descripcion))
+                    <p class="mt-6 whitespace-pre-line text-[0.98rem] leading-8 text-[#557375]">{{ $establecimiento->descripcion }}</p>
+                @else
+                    <p class="mt-6 text-[0.98rem] leading-8 text-[#6f8687]">Este establecimiento está registrado en el catálogo turístico. Revisa sus horarios, ubicación y categorías antes de incluirlo en tu recorrido.</p>
                 @endif
+
                 @if($establecimiento->categorias->isNotEmpty())
-                    <div class="flex flex-wrap gap-2 pt-3 border-t border-gray-100">
-                        @foreach($establecimiento->categorias as $cat)
-                            <span class="tc-chip">{{ $cat->nombre }}</span>
-                        @endforeach
+                    <div class="mt-7 border-t border-[#e4efec] pt-5">
+                        <p class="mb-3 text-[0.67rem] font-extrabold uppercase tracking-[0.14em] text-[#497e80]">Categorías registradas</p>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($establecimiento->categorias as $categoria)
+                                <span class="rounded-full border border-[#cde3df] bg-[#f0f8f6] px-3 py-1.5 text-xs font-bold text-[#246a6d]">{{ $categoria->nombre }}</span>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
-            </div>
+            </section>
+
+            <section id="galeria" class="tc-card p-6 sm:p-8">
+                <p class="text-xs font-bold uppercase tracking-widest text-primary-700">Galería</p>
+                <h2 class="mt-1 text-2xl font-bold text-gray-900">Mira el espacio antes de ir</h2>
+                <div class="mt-5">
+                    @include('components.galeria-carousel', [
+                        'imagenes' => $galeria,
+                        'imagenPortada' => $establecimiento->imagen_portada,
+                        'nombreEntidad' => $establecimiento->nombre,
+                        'carouselId' => 'est-' . $establecimiento->id,
+                    ])
+                    @if(!$establecimiento->imagen_portada && $galeria->isEmpty())
+                        <div class="tc-cover-fallback min-h-64 rounded-2xl" role="img" aria-label="Sin imágenes disponibles de {{ $establecimiento->nombre }}">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5"/></svg>
+                        </div>
+                    @endif
+                </div>
+            </section>
 
             {{-- ── Horario de atención — tabla 4 columnas ────────────────── --}}
-            <div class="tc-card p-5">
+            <section id="horarios" class="tc-card scroll-mt-24 p-6 sm:p-8">
                 <h2 class="text-xs font-bold uppercase tracking-wide mb-4" style="color: var(--color-primary-700);">
                     Horario de atención
                 </h2>
@@ -151,141 +191,182 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            {{-- 📍 MAPA INTERACTIVO 3D ════════════════════════════════════════ --}}
-            <div class="mt-12 bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 rounded-full bg-[#00626A]/10 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-[#00626A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <section id="ubicacion" class="overflow-hidden rounded-[1.6rem] border border-[#dce8e5] bg-white shadow-[0_18px_42px_-34px_rgba(8,75,80,0.55)] scroll-mt-24">
+                <div class="flex flex-col gap-4 border-b border-[#e2eeeb] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+                    <div>
+                        <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.17em] text-[#4d8584]">Ubicación</p>
+                        <h2 class="mt-1 text-2xl font-extrabold tracking-[-0.035em] text-[#173f43]" style="font-family: var(--font-display);">Encuentra este establecimiento</h2>
+                        @if($establecimiento->direccion)
+                            <p class="mt-2 text-sm text-[#678183]">{{ $establecimiento->direccion }}</p>
+                        @endif
                     </div>
-                    <h2 class="text-xl font-bold text-gray-900">Ubicación del Establecimiento</h2>
+                    @if($tieneCoordenadas)
+                        <a href="https://maps.google.com/?q={{ $establecimiento->latitud }},{{ $establecimiento->longitud }}" target="_blank" rel="noopener" class="inline-flex w-fit items-center gap-2 rounded-xl border border-[#bcd8d4] bg-white px-4 py-3 text-sm font-bold text-[#075d64] transition hover:border-[#00626A] hover:bg-[#eef8f6]">
+                            Abrir en Maps
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3h7v7m0-7-9 9M5 7v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg>
+                        </a>
+                    @endif
                 </div>
-                
-                <div class="relative w-full h-[450px] rounded-2xl overflow-hidden border border-gray-200">
-                    <div id="interactive_map_establecimiento" class="w-full h-full bg-gray-50"></div>
 
-                    <a href="https://maps.google.com/?q={{ $establecimiento->latitud }},{{ $establecimiento->longitud }}" target="_blank" class="absolute top-4 right-4 bg-white text-gray-700 hover:text-black text-xs font-medium px-4 py-2.5 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.1)] hover:shadow-[0_4px_15px_rgba(0,0,0,0.15)] transform transition-all active:scale-95 flex items-center gap-2 z-10">
-                        Abrir en App
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                    </a>
-                </div>
-            </div>
-
-            {{-- 📝 FORMULARIO DE VALORACIONES Y RESEÑAS ═══════════════════════ --}}
-            @include('valoraciones::components.form', ['modelo' => $establecimiento, 'tipo' => 'establecimiento'])
+                @if($tieneCoordenadas)
+                    <div class="relative h-[22rem] bg-[#e7f1ef] sm:h-[28rem]">
+                        <div id="interactive_map_establecimiento" class="h-full w-full"></div>
+                        <div class="pointer-events-none absolute bottom-4 left-4 rounded-xl bg-white/95 px-3 py-2 text-xs font-bold text-[#35676a] shadow-lg backdrop-blur-sm">Ubicación registrada</div>
+                    </div>
+                @else
+                    <div class="relative flex min-h-64 items-center justify-center overflow-hidden bg-[#eaf4f2] px-6 text-center">
+                        <svg viewBox="0 0 540 260" class="absolute inset-0 h-full w-full text-[#00626A]/10" fill="none" aria-hidden="true"><path d="M0 210c84-67 164-54 246 20 77-112 168-110 294-36" stroke="currentColor" stroke-width="3"/><path d="M135 260V130l48-36 48 36v130M328 260V88l62-42 62 42v172" stroke="currentColor" stroke-width="3"/></svg>
+                        <div class="relative max-w-sm">
+                            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#00626A] shadow-sm"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2" stroke-width="1.8"/></svg></span>
+                            <p class="mt-4 text-sm font-bold text-[#2c6064]">La ubicación exacta aún no fue registrada.</p>
+                            <p class="mt-2 text-sm leading-6 text-[#6a8586]">Consulta la dirección publicada por el proveedor antes de planificar tu desplazamiento.</p>
+                        </div>
+                    </div>
+                @endif
+            </section>
+            <section id="resenas" class="scroll-mt-24">
+                @include('valoraciones::components.form', ['modelo' => $establecimiento, 'tipo' => 'establecimiento'])
+            </section>
         </div>
 
-        {{-- ══ COLUMNA DERECHA ════════════════════════════════════════════ --}}
-        <div class="w-72 shrink-0 space-y-4">
-
-            {{-- Rango de precio --}}
-            @if($establecimiento->rango_precio)
-                @php
-                    $rangosDisplay = [
-                        'Bajo'   => ['label' => 'Bajo',   'simbolo' => '$',    'rango' => 'S/ 20 - 80'],
-                        'Medio'  => ['label' => 'Medio',  'simbolo' => '$$',   'rango' => 'S/ 80 - 200'],
-                        'Alto'   => ['label' => 'Alto',   'simbolo' => '$$$',  'rango' => 'S/ 200 - 500'],
-                        'Lujoso' => ['label' => 'Lujoso', 'simbolo' => '$$$$', 'rango' => 'S/ 500 - 2,000'],
-                    ];
-                    $rp = $rangosDisplay[$establecimiento->rango_precio] ?? [
-                        'label'   => $establecimiento->rango_precio,
-                        'simbolo' => '$$',
-                        'rango'   => 'Consultar con el establecimiento',
-                    ];
-                @endphp
-                <div class="tc-card p-5">
-                    <p class="text-xs font-bold uppercase tracking-wide mb-2" style="color: var(--color-primary-700);">
-                        Rango de precio
-                    </p>
-                    <p style="font-family: var(--font-display); font-size: 2.25rem; font-weight: 800; color: #1a2232; line-height: 1.1;" class="mb-1">
-                        {{ $rp['label'] }} {{ $rp['simbolo'] }}
-                    </p>
-                    <p class="text-xs text-gray-400">
-                        Precio aproximado por persona: {{ $rp['rango'] }}
-                    </p>
+        <aside class="space-y-4 lg:sticky lg:top-24">
+            <section class="overflow-hidden rounded-[1.5rem] border border-[#dbe9e5] bg-white shadow-[0_18px_42px_-34px_rgba(8,75,80,0.6)]">
+                <div class="border-b border-gray-100 px-5 py-4">
+                    <h2 class="font-bold text-gray-900">Datos del establecimiento</h2>
                 </div>
-            @endif
 
-            {{-- ── Módulo de Reseñas y Valoraciones ─────────────────── --}}
+                <dl class="divide-y divide-[#e7efed] px-5">
+                    <div class="flex items-start gap-3 py-4">
+                        <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eaf5f3] text-[#00626A]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01"/></svg></span>
+                        <div>
+                            <dt class="text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-[#779091]">Servicio</dt>
+                            <dd class="mt-1 text-sm font-bold text-[#2a5558]">{{ $tipoEstablecimiento }}</dd>
+                        </div>
+                    </div>
+                    @if($establecimiento->destino)
+                        <div class="flex items-start gap-3 py-4">
+                            <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3dd] text-[#a76d1f]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2" stroke-width="1.8"/></svg></span>
+                            <div>
+                                <dt class="text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-[#779091]">Destino</dt>
+                                <dd class="mt-1 text-sm font-bold text-[#2a5558]">{{ $establecimiento->destino->nombre }}</dd>
+                            </div>
+                        </div>
+                    @endif
+                    @if($rangoPrecio)
+                        <div class="flex items-start gap-3 py-4">
+                            <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#fff3dd] text-[#a76d1f]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v12m4-9.5A4 4 0 0 0 12 6c-2.21 0-4 1.12-4 2.5S9.79 11 12 11s4 1.12 4 2.5S14.21 16 12 16a4 4 0 0 1-4-2.5"/></svg></span>
+                            <div>
+                                <dt class="text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-[#779091]">Nivel de precio</dt>
+                                <dd class="mt-1 text-sm font-bold text-[#2a5558]">{{ $rangoPrecio['etiqueta'] }} <span class="text-[#b57925]">{{ $rangoPrecio['simbolo'] }}</span></dd>
+                                <dd class="mt-2 text-xs leading-5 text-gray-500">Precio aproximado por persona: {{ $rangoPrecio['rango'] }}</dd>
+                            </div>
+                        </div>
+                    @endif
+                    <div class="flex items-start gap-3 py-4">
+                        <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#edf5ff] text-[#3f719a]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="1.8"/><circle cx="8" cy="9" r="1.2" fill="currentColor"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m21 15-4-4L7 20"/></svg></span>
+                        <div>
+                            <dt class="text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-[#779091]">Imágenes</dt>
+                            <dd class="mt-1 text-sm font-bold text-[#2a5558]">{{ $galeria->count() + ($establecimiento->imagen_portada ? 1 : 0) }} {{ ($galeria->count() + ($establecimiento->imagen_portada ? 1 : 0)) === 1 ? 'registrada' : 'registradas' }}</dd>
+                        </div>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-[#cfe3df] bg-[#eff8f6] p-5">
+                <div class="flex gap-3">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#00626A] shadow-sm"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></span>
+                    <p class="text-sm leading-6 text-[#497173]">Los datos mostrados corresponden a la información registrada por el proveedor.</p>
+                </div>
+            </section>
+
             @include('valoraciones::components.sidebar', ['modelo' => $establecimiento, 'tipo' => 'establecimiento'])
 
-            <a href="{{ route('catalogo.establecimientos.index') }}"
-               class="tc-btn-outline w-full justify-center text-sm">
-                ← Volver al catálogo
+            <a href="{{ route('catalogo.establecimientos.index') }}" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#b7d4d0] bg-white px-4 py-3 text-sm font-bold text-[#176168] transition hover:border-[#00626A] hover:bg-[#f0f9f7]">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg>
+                Volver al catálogo
             </a>
-        </div>
+        </aside>
     </div>
 </div>
 
-@push('scripts')
-<script>
+@if($tieneCoordenadas)
+    @push('scripts')
+    <script>
+        (function () {
+            const target = document.getElementById('interactive_map_establecimiento');
+            if (!target) return;
+            const apiKey = @json(config('services.google_maps.key'));
+            const point = {
+                lat: {{ json_encode((float) $establecimiento->latitud) }},
+                lng: {{ json_encode((float) $establecimiento->longitud) }}
+            };
+            const name = @json($establecimiento->nombre);
+            const detail = @json($establecimiento->direccion ?? 'Sin dirección específica');
+
+            function showMapLink() {
+                const link = document.createElement('a');
+                link.href = 'https://maps.google.com/?q=' + point.lat + ',' + point.lng;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.className = 'flex h-full items-center justify-center bg-[#e6f4f5] p-6 text-center text-sm font-semibold text-[#08565D]';
+                link.textContent = 'Abrir el punto publicado en Google Maps';
+                target.replaceChildren(link);
+            }
+
+            if (!apiKey) {
+                showMapLink();
+                return;
+            }
+
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
-        key: "{{ env('GOOGLE_MAPS_API_KEY') }}",
+        key: apiKey,
         v: "weekly"
     });
 
-    async function initEstablecimientoMap() {
-        const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-        
-        const latLng = { lat: {{ $establecimiento->latitud ?? 0 }}, lng: {{ $establecimiento->longitud ?? 0 }} };
 
-        const minimalStyle = [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-            { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] },
-            { featureType: "water", elementType: "geometry", stylers: [{ color: "#e9ecef" }] },
-            { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#f8f9fa" }] },
-            { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#e9ecef" }] }
-        ];
+            async function initializeMap() {
+                try {
+                    const { Map, InfoWindow } = await google.maps.importLibrary('maps');
+                    const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+                    const map = new Map(target, {
+                        center: point,
+                        zoom: 16,
+                        disableDefaultUI: true,
+                        zoomControl: true,
+                        mapId: 'DEMO_MAP_ID',
+                        gestureHandling: 'cooperative'
+                    });
+                    const markerContent = document.createElement('div');
+                    markerContent.innerHTML = '<div class="flex cursor-pointer items-center justify-center rounded-full border-2 border-white bg-gray-900 p-2.5 text-white shadow-lg"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 21V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v15M9 21v-5h6v5"/></svg></div>';
+                    const marker = new AdvancedMarkerElement({
+                        map: map,
+                        position: point,
+                        content: markerContent,
+                        title: name
+                    });
+                    const popup = document.createElement('div');
+                    popup.className = 'max-w-[200px] p-1 font-sans';
+                    const title = document.createElement('h3');
+                    title.className = 'mb-1 text-sm font-bold leading-tight text-gray-900';
+                    title.textContent = name;
+                    const description = document.createElement('p');
+                    description.className = 'text-xs text-gray-500';
+                    description.textContent = detail;
+                    popup.append(title, description);
+                    const infoWindow = new InfoWindow({ content: popup, headerDisabled: true });
+                    marker.addListener('click', function () {
+                        infoWindow.open({ anchor: marker, map: map });
+                    });
+                } catch (error) {
+                    showMapLink();
+                }
+            }
 
-        const map = new Map(document.getElementById("interactive_map_establecimiento"), {
-            center: latLng,
-            zoom: 16,
-            styles: minimalStyle,
-            disableDefaultUI: true,
-            zoomControl: true,
-            mapId: "DEMO_MAP_ID",
-            gestureHandling: "cooperative"
-        });
-
-        // 1. PIN HTML PERSONALIZADO (Cambié el icono para los establecimientos)
-        const markerContent = document.createElement("div");
-        markerContent.innerHTML = `
-            <div class="bg-gray-900 text-white rounded-full p-2.5 shadow-lg border-2 border-white flex items-center justify-center transform transition-transform hover:scale-110 cursor-pointer">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            </div>
-        `;
-
-        const marker = new AdvancedMarkerElement({
-            map: map,
-            position: latLng,
-            content: markerContent,
-            title: "{{ $establecimiento->nombre }}"
-        });
-
-        // 2. VENTANA DE INFORMACIÓN AL HACER CLIC
-        const infoWindow = new InfoWindow({
-            content: `
-                <div class="p-1 font-sans max-w-[200px]">
-                    <h3 class="font-bold text-gray-900 text-sm mb-1 leading-tight">{{ $establecimiento->nombre }}</h3>
-                    <p class="text-xs text-gray-500">{{ $establecimiento->direccion ?? 'Sin dirección específica' }}</p>
-                </div>
-            `,
-            headerDisabled: true 
-        });
-
-        marker.addListener("click", () => {
-            infoWindow.open({
-                anchor: marker,
-                map,
-            });
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", initEstablecimientoMap);
-</script>
-@endpush
-
+            initializeMap();
+        })();
+    </script>
+    @endpush
+@endif
 @endsection

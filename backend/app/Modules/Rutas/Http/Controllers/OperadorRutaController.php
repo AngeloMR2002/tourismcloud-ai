@@ -158,7 +158,7 @@ class OperadorRutaController extends Controller
 
     /**
      * @param  array<int, int>  $destinoIds
-     * @return array<int, array<int, array{id: int, nombre: string, costo: string, duracion: int|null}>>
+     * @return array<int, array<int, array{id: int, nombre: string, costo: string, duracion: int|null, latitud: string|null, longitud: string|null}>>
      */
     private function atractivosPorDestino(array $destinoIds): array
     {
@@ -176,7 +176,15 @@ class OperadorRutaController extends Controller
             ->whereIn('destino_id', $destinoIds)
             ->where('estado', 'activo')
             ->orderBy('nombre')
-            ->get(['id', 'destino_id', 'nombre', 'costo_entrada', 'duracion_estimada_min']);
+            ->get([
+                'id',
+                'destino_id',
+                'nombre',
+                'costo_entrada',
+                'duracion_estimada_min',
+                'latitud',
+                'longitud',
+            ]);
 
         foreach ($atractivos as $atractivo) {
             $resultado[(int) $atractivo->destino_id][] = [
@@ -184,6 +192,8 @@ class OperadorRutaController extends Controller
                 'nombre' => $atractivo->nombre,
                 'costo' => (string) $atractivo->costo_entrada,
                 'duracion' => $atractivo->duracion_estimada_min,
+                'latitud' => $atractivo->latitud,
+                'longitud' => $atractivo->longitud,
             ];
         }
 

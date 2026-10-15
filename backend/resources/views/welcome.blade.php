@@ -1,118 +1,426 @@
-@extends('layouts.app')
-
-@section('title', 'Inicio')
+@extends('layouts.app', ['title' => 'Inicio'])
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-    <section class="relative isolate overflow-hidden rounded-3xl px-6 py-10 shadow-xl sm:px-10 sm:py-14 lg:px-14"
-             style="background: linear-gradient(120deg, var(--color-primary-900), var(--color-primary-600));">
-        <div class="absolute -right-16 -top-24 -z-10 h-72 w-72 rounded-full border-[36px] border-white/10"></div>
-        <div class="absolute -bottom-36 right-1/4 -z-10 h-72 w-72 rounded-full bg-white/5 blur-2xl"></div>
+    @php
+        $planUrl = route('register');
+        $planLabel = 'Crear mi cuenta';
 
-        <div class="grid items-center gap-10 lg:grid-cols-[1.2fr_0.8fr]">
-            <div class="max-w-2xl">
-                <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/90">
-                    <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                    Turismo que conecta
-                </span>
-                <h1 class="mt-5 max-w-xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl"
-                    style="font-family: var(--font-display);">
-                    Tu próxima gran experiencia empieza aquí.
-                </h1>
-                <p class="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
-                    Explora lugares especiales, encuentra dónde hospedarte y organiza tus preferencias para descubrir experiencias a tu medida.
+        if (auth()->check()) {
+            if (auth()->user()->isTurista()) {
+                $planUrl = route('itinerarios.create');
+                $planLabel = 'Crear mi itinerario';
+            } elseif (auth()->user()->isOperador()) {
+                $planUrl = route('operador.actividades.index');
+                $planLabel = 'Gestionar mis actividades';
+            } elseif (auth()->user()->isProveedor()) {
+                $planUrl = route('proveedor.establecimientos.index');
+                $planLabel = 'Gestionar mis establecimientos';
+            } else {
+                $planUrl = route('dashboard');
+                $planLabel = 'Abrir mi panel';
+            }
+        }
+
+        $heroSlides = [
+            [
+                'eyebrow' => 'Turismo inteligente para Perú',
+                'title' => 'Un viaje que empieza con lo que te inspira.',
+                'lead' => 'Encuentra destinos, lugares, actividades y rutas para ordenar cada día de tu próxima aventura.',
+                'primary_label' => 'Ver destinos',
+                'primary_url' => '#destinos',
+                'image' => asset('storage/actividades-rutas-demo/cusco-plaza.jpg'),
+                'position' => 'center 62%',
+                'credit' => 'Fotografía de Cusco: Entropy1963 · dominio público',
+                'credit_url' => 'https://commons.wikimedia.org/wiki/File:The_Plaza_de_Armas_of_Cusco.jpg',
+            ],
+            [
+                'eyebrow' => 'Costa, historia y naturaleza',
+                'title' => 'Experiencias para descubrir a tu ritmo.',
+                'lead' => 'Revisa actividades publicadas por operadores y elige las que mejor acompañen los días de tu visita.',
+                'primary_label' => 'Explorar actividades',
+                'primary_url' => route('catalogo.actividades.index'),
+                'image' => asset('images/home-hero/paracas-amanecer.png'),
+                'position' => 'center center',
+                'credit' => 'Imagen conceptual creada para TourismCloud AI',
+                'credit_url' => null,
+            ],
+            [
+                'eyebrow' => 'Paradas que cuentan historias',
+                'title' => 'Rutas que conectan cada parada.',
+                'lead' => 'Consulta recorridos con lugares ordenados y arma una visita con la información disponible en la plataforma.',
+                'primary_label' => 'Explorar rutas',
+                'primary_url' => route('catalogo.rutas.index'),
+                'image' => asset('images/home-hero/andes-ruta.png'),
+                'position' => 'center center',
+                'credit' => 'Imagen conceptual creada para TourismCloud AI',
+                'credit_url' => null,
+            ],
+            [
+                'eyebrow' => 'Planificación inteligente · en evolución',
+                'title' => 'Tu próximo viaje, ordenado paso a paso.',
+                'lead' => 'Elige un destino, define tus días y registra un presupuesto referencial para guardar tu propio punto de partida.',
+                'primary_label' => $planLabel,
+                'primary_url' => $planUrl,
+                'image' => asset('images/home-hero/arequipa-atardecer.png'),
+                'position' => 'center center',
+                'credit' => 'Imagen conceptual creada para TourismCloud AI',
+                'credit_url' => null,
+            ],
+        ];
+    @endphp
+
+    <div class="tc-home">
+        <section class="tc-home-hero" aria-labelledby="inicio-titulo" aria-roledescription="carrusel" aria-label="Escenas destacadas de TourismCloud AI" data-home-carousel>
+            <div class="tc-home-hero__slides" aria-hidden="true">
+                @foreach($heroSlides as $heroSlide)
+                    <div
+                        class="tc-home-hero__slide {{ $loop->first ? 'is-active' : '' }}"
+                        data-hero-slide
+                        data-hero-eyebrow="{{ $heroSlide['eyebrow'] }}"
+                        data-hero-title="{{ $heroSlide['title'] }}"
+                        data-hero-lead="{{ $heroSlide['lead'] }}"
+                        data-hero-primary-label="{{ $heroSlide['primary_label'] }}"
+                        data-hero-primary-url="{{ $heroSlide['primary_url'] }}"
+                        data-hero-credit="{{ $heroSlide['credit'] }}"
+                        data-hero-credit-url="{{ $heroSlide['credit_url'] }}"
+                        style="--tc-home-hero-image: url('{{ $heroSlide['image'] }}'); --tc-home-hero-position: {{ $heroSlide['position'] }};"
+                    ></div>
+                @endforeach
+            </div>
+
+            <div class="tc-home-hero__inner">
+                <p class="tc-home-eyebrow" data-hero-eyebrow>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 21s7-5 7-12a7 7 0 1 0-14 0c0 7 7 12 7 12Z" stroke-width="1.8"/><circle cx="12" cy="9" r="2.2"/></svg>
+                    <span>{{ $heroSlides[0]['eyebrow'] }}</span>
                 </p>
-                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <a href="{{ route('catalogo.atractivos.index') }}"
-                       class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-primary-800 shadow-sm transition hover:bg-primary-50">
-                        Explorar atractivos
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a href="{{ route('catalogo.establecimientos.index') }}"
-                       class="inline-flex items-center justify-center rounded-lg border border-white/35 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                        Ver establecimientos
-                    </a>
+                <h1 id="inicio-titulo" data-hero-title>{{ $heroSlides[0]['title'] }}</h1>
+                <p class="tc-home-hero__lead" data-hero-lead>{{ $heroSlides[0]['lead'] }}</p>
+
+                <form id="busqueda-inicio" action="{{ route('catalogo.atractivos.index') }}" method="GET" class="tc-home-search tc-home-search--hero" aria-label="Buscar en los catálogos">
+                    <div>
+                        <label for="catalogo-inicio">Quiero explorar</label>
+                        <select id="catalogo-inicio" class="tc-select">
+                            <option value="{{ route('catalogo.atractivos.index') }}" data-query="busqueda" data-placeholder="Ej. Machu Picchu">Atractivos</option>
+                            <option value="{{ route('catalogo.actividades.index') }}" data-query="buscar" data-placeholder="Ej. caminata o taller">Actividades</option>
+                            <option value="{{ route('catalogo.rutas.index') }}" data-query="buscar" data-placeholder="Ej. ruta cultural">Rutas</option>
+                            <option value="{{ route('catalogo.establecimientos.index') }}" data-query="busqueda" data-placeholder="Ej. hotel o restaurante">Establecimientos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="busqueda-inicio-texto">¿Qué tienes en mente?</label>
+                        <div class="tc-search-input-wrap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke-width="1.7"/><path d="m16 16 5 5" stroke-width="1.7" stroke-linecap="round"/></svg>
+                            <input id="busqueda-inicio-texto" name="busqueda" type="search" maxlength="100" placeholder="Ej. Machu Picchu" class="tc-input">
+                        </div>
+                    </div>
+                    <button type="submit" class="tc-btn-primary">Buscar <span aria-hidden="true">→</span></button>
+                </form>
+
+                <div class="tc-home-hero__actions">
+                    <a href="{{ $heroSlides[0]['primary_url'] }}" class="tc-btn-hero-secondary" data-hero-primary-action><span data-hero-primary-label>{{ $heroSlides[0]['primary_label'] }}</span> <span aria-hidden="true">→</span></a>
+                    <a href="{{ route('catalogo.rutas.index') }}" class="tc-hero-text-link">Explorar rutas <span aria-hidden="true">↗</span></a>
                 </div>
             </div>
 
-            <div class="hidden justify-center lg:flex" aria-hidden="true">
-                <div class="relative flex h-64 w-64 items-center justify-center rounded-full border border-white/20 bg-white/10 shadow-2xl backdrop-blur-sm">
-                    <div class="absolute inset-5 rounded-full border border-dashed border-white/30"></div>
-                    <div class="absolute inset-12 rounded-full border border-white/20"></div>
-                    <svg class="h-28 w-28 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M3.055 11H5a2 2 0 0 1 2 2v1a2 2 0 0 0 2 2 2 2 0 0 1 2 2v2.945M8 3.935V5.5A2.5 2.5 0 0 0 10.5 8h.5a2 2 0 0 1 2 2 2 2 0 1 0 4 0 2 2 0 0 1 2-2h1.064M15 20.488V18a2 2 0 0 1 2-2h3.064M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m9 12 2 2 4-4"/>
-                    </svg>
-                    <span class="absolute right-5 top-8 flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-300 text-xl text-primary-900 shadow-lg">✦</span>
-                    <span class="absolute bottom-7 left-5 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-lg text-primary-600 shadow-lg">⌖</span>
+            <div class="tc-home-hero__controls" role="group" aria-label="Controles del carrusel">
+                <button type="button" class="tc-home-hero__carousel-button tc-home-hero__carousel-arrow" data-hero-previous aria-label="Mostrar la escena anterior">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m14 6-6 6 6 6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="tc-home-hero__dots" role="group" aria-label="Seleccionar escena">
+                    @foreach($heroSlides as $heroSlide)
+                        <button type="button" class="tc-home-hero__dot {{ $loop->first ? 'is-active' : '' }}" data-hero-dot data-hero-index="{{ $loop->index }}" aria-label="Mostrar escena {{ $loop->iteration }}: {{ $heroSlide['title'] }}" aria-current="{{ $loop->first ? 'true' : 'false' }}" tabindex="{{ $loop->first ? '0' : '-1' }}"><span class="sr-only">Escena {{ $loop->iteration }}</span></button>
+                    @endforeach
                 </div>
+                <button type="button" class="tc-home-hero__carousel-button tc-home-hero__carousel-arrow" data-hero-next aria-label="Mostrar la escena siguiente">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m10 6 6 6-6 6" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button type="button" class="tc-home-hero__carousel-button tc-home-hero__pause" data-hero-pause aria-label="Pausar cambio automático" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M9 7v10M15 7v10" stroke-width="1.9" stroke-linecap="round"/></svg>
+                    <span class="sr-only" data-hero-pause-label>Pausar cambio automático</span>
+                </button>
             </div>
+
+            <ul class="tc-home-hero__benefits" aria-label="Características de la plataforma">
+                <li><span aria-hidden="true">✦</span> Información organizada</li>
+                <li><span aria-hidden="true">⌁</span> Rutas con paradas</li>
+                <li><span aria-hidden="true">◌</span> Planifica por días</li>
+                <li><span aria-hidden="true">↗</span> Explora a tu ritmo</li>
+            </ul>
+
+            <p class="tc-home-hero__credit"><span data-hero-credit>{{ $heroSlides[0]['credit'] }}</span><a href="{{ $heroSlides[0]['credit_url'] }}" target="_blank" rel="noopener noreferrer" data-hero-credit-link>Ver crédito</a></p>
+        </section>
+
+        <div class="tc-home-content">
+            <section id="destinos" class="tc-home-section tc-home-section--destinations" aria-labelledby="destinos-titulo">
+                <div class="tc-home-section__heading">
+                    <div>
+                        <p class="tc-section-kicker">Para empezar</p>
+                        <h2 id="destinos-titulo">Destinos principales</h2>
+                        <p>Conoce los destinos disponibles y empieza a construir tu recorrido.</p>
+                    </div>
+                    <a href="{{ route('catalogo.atractivos.index') }}" class="tc-section-link">Explorar todos <span aria-hidden="true">→</span></a>
+                </div>
+
+                <div class="tc-destinations-grid">
+                    @forelse($destinosDestacados as $destino)
+                        @php
+                            $nombreNormalizado = \Illuminate\Support\Str::lower($destino->nombre);
+                            $visualDestino = str_contains($nombreNormalizado, 'cusco')
+                                ? 'tc-destination-card--cusco'
+                                : (str_contains($nombreNormalizado, 'arequipa') ? 'tc-destination-card--arequipa' : 'tc-destination-card--default');
+                            $ubicacionDestino = collect([$destino->ciudad, $destino->region, $destino->pais])->filter()->unique()->implode(', ');
+                        @endphp
+                        <a href="{{ route('catalogo.atractivos.index', ['destino_id' => $destino->id]) }}" class="tc-destination-card {{ $visualDestino }}">
+                            <span class="tc-destination-card__symbol" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 19 9.5 6l3.4 7 2.1-4 6 10H3Z" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 19h16" stroke-width="1.6" stroke-linecap="round"/></svg>
+                            </span>
+                            <span class="tc-destination-card__content">
+                                @if($ubicacionDestino !== '')
+                                    <span class="tc-destination-card__location">{{ $ubicacionDestino }}</span>
+                                @endif
+                                <strong>{{ $destino->nombre }}</strong>
+                                <span>{{ $destino->descripcion ? \Illuminate\Support\Str::limit($destino->descripcion, 96) : 'Explora los lugares y servicios registrados para este destino.' }}</span>
+                                <em>Conocer destino <b aria-hidden="true">→</b></em>
+                            </span>
+                        </a>
+                    @empty
+                        <div class="tc-home-empty tc-home-empty--wide">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m3 19 6-14 4 9 3-5 5 10H3Z" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                            <div><strong>Los destinos aparecerán aquí</strong><span>Cuando se publiquen destinos activos, podrás explorarlos desde esta sección.</span></div>
+                        </div>
+                    @endforelse
+                </div>
+            </section>
+
+            <section class="tc-home-section tc-home-section--activities" aria-labelledby="actividades-titulo">
+                <div class="tc-home-section__heading">
+                    <div>
+                        <p class="tc-section-kicker">Ideas para tu visita</p>
+                        <h2 id="actividades-titulo">Actividades destacadas</h2>
+                        <p>Las publicaciones más recientes de los operadores turísticos activos.</p>
+                    </div>
+                    <a href="{{ route('catalogo.actividades.index') }}" class="tc-section-link">Ver actividades <span aria-hidden="true">→</span></a>
+                </div>
+
+                @if($actividadesDestacadas->isNotEmpty())
+                    <div class="tc-featured-activities">
+                        @foreach($actividadesDestacadas as $actividad)
+                            @php
+                                $minutos = $actividad->duracion_estimada_min;
+                                $duracion = 'Duración por confirmar';
+                                if ($minutos) {
+                                    $horas = intdiv((int) $minutos, 60);
+                                    $restoMinutos = (int) $minutos % 60;
+                                    $duracion = trim(($horas ? $horas.' h' : '').($restoMinutos ? ' '.$restoMinutos.' min' : ''));
+                                }
+                            @endphp
+                            <a href="{{ route('catalogo.actividades.show', $actividad) }}" class="tc-feature-card">
+                                <div class="tc-feature-card__media">
+                                    @if($actividad->portada_url)
+                                        <img src="{{ $actividad->portada_url }}" alt="" loading="lazy">
+                                    @else
+                                        <div class="tc-feature-card__fallback" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="4" r="2" stroke-width="1.7"/><path d="m10 8 4 2-2 6-5 5m5-5 3 5M10 8l-2 4-3 2m9-4 3 3 3 1" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>
+                                        </div>
+                                    @endif
+                                    <span>{{ $actividad->destino?->nombre ?? 'Destino' }}</span>
+                                </div>
+                                <div class="tc-feature-card__body">
+                                    <h3>{{ $actividad->nombre }}</h3>
+                                    <p>{{ \Illuminate\Support\Str::limit($actividad->descripcion, 110) }}</p>
+                                    <div><span>{{ $duracion }}</span><strong>Costo referencial</strong></div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="tc-activities-empty">
+                        <div class="tc-activities-empty__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="4" r="2" stroke-width="1.7"/><path d="m10 8 4 2-2 6-5 5m5-5 3 5M10 8l-2 4-3 2m9-4 3 3 3 1" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>
+                        </div>
+                        <div>
+                            <p class="tc-section-kicker">Próximamente</p>
+                            <h3>Aún no hay actividades publicadas</h3>
+                            <p>Esta sección mostrará las actividades activas cuando los operadores las registren. No se muestran datos de demostración como si fueran publicaciones reales.</p>
+                        </div>
+                        <a href="{{ route('catalogo.actividades.index') }}" class="tc-btn-outline">Ir al catálogo</a>
+                    </div>
+                @endif
+            </section>
+
+            <section id="planifica" class="tc-home-plan" aria-labelledby="planifica-titulo">
+                <div>
+                    <p class="tc-section-kicker">Planificación inteligente <span class="tc-home-plan__status">en evolución</span></p>
+                    <h2 id="planifica-titulo">Planifica tu viaje, paso a paso.</h2>
+                    <p>Elige un destino, define tus días y registra un presupuesto referencial. Guarda el plan y consúltalo desde tu agenda.</p>
+                    <a href="{{ $planUrl }}" class="tc-btn-primary">{{ $planLabel }} <span aria-hidden="true">→</span></a>
+                </div>
+                <ol>
+                    <li><span>1</span><div><h3>Explora</h3><p>Encuentra lugares, actividades y servicios según tu interés.</p></div></li>
+                    <li><span>2</span><div><h3>Ordena</h3><p>Define el destino, tus días disponibles y el presupuesto.</p></div></li>
+                    <li><span>3</span><div><h3>Consulta</h3><p>Revisa el plan y sus fechas desde una misma agenda.</p></div></li>
+                </ol>
+            </section>
         </div>
-    </section>
-
-    <section class="mt-10" aria-labelledby="explora-heading">
-        <div class="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-widest text-primary-600">Empieza a descubrir</p>
-                <h2 id="explora-heading" class="mt-1 text-2xl font-bold text-slate-900">¿Qué te gustaría explorar?</h2>
-            </div>
-            <p class="max-w-lg text-sm leading-6 text-slate-500">Encuentra opciones para inspirar tu próximo viaje por el Perú.</p>
-        </div>
-
-        <div class="grid gap-5 md:grid-cols-3">
-            <a href="{{ route('catalogo.atractivos.index') }}" class="group tc-card flex h-full flex-col p-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-700 transition group-hover:bg-primary-100">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13 6-3m-6 3V7m6 10 4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                    </svg>
-                </div>
-                <h3 class="mt-5 text-lg font-bold text-slate-900">Atractivos turísticos</h3>
-                <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">Descubre paisajes, cultura y lugares únicos para sumar a tu recorrido.</p>
-                <span class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-700">Explorar atractivos <span aria-hidden="true" class="transition group-hover:translate-x-1">→</span></span>
-            </a>
-
-            <a href="{{ route('catalogo.establecimientos.index') }}" class="group tc-card flex h-full flex-col p-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-tertiary-50 text-tertiary-700 transition group-hover:bg-tertiary-100">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 21h18M5 21V7l8-4v18m6 0V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01m4-9v.01m0 3v.01m0 3v.01m0 3v.01m4-5v.01m0 3v.01"/>
-                    </svg>
-                </div>
-                <h3 class="mt-5 text-lg font-bold text-slate-900">Establecimientos</h3>
-                <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">Encuentra opciones de hospedaje y servicios para hacer tu viaje más cómodo.</p>
-                <span class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-700">Ver establecimientos <span aria-hidden="true" class="transition group-hover:translate-x-1">→</span></span>
-            </a>
-
-            @php
-                $preferenciasUrl = (auth()->check() && auth()->user()->isTurista())
-                    ? route('preferencias.turista', auth()->id())
-                    : route('preferencias.index');
-            @endphp
-            <a href="{{ $preferenciasUrl }}" class="group tc-card flex h-full flex-col p-6">
-                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary-50 text-secondary-600 transition group-hover:bg-secondary-100">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3 .895-3 2 1.343 2 3 2m0-8c-1.11 0-2.08.402-2.599 1M12 8V6m0 6v2m0 4v-2m0 2c1.11 0 2.08-.402 2.599-1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                    </svg>
-                </div>
-                <h3 class="mt-5 text-lg font-bold text-slate-900">Preferencias de viaje</h3>
-                <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">Consulta o registra tus preferencias para orientar la planificación del viaje.</p>
-                <span class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-700">Ver preferencias <span aria-hidden="true" class="transition group-hover:translate-x-1">→</span></span>
-            </a>
-        </div>
-    </section>
-
-    <section class="mt-8 overflow-hidden rounded-2xl border border-primary-100 bg-primary-50 p-6 sm:flex sm:items-center sm:justify-between sm:gap-6 sm:px-8">
-        <div class="flex items-start gap-4">
-            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary-700 shadow-sm">
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M8.2 9a4 4 0 1 1 7.6 1.5c-.9.6-1.8 1.2-1.8 2.5v.5m8-1.5a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z"/>
-                </svg>
-            </div>
-            <div>
-                <h2 class="font-bold text-slate-900">¿Ya sabes qué tipo de viaje buscas?</h2>
-                <p class="mt-1 text-sm leading-6 text-slate-600">Define tu presupuesto, duración y ritmo para tener tus preferencias a mano.</p>
-            </div>
-        </div>
-        <a href="{{ $preferenciasUrl }}" class="tc-btn-primary mt-5 shrink-0 sm:mt-0">Ir a preferencias <span aria-hidden="true">→</span></a>
-    </section>
-</div>
+    </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        var form = document.getElementById('busqueda-inicio');
+        var catalogo = document.getElementById('catalogo-inicio');
+        var busqueda = document.getElementById('busqueda-inicio-texto');
+
+        function sincronizarCatalogo() {
+            var opcion = catalogo.selectedOptions[0];
+            form.action = opcion.value;
+            busqueda.name = opcion.dataset.query;
+            busqueda.placeholder = opcion.dataset.placeholder;
+        }
+
+        catalogo.addEventListener('change', sincronizarCatalogo);
+        form.addEventListener('submit', sincronizarCatalogo);
+        window.addEventListener('pageshow', sincronizarCatalogo);
+        sincronizarCatalogo();
+    })();
+
+    (function () {
+        var carousel = document.querySelector('[data-home-carousel]');
+
+        if (!carousel) {
+            return;
+        }
+
+        var slides = Array.prototype.slice.call(carousel.querySelectorAll('[data-hero-slide]'));
+        var dots = Array.prototype.slice.call(carousel.querySelectorAll('[data-hero-dot]'));
+        var previousButton = carousel.querySelector('[data-hero-previous]');
+        var nextButton = carousel.querySelector('[data-hero-next]');
+        var pauseButton = carousel.querySelector('[data-hero-pause]');
+        var pauseLabel = carousel.querySelector('[data-hero-pause-label]');
+        var eyebrow = carousel.querySelector('[data-hero-eyebrow] span');
+        var title = carousel.querySelector('h1[data-hero-title]');
+        var lead = carousel.querySelector('p[data-hero-lead]');
+        var primaryAction = carousel.querySelector('[data-hero-primary-action]');
+        var primaryLabel = primaryAction.querySelector('[data-hero-primary-label]');
+        var credit = carousel.querySelector('span[data-hero-credit]');
+        var creditLink = carousel.querySelector('[data-hero-credit-link]');
+        var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        var activeIndex = 0;
+        var timerId;
+        var manuallyPaused = false;
+
+        function stopRotation() {
+            if (timerId) {
+                window.clearInterval(timerId);
+                timerId = undefined;
+            }
+        }
+
+        function startRotation() {
+            stopRotation();
+
+            if (!manuallyPaused && !reducedMotion.matches) {
+                timerId = window.setInterval(function () {
+                    showSlide(activeIndex + 1);
+                }, 3500);
+            }
+        }
+
+        function showSlide(index) {
+            activeIndex = (index + slides.length) % slides.length;
+            var activeSlide = slides[activeIndex];
+
+            slides.forEach(function (slide, slideIndex) {
+                slide.classList.toggle('is-active', slideIndex === activeIndex);
+            });
+
+            dots.forEach(function (dot, dotIndex) {
+                var isActive = dotIndex === activeIndex;
+                dot.classList.toggle('is-active', isActive);
+                dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+                dot.tabIndex = isActive ? 0 : -1;
+            });
+
+            eyebrow.textContent = activeSlide.dataset.heroEyebrow;
+            title.textContent = activeSlide.dataset.heroTitle;
+            lead.textContent = activeSlide.dataset.heroLead;
+            primaryAction.href = activeSlide.dataset.heroPrimaryUrl;
+            primaryLabel.textContent = activeSlide.dataset.heroPrimaryLabel;
+            credit.textContent = activeSlide.dataset.heroCredit;
+
+            if (activeSlide.dataset.heroCreditUrl) {
+                creditLink.href = activeSlide.dataset.heroCreditUrl;
+                creditLink.hidden = false;
+            } else {
+                creditLink.hidden = true;
+            }
+        }
+
+        function moveTo(index) {
+            showSlide(index);
+            startRotation();
+        }
+
+        previousButton.addEventListener('click', function () {
+            moveTo(activeIndex - 1);
+        });
+
+        nextButton.addEventListener('click', function () {
+            moveTo(activeIndex + 1);
+        });
+
+        dots.forEach(function (dot, dotIndex) {
+            dot.addEventListener('click', function () {
+                moveTo(dotIndex);
+            });
+
+            dot.addEventListener('keydown', function (event) {
+                if (event.key !== 'ArrowDown' && event.key !== 'ArrowRight' && event.key !== 'ArrowUp' && event.key !== 'ArrowLeft') {
+                    return;
+                }
+
+                event.preventDefault();
+                var direction = event.key === 'ArrowDown' || event.key === 'ArrowRight' ? 1 : -1;
+                var nextIndex = (dotIndex + direction + dots.length) % dots.length;
+                dots[nextIndex].focus();
+                moveTo(nextIndex);
+            });
+        });
+
+        pauseButton.addEventListener('click', function () {
+            manuallyPaused = !manuallyPaused;
+            pauseButton.setAttribute('aria-pressed', manuallyPaused ? 'true' : 'false');
+            pauseButton.setAttribute('aria-label', manuallyPaused ? 'Reanudar cambio automático' : 'Pausar cambio automático');
+            pauseLabel.textContent = manuallyPaused ? 'Reanudar cambio automático' : 'Pausar cambio automático';
+
+            if (manuallyPaused) {
+                stopRotation();
+            } else {
+                startRotation();
+            }
+        });
+
+        carousel.addEventListener('mouseenter', stopRotation);
+        carousel.addEventListener('mouseleave', startRotation);
+        carousel.addEventListener('focusin', stopRotation);
+        carousel.addEventListener('focusout', function (event) {
+            if (!carousel.contains(event.relatedTarget)) {
+                startRotation();
+            }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopRotation();
+            } else {
+                startRotation();
+            }
+        });
+
+        reducedMotion.addEventListener('change', startRotation);
+        showSlide(activeIndex);
+        startRotation();
+    })();
+</script>
+@endpush

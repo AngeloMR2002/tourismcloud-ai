@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="tc-workspace max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
     {{-- Encabezado --}}
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div class="tc-page-heading flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
             <p class="text-sm text-gray-500 mt-1">Administra el acceso de operadores y turistas.</p>
         </div>
 
         <a href="{{ route('admin.usuarios.create') }}"
-           class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00626A] text-white text-sm font-medium rounded-xl hover:bg-[#004e55] shadow-sm transition-colors">
+           class="tc-btn-primary shrink-0">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -21,18 +21,18 @@
 
     {{-- Filtros de búsqueda --}}
     <form method="GET" action="{{ route('admin.usuarios.index') }}"
-          class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-3">
+          class="tc-card border border-gray-100 p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-3">
 
         <input
             type="text"
             name="q"
             value="{{ request('q') }}"
             placeholder="Buscar por nombre o correo"
-            class="md:col-span-2 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A]"
+            class="tc-input md:col-span-2"
         >
 
         <select name="rol"
-                class="px-4 py-2.5 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A]">
+                class="tc-select">
             <option value="">Todos los roles</option>
             <option value="administrador" @selected(request('rol') === 'administrador')>Administrador</option>
             <option value="operador_turistico" @selected(request('rol') === 'operador_turistico')>Operador</option>
@@ -41,7 +41,7 @@
         </select>
 
         <select name="estado"
-                class="px-4 py-2.5 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-[#00626A]/20 focus:border-[#00626A]">
+                class="tc-select">
             <option value="">Todos los estados</option>
             <option value="activo" @selected(request('estado') === 'activo')>Activo</option>
             <option value="inactivo" @selected(request('estado') === 'inactivo')>Inactivo</option>
@@ -49,21 +49,21 @@
 
         <div class="flex gap-2">
             <button type="submit"
-                    class="flex-1 px-4 py-2.5 bg-[#00626A] text-white text-sm font-medium rounded-lg hover:bg-[#004e55] transition-colors">
+                    class="tc-btn-primary flex-1 justify-center">
                 Filtrar
             </button>
 
             <a href="{{ route('admin.usuarios.index') }}"
-               class="px-4 py-2.5 bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+               class="tc-btn-outline justify-center">
                 Limpiar
             </a>
         </div>
     </form>
 
     {{-- Tabla de usuarios --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="tc-card border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="tc-table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50/50 border-b border-gray-100">
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
