@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway terminates HTTPS at its proxy. Trust forwarded headers so
+        // Laravel generates HTTPS URLs for Vite assets and redirects.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => \App\Modules\Usuarios\Http\Middleware\RoleMiddleware::class,
         ]);
