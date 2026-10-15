@@ -798,50 +798,6 @@ class DevTestingSeeder extends Seeder
         ], ['id'], ['destino_id', 'nombre', 'tipo', 'descripcion', 'costo', 'estado', 'updated_at']);
         $this->command->line('  ✓ 11. Servicios turísticos sembrados (6 servicios).');
 
-        // ─── 12. Reseñas y Calificaciones ────────────────────────────────────
-        DB::table('resenas')->upsert([
-            [
-                'id'           => 1,
-                'usuario_id'   => 4,
-                'entidad_tipo' => 'atractivo',
-                'entidad_id'   => 1, // Machu Picchu
-                'calificacion' => 5,
-                'comentario'   => 'Una experiencia transformadora. La energía y belleza arquitectónica no se comparan con nada.',
-                'created_at'   => now()->subDays(5),
-                'updated_at'   => now()->subDays(5),
-            ],
-            [
-                'id'           => 2,
-                'usuario_id'   => 4,
-                'entidad_tipo' => 'establecimiento',
-                'entidad_id'   => 2, // Chicha
-                'calificacion' => 5,
-                'comentario'   => 'El lomo saltado y los postres autóctonos superaron nuestras expectativas. Servicio impecable.',
-                'created_at'   => now()->subDays(4),
-                'updated_at'   => now()->subDays(4),
-            ],
-            [
-                'id'           => 3,
-                'usuario_id'   => 6,
-                'entidad_tipo' => 'atractivo',
-                'entidad_id'   => 5, // Cañón del Colca
-                'calificacion' => 5,
-                'comentario'   => 'Ver volar a los cóndores tan cerca en el Colca es un espectáculo único en la vida.',
-                'created_at'   => now()->subDays(3),
-                'updated_at'   => now()->subDays(3),
-            ],
-            [
-                'id'           => 4,
-                'usuario_id'   => 6,
-                'entidad_tipo' => 'destino',
-                'entidad_id'   => 1, // Cusco
-                'calificacion' => 5,
-                'comentario'   => 'Cusco es una ciudad mágica, segura y llena de vida tanto de día como de noche.',
-                'created_at'   => now()->subDays(2),
-                'updated_at'   => now()->subDays(2),
-            ],
-        ], ['id'], ['calificacion', 'comentario', 'updated_at']);
-        $this->command->line('  ✓ 12. Reseñas y calificaciones sembradas.');
 
         // ─── 13. Preferencias de Turistas ────────────────────────────────────
         // Turista 4 (turista@tourismcloud.test)
@@ -1133,7 +1089,6 @@ class DevTestingSeeder extends Seeder
             'horarios',
             'imagenes',
             'actividades',
-            'resenas',
             'rutas',
             'ruta_paradas',
             'servicios_turisticos',
