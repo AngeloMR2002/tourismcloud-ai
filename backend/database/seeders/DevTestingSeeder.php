@@ -137,6 +137,18 @@ class DevTestingSeeder extends Seeder
                 'updated_at'      => now(),
             ],
             [
+                'id'              => 5,
+                'organizacion_id' => null,
+                'nombre'          => 'Valeria',
+                'apellido'        => 'Demo',
+                'email'           => 'valeria@tourismcloud.test',
+                'password'        => $passwordHash,
+                'rol'             => 'turista',
+                'estado'          => 'activo',
+                'created_at'      => now(),
+                'updated_at'      => now(),
+            ],
+            [
                 'id'              => 6,
                 'organizacion_id' => null,
                 'nombre'          => 'Sofía',
@@ -947,8 +959,8 @@ class DevTestingSeeder extends Seeder
             ['id' => 104, 'itinerario_id' => 11, 'numero_dia' => 1, 'fecha' => $proximaSemana->toDateString()],
             ['id' => 105, 'itinerario_id' => 11, 'numero_dia' => 2, 'fecha' => $proximaSemana2->toDateString()],
             // Días del Itinerario 12
-            ['id' => 106, 'itinerario_id' => 12, 'numero_dia' => 1, 'fecha' => $hoy->addDays(10)->toDateString()],
-            ['id' => 107, 'itinerario_id' => 12, 'numero_dia' => 2, 'fecha' => $hoy->addDays(11)->toDateString()],
+            ['id' => 106, 'itinerario_id' => 12, 'numero_dia' => 1, 'fecha' => $hoy->copy()->addDays(10)->toDateString()],
+            ['id' => 107, 'itinerario_id' => 12, 'numero_dia' => 2, 'fecha' => $hoy->copy()->addDays(11)->toDateString()],
         ], ['id'], ['itinerario_id', 'numero_dia', 'fecha']);
 
         // Paradas / Items de los días

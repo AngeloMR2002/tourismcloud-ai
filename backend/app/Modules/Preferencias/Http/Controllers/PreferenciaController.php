@@ -41,10 +41,11 @@ class PreferenciaController {
             'turista_id' => ['required', 'integer', 'exists:usuarios,id'],
             'presupuesto_max' => ['required', 'numeric', 'min:0'],
             'dias_disponibles' => ['required', 'integer', 'min:1'],
-            'hora_inicio_preferida' => ['nullable', 'date_format:H:i'],
-            'hora_fin_preferida' => ['nullable', 'date_format:H:i'],
+            ...$this->reglasHorario($request),
             'categorias' => ['nullable', 'array'],
             'categorias.*' => ['integer', 'exists:categorias_interes,id'],
+        ], [
+            'hora_fin_preferida.after' => 'No se puede guardar la preferencia: la hora final debe ser posterior a la hora inicial.',
         ]);
 
         $this->preferenciaService->crear($datos);
@@ -93,10 +94,11 @@ class PreferenciaController {
             'turista_id' => ['required', 'integer', 'exists:usuarios,id'],
             'presupuesto_max' => ['required', 'numeric', 'min:0'],
             'dias_disponibles' => ['required', 'integer', 'min:1'],
-            'hora_inicio_preferida' => ['nullable', 'date_format:H:i'],
-            'hora_fin_preferida' => ['nullable', 'date_format:H:i'],
+            ...$this->reglasHorario($request),
             'categorias' => ['nullable', 'array'],
             'categorias.*' => ['integer', 'exists:categorias_interes,id'],
+        ], [
+            'hora_fin_preferida.after' => 'No se puede guardar la preferencia: la hora final debe ser posterior a la hora inicial.',
         ]);
 
         $this->preferenciaService->actualizar($id, $datos);
@@ -117,10 +119,11 @@ class PreferenciaController {
         $datos = $request->validate([
             'presupuesto_max' => ['required', 'numeric', 'min:0'],
             'dias_disponibles' => ['required', 'integer', 'min:1'],
-            'hora_inicio_preferida' => ['nullable', 'date_format:H:i'],
-            'hora_fin_preferida' => ['nullable', 'date_format:H:i'],
+            ...$this->reglasHorario($request),
             'categorias' => ['nullable', 'array'],
             'categorias.*' => ['integer', 'exists:categorias_interes,id'],
+        ], [
+            'hora_fin_preferida.after' => 'No se puede guardar la preferencia: la hora final debe ser posterior a la hora inicial.',
         ]);
 
         $datos['turista_id'] = $turistaId;
@@ -137,5 +140,17 @@ class PreferenciaController {
     public function recientes() {
         $resumen = $this->preferenciaService->resumenRecientes(10);
         return view('preferencias::preferencias.proveedor.recientes', $resumen);
+    }
+
+    private function reglasHorario(Request $request): array {
+        $reglasHoraFin = ['nullable', 'date_format:H:i'];
+        if ($request->filled('hora_inicio_preferida')) {
+            $reglasHoraFin[] = 'after:hora_inicio_preferida';
+        }
+
+        return [
+            'hora_inicio_preferida' => ['nullable', 'date_format:H:i'],
+            'hora_fin_preferida' => $reglasHoraFin,
+        ];
     }
 }
