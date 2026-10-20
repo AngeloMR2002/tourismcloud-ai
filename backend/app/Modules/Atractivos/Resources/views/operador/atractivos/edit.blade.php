@@ -334,7 +334,7 @@
 @push('scripts')
 <script>
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
-        key: "{{ env('GOOGLE_MAPS_API_KEY') }}",
+        key: @json(config('services.google_maps.key')),
         v: "weekly"
     });
 
@@ -555,5 +555,115 @@
             toggleChipAtractivoCat(cb, cb.value);
         });
     });
+
+    // Preview de nuevas imágenes adicionales
+    var inputGaleriaAtr = document.querySelector('input[name="galeria[]"]');
+    if (inputGaleriaAtr) {
+        inputGaleriaAtr.addEventListener('change', function(e) {
+            var section = document.getElementById('new-uploads-section');
+            var previewContainer = document.getElementById('preview-nuevas-imagenes');
+            if (!previewContainer || !section) return;
+
+            previewContainer.innerHTML = '';
+            var files = Array.from(e.target.files).slice(0, 10);
+
+            if (files.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+
+            files.forEach(function(file) {
+                if (!file.type.match('image.*')) return;
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    var imgWrap = document.createElement('div');
+                    imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 border-dashed border-teal-500 relative';
+                    imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+
+                    var img = document.createElement('img');
+                    img.src = evt.target.result;
+                    img.className = 'w-full h-full object-cover';
+
+                    var badge = document.createElement('span');
+                    badge.className = 'absolute bottom-1 left-1 bg-teal-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow';
+                    badge.textContent = 'Nueva';
+
+                    imgWrap.appendChild(img);
+                    imgWrap.appendChild(badge);
+                    previewContainer.appendChild(imgWrap);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    }
+
+    // Preview de portada
+    function previewPortada(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewArea = document.getElementById('preview-portada-area');
+                if (previewArea) {
+                    previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    window.previewPortada = previewPortada;
+
+    // Eliminar imagen de galería (vía AJAX)
+    function eliminarImagen(id) {
+        if (!confirm('¿Estás seguro de que deseas eliminar esta imagen de la galería?')) {
+            return;
+        }
+
+        var container = document.getElementById('img-container-' + id);
+        if (container) {
+            container.style.opacity = '0.3';
+            container.style.pointerEvents = 'none';
+        }
+
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'eliminar_imagenes[]';
+        input.value = id;
+        document.getElementById('eliminar-inputs').appendChild(input);
+
+        var urlDelete = '{{ url("operador/atractivos/" . $atractivo->id . "/imagenes") }}/' + id + '?_operador_id_test={{ request("_operador_id_test", 1) }}';
+        fetch(urlDelete, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(function(res) {
+            if (res.ok) {
+                if (container) {
+                    container.remove();
+                    var remaining = document.querySelectorAll('#existing-gallery [id^="img-container-"]').length;
+                    if (remaining === 0) {
+                        var wrapper = document.getElementById('wrapper-existing-gallery');
+                        if (wrapper) wrapper.classList.add('hidden');
+                    }
+                }
+            } else {
+                if (container) {
+                    container.style.display = 'none';
+                    container.classList.add('deleted-img');
+                }
+            }
+        })
+        .catch(function() {
+            if (container) {
+                container.style.display = 'none';
+                container.classList.add('deleted-img');
+            }
+        });
+    }
+    window.eliminarImagen = eliminarImagen;
 </script>
 @endpush

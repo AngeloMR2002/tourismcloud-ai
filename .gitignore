@@ -1,4 +1,4 @@
-﻿node_modules/
+node_modules/
 vendor/
 .env
 *.pyc
@@ -7,3 +7,4 @@ __pycache__/
 
 # Material local de trabajo: no se versiona ni se publica.
 /LOCAL/
+.vscode/

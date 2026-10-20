@@ -226,9 +226,19 @@
                     @endif
                 </div>
                 @if($tieneCoordenadas)
-                    <div class="relative h-72 border-t border-slate-100 bg-[#e6f4f5]">
+                    <div class="relative h-[22rem] sm:h-[28rem] border-t border-slate-100 bg-[#e6f4f5]">
                         <div id="interactive_map_atractivo" class="h-full w-full" aria-label="Mapa de ubicación de {{ $atractivo->nombre }}"></div>
+                        <div class="pointer-events-none absolute bottom-4 left-4 rounded-xl bg-white/95 px-3 py-2 text-xs font-bold text-[#35676a] shadow-lg backdrop-blur-sm">Ubicación registrada</div>
                         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#054048]/10 to-transparent"></div>
+                    </div>
+                @else
+                    <div class="relative flex min-h-64 items-center justify-center overflow-hidden border-t border-slate-100 bg-[#eaf4f2] px-6 text-center">
+                        <svg viewBox="0 0 540 260" class="absolute inset-0 h-full w-full text-[#00626A]/10" fill="none" aria-hidden="true"><path d="M0 210c84-67 164-54 246 20 77-112 168-110 294-36" stroke="currentColor" stroke-width="3"/><path d="M135 260V130l48-36 48 36v130M328 260V88l62-42 62 42v172" stroke="currentColor" stroke-width="3"/></svg>
+                        <div class="relative max-w-sm py-10">
+                            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#00626A] shadow-sm"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2" stroke-width="1.8"/></svg></span>
+                            <p class="mt-4 text-sm font-bold text-[#2c6064]">La ubicación exacta aún no fue registrada.</p>
+                            <p class="mt-2 text-sm leading-6 text-[#6a8586]">Consulta la información publicada por el operador antes de planificar tu desplazamiento.</p>
+                        </div>
                     </div>
                 @endif
             </section>

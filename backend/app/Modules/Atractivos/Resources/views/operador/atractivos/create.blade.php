@@ -301,7 +301,7 @@
         {{-- ── Sección: Imágenes ───────────────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                Imágenes
+                Imágenes del atractivo
             </h2>
             <div class="space-y-4">
 
@@ -310,10 +310,19 @@
                     <label for="imagen_portada" class="block text-sm font-semibold mb-1.5 text-gray-700">
                         Imagen de portada
                     </label>
+                    <div id="preview-portada-area" class="rounded-xl overflow-hidden mb-2" style="background: var(--color-teal-light, #e6f6f4); height: 130px; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center">
+                            <svg class="w-8 h-8 mx-auto mb-1" style="color: var(--color-primary-400, #2dd4bf);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-xs" style="color: var(--color-primary-500, #00626A);">Vista previa de portada</p>
+                        </div>
+                    </div>
                     <input type="file" id="imagen_portada" name="imagen_portada"
                            accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif"
-                           class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700">
-                    <p class="text-xs text-gray-400 mt-1">JPG, PNG o WebP. Máx 4 MB.</p>
+                           class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700"
+                           onchange="previewPortada(this)">
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 5 MB · 1200×900px recomendado</p>
                     @error('imagen_portada') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
 
@@ -326,7 +335,8 @@
                            accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif"
                            multiple
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700">
-                    <p class="text-xs text-gray-400 mt-1">Hasta 10 imágenes. JPG, PNG o WebP. Máx 4 MB c/u.</p>
+                    <p class="text-xs text-gray-400 mt-1">Hasta 10 imágenes · PNG, JPG, WebP · Máx 5 MB c/u</p>
+                    <div id="preview-galeria" class="mt-3 hidden flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide"></div>
                     @error('galeria') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -351,7 +361,7 @@
 @push('scripts')
 <script>
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
-        key: "{{ env('GOOGLE_MAPS_API_KEY') }}",
+        key: @json(config('services.google_maps.key')),
         v: "weekly"
     });
 
@@ -536,6 +546,60 @@
             }
         });
     });
+
+    // Preview de galería (múltiples imágenes)
+    var inputGaleriaAtr = document.querySelector('input[name="galeria[]"]');
+    if (inputGaleriaAtr) {
+        inputGaleriaAtr.addEventListener('change', function(e) {
+            var previewContainer = document.getElementById('preview-galeria');
+            if (!previewContainer) {
+                previewContainer = document.createElement('div');
+                previewContainer.id = 'preview-galeria';
+                previewContainer.className = 'mt-3 flex gap-2.5 overflow-x-auto pb-2 scrollbar-hide';
+                this.parentNode.appendChild(previewContainer);
+            }
+            previewContainer.innerHTML = '';
+            var files = Array.from(e.target.files).slice(0, 10);
+            if (files.length === 0) {
+                previewContainer.classList.add('hidden');
+                return;
+            }
+            previewContainer.classList.remove('hidden');
+
+            files.forEach(function(file) {
+                if (!file.type.match('image.*')) return;
+                var reader = new FileReader();
+                reader.onload = function(evt) {
+                    var imgWrap = document.createElement('div');
+                    imgWrap.className = 'shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200';
+                    imgWrap.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+
+                    var img = document.createElement('img');
+                    img.src = evt.target.result;
+                    img.className = 'w-full h-full object-cover';
+
+                    imgWrap.appendChild(img);
+                    previewContainer.appendChild(imgWrap);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    }
+
+    // Preview de portada
+    function previewPortada(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewArea = document.getElementById('preview-portada-area');
+                if (previewArea) {
+                    previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    window.previewPortada = previewPortada;
 </script>
 @endpush
 
