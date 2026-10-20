@@ -88,7 +88,7 @@ class ActividadesRutasTest extends TestCase
     public function test_gestion_exige_autenticacion_y_rol_real(): void
     {
         foreach (['actividades', 'rutas'] as $modulo) {
-            $this->get(route('operador.'.$modulo.'.index', ['_operador_id_test' => $this->operador->id]))->assertRedirect(route('login'));
+            $this->get(route('operador.'.$modulo.'.index'))->assertRedirect(route('login'));
         }
         $turista = Usuario::create(UserFactory::new()->raw());
         $this->actingAs($turista);
