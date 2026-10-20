@@ -5,7 +5,7 @@
 @section('panel-rol-label', 'Proveedor')
 
 @section('panel-sidebar-links')
-    <a href="{{ route('proveedor.establecimientos.index') }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+    <a href="{{ route('proveedor.establecimientos.index') }}"
        class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mb-0.5 text-white shadow-sm"
        style="background: var(--color-primary-500);">
         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
@@ -22,7 +22,7 @@
 
     {{-- Back + Header --}}
     <div class="mb-6">
-        <a href="{{ route('proveedor.establecimientos.index') }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+        <a href="{{ route('proveedor.establecimientos.index') }}"
            class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 mb-3 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -53,7 +53,6 @@
           enctype="multipart/form-data" class="space-y-5" id="form-est-create">
         @csrf
         @method('PATCH')
-        <input type="hidden" name="_proveedor_id_test" value="{{ request('_proveedor_id_test', 2) }}">
 
         {{-- ── 1. Tipo de establecimiento ── --}}
         <div class="tc-card p-6">
@@ -364,7 +363,7 @@
 
         {{-- Botones --}}
         <div class="flex items-center justify-end gap-3 pb-4">
-            <a href="{{ route('proveedor.establecimientos.index') }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+            <a href="{{ route('proveedor.establecimientos.index') }}"
                class="tc-btn-outline">Cancelar</a>
             <button type="submit" class="tc-btn-primary">
                 Guardar Cambios
@@ -705,7 +704,7 @@
         input.value = id;
         document.getElementById('est-eliminar-inputs').appendChild(input);
 
-        var urlDelete = '{{ url("proveedor/establecimientos/" . $establecimiento->id . "/imagenes") }}/' + id + '?_proveedor_id_test={{ request("_proveedor_id_test", 2) }}';
+        var urlDelete = '{{ url("proveedor/establecimientos/" . $establecimiento->id . "/imagenes") }}/' + id;
         fetch(urlDelete, {
             method: 'DELETE',
             headers: {

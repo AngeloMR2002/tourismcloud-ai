@@ -17,7 +17,10 @@ Route::prefix('catalogo')->name('catalogo.')->group(function () {
 // =============================================================================
 // PANEL PROVEEDOR — gestión de "Mis Establecimientos"
 // =============================================================================
-Route::prefix('proveedor')->name('proveedor.')->group(function () {
+Route::prefix('proveedor')
+    ->name('proveedor.')
+    ->middleware(['auth', 'role:proveedor'])
+    ->group(function () {
     Route::resource('establecimientos', ProveedorEstablecimientoController::class)
         ->names([
             'index' => 'establecimientos.index',

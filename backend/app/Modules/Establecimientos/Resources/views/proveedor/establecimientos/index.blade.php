@@ -5,7 +5,7 @@
 @section('panel-rol-label', 'Proveedor')
 
 @section('panel-sidebar-links')
-    <a href="{{ route('proveedor.establecimientos.index') }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+    <a href="{{ route('proveedor.establecimientos.index') }}"
        class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mb-0.5 text-white shadow-sm"
        style="background: var(--color-primary-500);">
         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
@@ -28,7 +28,7 @@
             </h1>
             <p class="text-sm text-gray-500 mt-0.5">Gestiona hoteles, restaurantes, agencias y más</p>
         </div>
-        <a href="{{ route('proveedor.establecimientos.create') }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+        <a href="{{ route('proveedor.establecimientos.create') }}"
            class="tc-btn-primary shrink-0">
             + Nuevo Establecimiento
         </a>
@@ -39,7 +39,6 @@
         <form method="GET" action="{{ route('proveedor.establecimientos.index') }}"
               class="flex flex-col sm:flex-row items-center justify-between gap-4 p-2 bg-white rounded-xl border border-gray-200"
               style="box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <input type="hidden" name="_proveedor_id_test" value="{{ request('_proveedor_id_test', 2) }}">
 
             {{-- Buscar (Izquierda) --}}
             <div class="flex items-center gap-2 px-3 w-full sm:w-80">
@@ -83,7 +82,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
                 <p class="text-gray-500 font-medium mb-3">No tienes establecimientos registrados aún.</p>
-                <a href="{{ route('proveedor.establecimientos.create') }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+                <a href="{{ route('proveedor.establecimientos.create') }}"
                    class="tc-btn-primary text-sm">+ Nuevo Establecimiento</a>
             </div>
         @else
@@ -142,7 +141,6 @@
                                           action="{{ route('proveedor.establecimientos.toggle-estado', $est) }}"
                                           id="tog-est-{{ $est->id }}">
                                         @csrf @method('PATCH')
-                                        <input type="hidden" name="_proveedor_id_test" value="{{ request('_proveedor_id_test', 2) }}">
                                         <label class="tc-toggle">
                                             <input type="checkbox"
                                                    {{ $est->estado === 'activo' ? 'checked' : '' }}
@@ -164,7 +162,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                         </a>
-                                        <a href="{{ route('proveedor.establecimientos.edit', $est) }}?_proveedor_id_test={{ request('_proveedor_id_test', 2) }}"
+                                        <a href="{{ route('proveedor.establecimientos.edit', $est) }}"
                                            title="Editar"
                                            class="p-1.5 rounded-lg transition-colors"
                                            style="color: var(--color-primary-600);"
@@ -177,7 +175,6 @@
                                         <form method="POST" action="{{ route('proveedor.establecimientos.destroy', $est) }}"
                                               onsubmit="return confirm('¿Eliminar «{{ addslashes($est->nombre) }}»?')">
                                             @csrf @method('DELETE')
-                                            <input type="hidden" name="_proveedor_id_test" value="{{ request('_proveedor_id_test', 2) }}">
                                             <button type="submit" title="Eliminar"
                                                     class="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
