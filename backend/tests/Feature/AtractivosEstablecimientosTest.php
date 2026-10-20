@@ -9,6 +9,7 @@ use App\Modules\Destinos\Models\Destino;
 use App\Modules\Establecimientos\Models\Establecimiento;
 use App\Modules\Usuarios\Models\Usuario;
 use Database\Factories\UserFactory;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ class AtractivosEstablecimientosTest extends TestCase
 {
     use RefreshDatabase;
 
+    private FilesystemAdapter $storage;
     private Usuario $operador;
     private Usuario $otroOperador;
     private Usuario $proveedor;
@@ -41,7 +43,7 @@ class AtractivosEstablecimientosTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite();
-        Storage::fake('public');
+        $this->storage = Storage::fake('public');
 
         $this->operador = Usuario::create(UserFactory::new()->raw(['rol' => 'operador_turistico']));
         $this->otroOperador = Usuario::create(UserFactory::new()->raw(['rol' => 'operador_turistico']));
@@ -146,7 +148,7 @@ class AtractivosEstablecimientosTest extends TestCase
         $this->assertEquals(45.50, (float) $atractivo->costo_entrada);
         $this->assertTrue($atractivo->categorias->contains($this->categoriaAventura));
         $this->assertTrue($atractivo->categorias->contains($this->categoriaCultura));
-        Storage::disk('public')->assertExists($atractivo->imagen_portada);
+        $this->storage->assertExists($atractivo->imagen_portada);
 
         // Verificar que los horarios se guardaron en la tabla horarios
         $this->assertDatabaseHas('horarios', [
@@ -360,7 +362,7 @@ class AtractivosEstablecimientosTest extends TestCase
         // Debe haberse asignado al usuario autenticado ($this->proveedor), NO al inyectado en el form
         $this->assertSame($this->proveedor->id, $establecimiento->proveedor_id);
         $this->assertTrue($establecimiento->categorias->contains($this->categoriaCultura));
-        Storage::disk('public')->assertExists($establecimiento->imagen_portada);
+        $this->storage->assertExists($establecimiento->imagen_portada);
 
         // Verificar horarios en base de datos
         $this->assertDatabaseHas('horarios', [

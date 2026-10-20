@@ -12,6 +12,7 @@ use App\Modules\Rutas\Models\RutaParada;
 use App\Modules\Rutas\Services\RutaService;
 use App\Modules\Usuarios\Models\Usuario;
 use Database\Factories\UserFactory;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,8 @@ use Tests\TestCase;
 class ActividadesRutasTest extends TestCase
 {
     use RefreshDatabase;
+
+    private FilesystemAdapter $storage;
 
     private Usuario $operador;
 
@@ -48,7 +51,7 @@ class ActividadesRutasTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite();
-        Storage::fake('public');
+        $this->storage = Storage::fake('public');
         $this->operador = Usuario::create(UserFactory::new()->raw(['rol' => 'operador_turistico']));
         $this->otro = Usuario::create(UserFactory::new()->raw(['rol' => 'operador_turistico']));
         $this->destino = Destino::create(['nombre' => 'Cusco de prueba', 'pais' => 'Perú', 'operador_id' => $this->operador->id, 'estado' => 'activo']);
@@ -150,7 +153,7 @@ class ActividadesRutasTest extends TestCase
         $this->actingAs($this->operador);
         $this->post(route('operador.actividades.store'), ['destino_id' => $this->destino->id, 'nombre' => 'Taller andino', 'costo' => 0, 'duracion_estimada_min' => 90, 'latitud' => -13.5, 'longitud' => -71.9, 'estado' => 'activo', 'imagen_portada' => UploadedFile::fake()->image('portada.jpg')])->assertSessionHasNoErrors()->assertRedirect();
         $actividad = Actividad::where('nombre', 'Taller andino')->firstOrFail();
-        Storage::disk('public')->assertExists($actividad->imagen_portada);
+        $this->storage->assertExists($actividad->imagen_portada);
         $this->get(route('operador.actividades.edit', $actividad))->assertOk();
         $this->get(route('catalogo.actividades.show', $actividad))
             ->assertOk()
@@ -212,7 +215,7 @@ class ActividadesRutasTest extends TestCase
     {
         $this->actingAs($this->operador)->post(route('operador.rutas.store'), $this->datosRuta(['imagen_portada' => UploadedFile::fake()->image('ruta.png')]))->assertSessionHasNoErrors()->assertRedirect();
         $ruta = Ruta::firstOrFail();
-        Storage::disk('public')->assertExists($ruta->imagen_portada);
+        $this->storage->assertExists($ruta->imagen_portada);
         $this->get(route('operador.rutas.edit', $ruta))->assertOk()->assertSee('Subir')->assertSee('Bajar');
         $this->get(route('catalogo.rutas.show', $ruta))
             ->assertOk()
@@ -307,7 +310,7 @@ class ActividadesRutasTest extends TestCase
         $this->assertSoftDeleted('actividades', ['id' => $ultima->id]);
         $this->assertSame($destinosAntes, DB::table('destinos')->orderBy('id')->get()->toJson());
         $this->assertSame($atractivosAntes, DB::table('atractivos')->orderBy('id')->get()->toJson());
-        Storage::disk('public')->assertExists('actividades-rutas-demo/cusco-plaza.jpg');
+        $this->storage->assertExists('actividades-rutas-demo/cusco-plaza.jpg');
         $this->get(route('catalogo.actividades.show', $primera))->assertOk()->assertSee('/storage/actividades-rutas-demo/', false);
     }
 
@@ -339,17 +342,17 @@ class ActividadesRutasTest extends TestCase
             $this->post(route('operador.'.$modulo.'.store'), $datos)->assertSessionHasNoErrors()->assertRedirect();
             $registro = $modulo === 'rutas' ? Ruta::firstOrFail() : Actividad::firstOrFail();
             $anterior = $registro->imagen_portada;
-            Storage::disk('public')->assertExists($anterior);
+            $this->storage->assertExists($anterior);
             $datos['imagen_portada'] = UploadedFile::fake()->image('nueva.jpg');
             $this->put(route('operador.'.$modulo.'.update', $registro), $datos)->assertSessionHasNoErrors()->assertRedirect();
-            Storage::disk('public')->assertMissing($anterior);
-            Storage::disk('public')->assertExists($registro->fresh()->imagen_portada);
-            Storage::disk('public')->put('actividades-rutas-demo/compartida.jpg', 'imagen de prueba');
+            $this->storage->assertMissing($anterior);
+            $this->storage->assertExists($registro->fresh()->imagen_portada);
+            $this->storage->put('actividades-rutas-demo/compartida.jpg', 'imagen de prueba');
             $registro->update(['imagen_portada' => 'actividades-rutas-demo/compartida.jpg']);
             unset($datos['imagen_portada']);
             $datos['quitar_portada'] = 1;
             $this->put(route('operador.'.$modulo.'.update', $registro), $datos)->assertSessionHasNoErrors()->assertRedirect();
-            Storage::disk('public')->assertExists('actividades-rutas-demo/compartida.jpg');
+            $this->storage->assertExists('actividades-rutas-demo/compartida.jpg');
         }
     }
 
