@@ -94,25 +94,11 @@ class AtractivoRequest extends FormRequest
         if ($this->horarios && is_string($this->horarios)) {
             $this->merge(['horarios' => json_decode($this->horarios, true)]);
         }
-
-        // Limpiar días desactivados o vacíos para que sean tratados cleanly como cerrados
-        if (is_array($this->horarios)) {
-            $limpios = [];
-            foreach ($this->horarios as $dia => $horas) {
-                if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
-                    $limpios[$dia] = [
-                        'abre'   => trim((string)$horas['abre']),
-                        'cierra' => trim((string)$horas['cierra']),
-                    ];
-                }
-            }
-            $this->merge(['horarios' => $limpios]);
-        }
     }
 
     /**
-     * Validación adicional después de las reglas: verifica que los días abiertos
-     * tengan formato válido y que la hora de cierre sea posterior a la de apertura.
+     * Validación adicional después de las reglas: verifica que los días con datos
+     * exijan abre y cierra juntos, y que la hora de cierre sea posterior a la de apertura.
      */
     public function withValidator($validator): void
     {
@@ -128,16 +114,43 @@ class AtractivoRequest extends FormRequest
                     continue;
                 }
 
-                $abre   = $horario['abre']   ?? null;
-                $cierra = $horario['cierra'] ?? null;
+                $abreRaw   = $horario['abre'] ?? null;
+                $cierraRaw = $horario['cierra'] ?? null;
 
-                if (!$abre || !$cierra) {
-                    continue; // Día cerrado
+                $abre   = is_string($abreRaw) ? trim($abreRaw) : $abreRaw;
+                $cierra = is_string($cierraRaw) ? trim($cierraRaw) : $cierraRaw;
+
+                $tieneAbre   = !empty($abre);
+                $tieneCierra = !empty($cierra);
+
+                // Si no tiene ninguno de los dos, se considera día cerrado
+                if (!$tieneAbre && !$tieneCierra) {
+                    continue;
                 }
 
-                // Validar que cierra > abre.
+                // (a) Exigir que abre y cierra vengan juntos
+                if ($tieneAbre && !$tieneCierra) {
+                    $validator->errors()->add(
+                        "horarios.{$dia}.cierra",
+                        "Debes indicar la hora de cierre del {$dia}."
+                    );
+                    continue;
+                }
+
+                if (!$tieneAbre && $tieneCierra) {
+                    $validator->errors()->add(
+                        "horarios.{$dia}.abre",
+                        "Debes indicar la hora de apertura del {$dia}."
+                    );
+                    continue;
+                }
+
+                // (b) Exigir que cierra > abre
                 if ($cierra <= $abre) {
-                    $validator->errors()->add("horarios.{$dia}", "La hora de cierre del {$dia} debe ser posterior a la hora de apertura.");
+                    $validator->errors()->add(
+                        "horarios.{$dia}.cierra",
+                        "La hora de cierre del {$dia} debe ser posterior a la hora de apertura."
+                    );
                 }
             }
         });

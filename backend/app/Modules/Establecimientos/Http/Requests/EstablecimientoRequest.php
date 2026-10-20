@@ -86,7 +86,7 @@ class EstablecimientoRequest extends FormRequest
     }
 
     /**
-     * Validación adicional: días abiertos deben tener abre + cierra, y cierra > abre.
+     * Validación adicional: para cada día con datos, exige abre y cierra juntos, y cierra > abre.
      */
     public function withValidator($validator): void
     {
@@ -97,30 +97,48 @@ class EstablecimientoRequest extends FormRequest
                 return;
             }
 
-            $dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
-
-            foreach ($dias as $dia) {
-                $horario = $horarios[$dia] ?? null;
-
-                if ($horario === null) {
-                    continue;
-                }
-
+            foreach ($horarios as $dia => $horario) {
                 if (!is_array($horario)) {
-                    $validator->errors()->add("horarios.{$dia}", "El horario del {$dia} debe ser null (cerrado) o un objeto con 'abre' y 'cierra'.");
                     continue;
                 }
 
-                $abre   = $horario['abre']   ?? null;
-                $cierra = $horario['cierra'] ?? null;
+                $abreRaw   = $horario['abre'] ?? null;
+                $cierraRaw = $horario['cierra'] ?? null;
 
-                if (!$abre || !$cierra) {
-                    $validator->errors()->add("horarios.{$dia}", "Si el {$dia} está abierto, debes indicar tanto la hora de apertura como la de cierre.");
+                $abre   = is_string($abreRaw) ? trim($abreRaw) : $abreRaw;
+                $cierra = is_string($cierraRaw) ? trim($cierraRaw) : $cierraRaw;
+
+                $tieneAbre   = !empty($abre);
+                $tieneCierra = !empty($cierra);
+
+                // Si no tiene ninguno de los dos, se considera día cerrado
+                if (!$tieneAbre && !$tieneCierra) {
                     continue;
                 }
 
+                // (a) Exigir que abre y cierra vengan juntos
+                if ($tieneAbre && !$tieneCierra) {
+                    $validator->errors()->add(
+                        "horarios.{$dia}.cierra",
+                        "Debes indicar la hora de cierre del {$dia}."
+                    );
+                    continue;
+                }
+
+                if (!$tieneAbre && $tieneCierra) {
+                    $validator->errors()->add(
+                        "horarios.{$dia}.abre",
+                        "Debes indicar la hora de apertura del {$dia}."
+                    );
+                    continue;
+                }
+
+                // (b) Exigir que cierra > abre
                 if ($cierra <= $abre) {
-                    $validator->errors()->add("horarios.{$dia}", "La hora de cierre del {$dia} debe ser posterior a la hora de apertura.");
+                    $validator->errors()->add(
+                        "horarios.{$dia}.cierra",
+                        "La hora de cierre del {$dia} debe ser posterior a la hora de apertura."
+                    );
                 }
             }
         });
