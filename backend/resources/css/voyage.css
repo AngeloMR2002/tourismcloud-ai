@@ -177,6 +177,7 @@
 .tc-app-shell .tc-btn-outline { min-height: 42px; border: 1px solid #ccdcd7; border-radius: 9px; background: #fff; color: var(--tc-accent); padding: .65rem 1rem; font-weight: 700; }
 .tc-app-shell .tc-btn-outline:hover { border-color: var(--tc-accent); background: #f0f7f5; }
 .tc-app-shell .tc-input, .tc-app-shell .tc-select { min-height: 43px; border: 1px solid #d7e2de; border-radius: 9px; color: var(--tc-ink); background-color: #fff; }
+.tc-app-shell .tc-input.tc-currency-input { padding-left: 2.5rem; }
 .tc-app-shell .tc-input:focus, .tc-app-shell .tc-select:focus { border-color: var(--tc-accent); box-shadow: 0 0 0 3px rgb(0 98 106 / .09); }
 .tc-app-shell .tc-table th { background: #f0f6f3; color: #476764; padding-block: 1rem; }
 .tc-app-shell .tc-table td { border-bottom-color: #edf1ef; }
