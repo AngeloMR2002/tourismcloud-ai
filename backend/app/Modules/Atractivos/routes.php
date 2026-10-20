@@ -14,10 +14,10 @@ Route::prefix('catalogo')->name('catalogo.')->group(function () {
         ->name('atractivos.show');
 });
 
-// =============================================================================
-// PANEL OPERADOR TURÍSTICO — gestión de "Mis Atractivos"
-// =============================================================================
-Route::prefix('operador')->name('operador.')->group(function () {
+Route::middleware(['auth', 'role:operador_turistico'])
+    ->prefix('operador')
+    ->name('operador.')
+    ->group(function () {
     Route::resource('atractivos', OperadorAtractivoController::class)
         ->names([
             'index' => 'atractivos.index',

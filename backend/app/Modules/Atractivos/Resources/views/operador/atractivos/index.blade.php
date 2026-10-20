@@ -5,7 +5,7 @@
 @section('panel-rol-label', 'Operador')
 
 @section('panel-sidebar-links')
-    <a href="{{ route('operador.atractivos.index') }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+    <a href="{{ route('operador.atractivos.index') }}"
        class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mb-0.5 text-white shadow-sm"
        style="background: var(--color-primary-500);">
         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
@@ -28,7 +28,7 @@
             </h1>
             <p class="text-sm text-gray-500 mt-0.5">Gestiona los atractivos turísticos que has registrado en la plataforma</p>
         </div>
-        <a href="{{ route('operador.atractivos.create') }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+        <a href="{{ route('operador.atractivos.create') }}"
            class="tc-btn-primary shrink-0">
             + Nuevo Atractivo
         </a>
@@ -39,7 +39,6 @@
         <form method="GET" action="{{ route('operador.atractivos.index') }}"
               class="flex flex-col sm:flex-row items-center justify-between gap-4 p-2 bg-white rounded-xl border border-gray-200"
               style="box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-            <input type="hidden" name="_operador_id_test" value="{{ request('_operador_id_test', 1) }}">
 
             {{-- Buscar (Izquierda) --}}
             <div class="flex items-center gap-2 px-3 w-full sm:w-80">
@@ -80,7 +79,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                 </svg>
                 <p class="text-gray-500 font-medium mb-3">No tienes atractivos registrados aún.</p>
-                <a href="{{ route('operador.atractivos.create') }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+                <a href="{{ route('operador.atractivos.create') }}"
                    class="tc-btn-primary text-sm">+ Nuevo Atractivo</a>
             </div>
         @else
@@ -161,7 +160,6 @@
                                           action="{{ route('operador.atractivos.toggle-estado', $at) }}"
                                           id="tog-at-{{ $at->id }}">
                                         @csrf @method('PATCH')
-                                        <input type="hidden" name="_operador_id_test" value="{{ request('_operador_id_test', 1) }}">
                                         <label class="tc-toggle">
                                             <input type="checkbox"
                                                    {{ $at->estado === 'activo' ? 'checked' : '' }}
@@ -183,7 +181,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                             </svg>
                                         </a>
-                                        <a href="{{ route('operador.atractivos.edit', $at) }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+                                        <a href="{{ route('operador.atractivos.edit', $at) }}"
                                            title="Editar"
                                            class="p-1.5 rounded-lg transition-colors"
                                            style="color: var(--color-primary-600);"
@@ -196,7 +194,13 @@
                                         <form method="POST" action="{{ route('operador.atractivos.destroy', $at) }}"
                                               onsubmit="return confirm('¿Eliminar «{{ addslashes($at->nombre) }}»?')">
                                             @csrf @method('DELETE')
-                                            <input type="hidden" name="_operador_id_test" value="{{ request('_operador_id_test', 1) }}">
+                                            <button type="submit" title="Eliminar"
+                                                    class="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </form>
                                             <button type="submit" title="Eliminar"
                                                     class="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

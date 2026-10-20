@@ -5,7 +5,7 @@
 @section('panel-rol-label', 'Operador')
 
 @section('panel-sidebar-links')
-    <a href="{{ route('operador.atractivos.index') }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+    <a href="{{ route('operador.atractivos.index') }}"
        class="group/sidebar flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mb-0.5 text-white shadow-sm"
        style="background: var(--color-primary-500);">
         <div class="shrink-0 transition-transform duration-150 group-hover/sidebar:scale-110">
@@ -22,7 +22,7 @@
 
     {{-- Back + Header --}}
     <div class="mb-6">
-        <a href="{{ route('operador.atractivos.index') }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+        <a href="{{ route('operador.atractivos.index') }}"
            class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 mb-3 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -53,7 +53,6 @@
           enctype="multipart/form-data" class="space-y-5">
         @csrf
         @method('PATCH')
-        <input type="hidden" name="_operador_id_test" value="{{ request('_operador_id_test', 1) }}">
 
         {{-- ── 1. Información básica ──────────────────────────────────── --}}
         <div class="tc-card p-6">
@@ -321,7 +320,7 @@
 
         {{-- Botones --}}
         <div class="flex items-center justify-end gap-3 pb-4">
-            <a href="{{ route('operador.atractivos.index') }}?_operador_id_test={{ request('_operador_id_test', 1) }}"
+            <a href="{{ route('operador.atractivos.index') }}"
                class="tc-btn-outline">Cancelar</a>
             <button type="submit" class="tc-btn-primary">
                 Guardar Cambios
@@ -632,7 +631,7 @@
         input.value = id;
         document.getElementById('eliminar-inputs').appendChild(input);
 
-        var urlDelete = '{{ url("operador/atractivos/" . $atractivo->id . "/imagenes") }}/' + id + '?_operador_id_test={{ request("_operador_id_test", 1) }}';
+        var urlDelete = '{{ url("operador/atractivos/" . $atractivo->id . "/imagenes") }}/' + id;
         fetch(urlDelete, {
             method: 'DELETE',
             headers: {

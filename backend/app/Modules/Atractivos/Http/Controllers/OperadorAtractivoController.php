@@ -19,9 +19,6 @@ use Illuminate\View\View;
  * - El operador solo puede ver/editar atractivos de destinos que le pertenecen
  *   (destinos.operador_id = usuario autenticado).
  * - La verificación de propiedad se hace en cada método antes de delegar al service.
- *
- * TODO: Cuando feature/auth defina el alias 'role', añadir el middleware
- *       'role:operador_turistico' al constructor de este controlador.
  */
 class OperadorAtractivoController extends Controller
 {
@@ -34,8 +31,7 @@ class OperadorAtractivoController extends Controller
      */
     public function index(Request $request): View
     {
-        // TODO: reemplazar 1 por auth()->id() cuando feature/auth esté disponible.
-        $operadorId = $request->get('_operador_id_test', 1);
+        $operadorId = (int) $request->user()->id;
 
         $filtros = array_merge(
             $request->only(['destino_id', 'busqueda']),
@@ -53,7 +49,7 @@ class OperadorAtractivoController extends Controller
      */
     public function create(Request $request): View
     {
-        $operadorId  = $request->get('_operador_id_test', 1);
+        $operadorId  = (int) $request->user()->id;
         $destinos    = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
         $categorias  = CategoriaInteres::orderBy('nombre')->get();
 
@@ -65,8 +61,8 @@ class OperadorAtractivoController extends Controller
      */
     public function store(AtractivoRequest $request): RedirectResponse
     {
-        $operadorId = $request->get('_operador_id_test', 1);
-        $datos      = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_operador_id_test']);
+        $operadorId = (int) $request->user()->id;
+        $datos      = $request->safe()->except(['categorias', 'imagen_portada', 'galeria']);
         $datos['horarios'] = (array) $request->input('horarios', []);
 
         // Verificar que el destino le pertenece al operador.
@@ -80,7 +76,7 @@ class OperadorAtractivoController extends Controller
         );
 
         return redirect()
-            ->route('operador.atractivos.index', ['_operador_id_test' => $operadorId])
+            ->route('operador.atractivos.index')
             ->with('exito', "Atractivo \"{$atractivo->nombre}\" creado correctamente.");
     }
 
@@ -89,7 +85,7 @@ class OperadorAtractivoController extends Controller
      */
     public function edit(Request $request, Atractivo $atractivo): View
     {
-        $operadorId = $request->get('_operador_id_test', 1);
+        $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
         $destinos   = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
@@ -104,11 +100,15 @@ class OperadorAtractivoController extends Controller
      */
     public function update(AtractivoRequest $request, Atractivo $atractivo): RedirectResponse
     {
-        $operadorId = $request->get('_operador_id_test', 1);
+        $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
-        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', '_operador_id_test', 'eliminar_imagenes']);
+        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', 'eliminar_imagenes']);
         $datos['horarios'] = (array) $request->input('horarios', []);
+
+        if (isset($datos['destino_id'])) {
+            $this->verificarPropiedadDestino((int) $datos['destino_id'], $operadorId);
+        }
 
         $this->service->actualizar(
             atractivo:        $atractivo,
@@ -120,7 +120,7 @@ class OperadorAtractivoController extends Controller
         );
 
         return redirect()
-            ->route('operador.atractivos.index', ['_operador_id_test' => $operadorId])
+            ->route('operador.atractivos.index')
             ->with('exito', "Atractivo \"{$atractivo->nombre}\" actualizado correctamente.");
     }
 
@@ -129,7 +129,7 @@ class OperadorAtractivoController extends Controller
      */
     public function eliminarImagen(Request $request, Atractivo $atractivo, int $imagen): \Illuminate\Http\JsonResponse
     {
-        $operadorId = $request->get('_operador_id_test', 1);
+        $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
         $this->service->eliminarImagen($atractivo, $imagen);
@@ -142,14 +142,14 @@ class OperadorAtractivoController extends Controller
      */
     public function destroy(Request $request, Atractivo $atractivo): RedirectResponse
     {
-        $operadorId = $request->get('_operador_id_test', 1);
+        $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
         $nombre = $atractivo->nombre;
         $this->service->eliminar($atractivo);
 
         return redirect()
-            ->route('operador.atractivos.index', ['_operador_id_test' => $operadorId])
+            ->route('operador.atractivos.index')
             ->with('exito', "Atractivo \"{$nombre}\" eliminado.");
     }
 
@@ -159,7 +159,7 @@ class OperadorAtractivoController extends Controller
      */
     public function toggleEstado(Request $request, Atractivo $atractivo): RedirectResponse
     {
-        $operadorId = $request->get('_operador_id_test', 1);
+        $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
         $atractivo = $this->service->toggleEstado($atractivo);

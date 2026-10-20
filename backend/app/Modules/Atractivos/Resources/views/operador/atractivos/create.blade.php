@@ -41,8 +41,6 @@
           enctype="multipart/form-data"
           class="space-y-6">
         @csrf
-        {{-- Provisional: ID del operador para pruebas locales --}}
-        <input type="hidden" name="_operador_id_test" value="{{ request('_operador_id_test', 1) }}">
 
         {{-- ── Sección: Información básica ────────────────────────── --}}
         <div class="tc-card p-6">
