@@ -269,7 +269,33 @@ function tcUpdateCurrency(currency, language) {
     });
 }
 
+function tcInitPreferenceFormScroll() {
+    const form = document.querySelector('[data-preference-form]');
+    const storageKey = 'tourismcloud.preferences-form-scroll';
+
+    try {
+        const scrollStorage = window.sessionStorage;
+        const savedScroll = scrollStorage.getItem(storageKey);
+        if (form?.dataset.validationErrors === 'true' && savedScroll !== null) {
+            const scrollY = Number(savedScroll);
+            scrollStorage.removeItem(storageKey);
+            if (Number.isFinite(scrollY)) {
+                window.requestAnimationFrame(() => window.scrollTo(0, scrollY));
+            }
+        } else {
+            scrollStorage.removeItem(storageKey);
+        }
+
+        form?.addEventListener('submit', () => {
+            scrollStorage.setItem(storageKey, String(window.scrollY));
+        });
+    } catch (error) {
+        console.warn('No se pudo conservar la posición del formulario de preferencias.', error);
+    }
+}
+
 function tcInitPreferences() {
+    tcInitPreferenceFormScroll();
     const helpDialog = document.querySelector('[data-help-dialog]');
     const toast = document.querySelector('[data-preference-toast]');
     let lastDialogTrigger = null;
