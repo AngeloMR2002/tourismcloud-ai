@@ -62,7 +62,7 @@ class ItinerarioController extends Controller
             'dias' => ['required', 'integer', 'min:1', 'max:60'],
             'fecha_inicio' => ['nullable', 'date'],
         ]);
-        abort_unless(Destino::whereKey($data['destino_id'])->where('estado', 'activo')->exists(), 422, 'El destino no está disponible.');
+        abort_unless(Destino::whereKey($data['destino_id'])->where('estado', 'activo')->exists(), 422, __('modules.destination_not_available'));
         $fechaInicio = $data['fecha_inicio'] ?? null;
         unset($data['fecha_inicio']);
 
@@ -80,7 +80,7 @@ class ItinerarioController extends Controller
             }
         });
 
-        return redirect()->route('itinerarios.index')->with('exito', 'Itinerario creado. Puedes completar sus actividades más adelante.');
+        return redirect()->route('itinerarios.index')->with('exito', __('modules.itinerary_created'));
     }
 
     public function destroy(Request $request, Itinerario $itinerario): RedirectResponse
@@ -88,6 +88,6 @@ class ItinerarioController extends Controller
         abort_unless($itinerario->turista_id === $request->user()->id, 403);
         $itinerario->delete();
 
-        return redirect()->route('itinerarios.index')->with('exito', 'Itinerario eliminado.');
+        return redirect()->route('itinerarios.index')->with('exito', __('modules.itinerary_deleted'));
     }
 }

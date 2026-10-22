@@ -24,11 +24,11 @@ class RoleMiddleware
             $request->session()->regenerateToken();
 
             return redirect()->route('login')
-                ->withErrors(['email' => 'Tu cuenta está inactiva. Contacta al administrador.']);
+                ->withErrors(['email' => __('auth.account_inactive')]);
         }
 
         if (! in_array($user->rol, $roles, true)) {
-            abort(403, 'No tienes permiso para acceder a esta sección.');
+            abort(403, __('auth.access_forbidden'));
         }
 
         return $next($request);

@@ -51,9 +51,9 @@ class ValoracionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'puntuacion.required' => 'Debes seleccionar una puntuación de 1 a 5 estrellas.',
-            'puntuacion.between'  => 'La puntuación debe estar comprendida entre 1 y 5 estrellas.',
-            'comentario.max'      => 'El comentario no puede superar los 1000 caracteres.',
+            'puntuacion.required' => __('reviews.rating_required'),
+            'puntuacion.between' => __('reviews.rating_range'),
+            'comentario.max' => __('reviews.comment_max'),
         ];
     }
 }

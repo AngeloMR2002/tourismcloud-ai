@@ -15,12 +15,14 @@ class FiltroAtractivoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'destino_id'   => ['nullable', 'integer', 'min:1'],
+            'destino_id' => ['nullable', 'integer', 'min:1'],
             'categoria_id' => ['nullable', 'integer', 'min:1'],
-            'costo_min'    => ['nullable', 'numeric', 'min:0'],
-            'costo_max'    => ['nullable', 'numeric', 'min:0', 'gte:costo_min'],
-            'busqueda'     => ['nullable', 'string', 'max:100'],
-            'por_pagina'   => ['nullable', 'integer', Rule::in([9, 15, 30, 60])],
+            'costo_min' => ['nullable', 'numeric', 'min:0'],
+            'costo_max' => ['nullable', 'numeric', 'min:0', Rule::when($this->filled('costo_min'), 'gte:costo_min')],
+            'duracion_min' => ['nullable', 'integer', 'min:0', 'max:14400'],
+            'duracion_max' => ['nullable', 'integer', 'min:1', 'max:14400', Rule::when($this->filled('duracion_min'), 'gte:duracion_min')],
+            'busqueda' => ['nullable', 'string', 'max:100'],
+            'por_pagina' => ['nullable', 'integer', Rule::in([9, 15, 30, 60])],
         ];
     }
 }

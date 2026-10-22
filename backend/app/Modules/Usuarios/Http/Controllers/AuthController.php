@@ -4,15 +4,17 @@ namespace App\Modules\Usuarios\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Usuarios\Models\Usuario;
+use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
 
 class AuthController extends Controller
 {
@@ -23,7 +25,7 @@ class AuthController extends Controller
         $clientSecret = config('services.google.client_secret');
 
         if (empty($clientId) || empty($clientSecret)) {
-            return redirect()->route('login')->with('error', 'El inicio de sesión con Google requiere configurar GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en el archivo .env.');
+            return redirect()->route('login')->with('error', __('auth.google_not_configured'));
         }
 
         return Socialite::driver('google')->redirect();
@@ -33,18 +35,19 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            //$googleUser = Socialite::driver('google')->user(); //Activalor en producción
+            // $googleUser = Socialite::driver('google')->user(); //Activalor en producción
             // Creamos un cliente Guzzle que desactiva 'verify' solo para desarrollo local
-            /** @var \Laravel\Socialite\Two\AbstractProvider $provider */
+            /** @var AbstractProvider $provider */
             $provider = Socialite::driver('google');
 
             $googleUser = $provider
-                ->setHttpClient(new \GuzzleHttp\Client(['verify' => false]))
+                ->setHttpClient(new Client(['verify' => false]))
                 ->stateless()
                 ->user();
         } catch (\Throwable $e) {
-            Log::error('Error en autenticación Google: ' . $e->getMessage());
-            return redirect()->route('login')->with('error', 'Ocurrió un error al autenticar con Google. Por favor intenta de nuevo.');
+            Log::error('Error en autenticación Google: '.$e->getMessage());
+
+            return redirect()->route('login')->with('error', __('auth.google_failed'));
         }
 
         // Buscar si ya existe por google_id o por email
@@ -54,22 +57,23 @@ class AuthController extends Controller
 
         if ($usuario) {
             $updates = [];
-            if (!$usuario->google_id) {
+            if (! $usuario->google_id) {
                 $updates['google_id'] = $googleUser->getId();
             }
-            if (!$usuario->email_verified_at) {
+            if (! $usuario->email_verified_at) {
                 $updates['email_verified_at'] = Carbon::now();
             }
-            if (!empty($updates)) {
+            if (! empty($updates)) {
                 $usuario->update($updates);
             }
 
             if ($usuario->estado !== 'activo') {
-                return redirect()->route('login')->with('error', 'Tu cuenta se encuentra inactiva. Contacta al administrador.');
+                return redirect()->route('login')->with('error', __('auth.account_inactive'));
             }
 
             Auth::login($usuario, true);
             request()->session()->regenerate();
+
             return redirect()->intended($usuario->homeUrl());
         }
 
@@ -80,18 +84,19 @@ class AuthController extends Controller
         $apellido = isset($parts[1]) && $parts[1] !== '' ? $parts[1] : 'Google';
 
         $nuevoUsuario = Usuario::create([
-            'nombre'            => $nombre,
-            'apellido'          => $apellido,
-            'email'             => $googleUser->getEmail(),
-            'google_id'         => $googleUser->getId(),
-            'password'          => Hash::make(Str::random(32)),
-            'rol'               => 'turista',
-            'estado'            => 'activo',
+            'nombre' => $nombre,
+            'apellido' => $apellido,
+            'email' => $googleUser->getEmail(),
+            'google_id' => $googleUser->getId(),
+            'password' => Hash::make(Str::random(32)),
+            'rol' => 'turista',
+            'estado' => 'activo',
             'email_verified_at' => Carbon::now(),
         ]);
 
         Auth::login($nuevoUsuario, true);
         request()->session()->regenerate();
+
         return redirect()->intended($nuevoUsuario->homeUrl());
     }
 
@@ -120,7 +125,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
+            'email' => __('auth.invalid_credentials'),
         ])->onlyInput('email');
     }
 
@@ -146,12 +151,13 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'rol' => 'turista', // Por defecto los que se registran por la web son turistas
-            'estado' => 'activo'
+            'estado' => 'activo',
         ]);
 
         Auth::login($usuario);
+        $request->session()->regenerate();
 
-        return redirect($usuario->homeUrl());
+        return redirect()->intended($usuario->homeUrl());
     }
 
     // Cerrar sesión
@@ -160,7 +166,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/');
     }
 
@@ -169,7 +175,7 @@ class AuthController extends Controller
     // 1. Muestra el formulario para pedir correo
     public function showForgotForm()
     {
-        return view('usuarios.auth.forgot-password'); 
+        return view('usuarios.auth.forgot-password');
     }
 
     // 2. Genera y envía el código de 6 dígitos
@@ -178,11 +184,11 @@ class AuthController extends Controller
         $request->validate([
             'email' => ['required', 'email', 'exists:usuarios,email'],
         ], [
-            'email.required' => 'El correo electrónico es obligatorio.',
-            'email.email'    => 'Ingresa un correo electrónico válido.',
-            'email.exists'   => 'No encontramos ninguna cuenta registrada con este correo.',
+            'email.required' => __('auth.email_required'),
+            'email.email' => __('auth.email_invalid'),
+            'email.exists' => __('auth.email_not_found'),
         ]);
-        
+
         // Generar código aleatorio de 6 dígitos
         $code = (string) random_int(100000, 999999);
 
@@ -193,18 +199,19 @@ class AuthController extends Controller
 
         // Enviar correo
         try {
-            Mail::raw("Tu código de verificación para recuperar tu contraseña en TourismCloud AI es: {$code}\n\nEste código expira en 15 minutos.\nSi no solicitaste este cambio, puedes ignorar este mensaje.", function ($message) use ($request) {
+            Mail::raw(__('auth.reset_email_body', ['code' => $code]), function ($message) use ($request) {
                 $message->to($request->email)
-                        ->subject('Código de Recuperación - TourismCloud AI');
+                    ->subject(__('auth.reset_email_subject'));
             });
         } catch (\Throwable $e) {
-            Log::error('Error al enviar correo de recuperación: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'No se pudo enviar el correo de verificación. Por favor revisa tu conexión o intenta más tarde.');
+            Log::error('Error al enviar correo de recuperación: '.$e->getMessage());
+
+            return back()->withInput()->with('error', __('auth.reset_email_failed'));
         }
 
         return redirect()->route('password.verify')
             ->with('reset_email', $request->email)
-            ->with('exito', 'Te hemos enviado un código de seguridad de 6 dígitos a tu correo.');
+            ->with('exito', __('auth.reset_code_sent'));
     }
 
     // 3. Muestra vista para poner el código y la nueva contraseña
@@ -217,17 +224,17 @@ class AuthController extends Controller
     public function verifyCodeAndReset(Request $request)
     {
         $request->validate([
-            'email'    => ['required', 'email', 'exists:usuarios,email'],
-            'code'     => ['required', 'digits:6'],
+            'email' => ['required', 'email', 'exists:usuarios,email'],
+            'code' => ['required', 'digits:6'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'email.required'     => 'El correo electrónico es obligatorio.',
-            'email.exists'       => 'No existe una cuenta registrada con este correo.',
-            'code.required'      => 'El código de verificación es obligatorio.',
-            'code.digits'        => 'El código debe tener exactamente 6 dígitos.',
-            'password.required'  => 'La nueva contraseña es obligatoria.',
-            'password.min'       => 'La nueva contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'email.required' => __('auth.email_required'),
+            'email.exists' => __('auth.email_not_found'),
+            'code.required' => __('auth.code_required'),
+            'code.digits' => __('auth.code_six_digits'),
+            'password.required' => __('auth.password_required'),
+            'password.min' => __('auth.password_minimum'),
+            'password.confirmed' => __('auth.password_confirmation_mismatch'),
         ]);
 
         $resetRecord = DB::table('password_reset_tokens')
@@ -235,15 +242,15 @@ class AuthController extends Controller
             ->where('token', $request->code)
             ->first();
 
-        if (!$resetRecord || Carbon::parse($resetRecord->created_at)->addMinutes(15)->isPast()) {
-            return back()->withInput()->with('error', 'El código es inválido o ha expirado. Por favor solicita uno nuevo.');
+        if (! $resetRecord || Carbon::parse($resetRecord->created_at)->addMinutes(15)->isPast()) {
+            return back()->withInput()->with('error', __('auth.code_invalid_or_expired'));
         }
 
         // Actualizar contraseña del usuario
         $usuario = Usuario::where('email', $request->email)->first();
         if ($usuario) {
             $usuario->forceFill([
-                'password'       => Hash::make($request->password),
+                'password' => Hash::make($request->password),
                 'remember_token' => Str::random(60),
             ])->save();
         }
@@ -251,6 +258,6 @@ class AuthController extends Controller
         // Borrar token usado
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('exito', 'Tu contraseña ha sido restablecida exitosamente. Ya puedes iniciar sesión.');
+        return redirect()->route('login')->with('exito', __('auth.password_reset_success'));
     }
 }

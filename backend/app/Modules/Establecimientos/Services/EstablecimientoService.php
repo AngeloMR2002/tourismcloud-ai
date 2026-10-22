@@ -27,49 +27,50 @@ class EstablecimientoService
      */
     public function listar(array $filtros = [], int $porPagina = 15): LengthAwarePaginator
     {
-        $query = Establecimiento::with(['destino', 'categorias', 'valoraciones'])
+        $query = Establecimiento::with(['destino', 'categorias'])
+            ->withCount('valoraciones')->withAvg('valoraciones', 'puntuacion')
             ->withCount('imagenes');
 
         // Filtro por destino.
-        if (!empty($filtros['destino_id'])) {
+        if (! empty($filtros['destino_id'])) {
             $query->where('destino_id', $filtros['destino_id']);
         }
 
         // Filtro por proveedor: el panel del proveedor siempre pasa este filtro.
         // Garantiza que un proveedor solo vea sus propios establecimientos.
-        if (!empty($filtros['proveedor_id'])) {
+        if (! empty($filtros['proveedor_id'])) {
             $query->where('proveedor_id', $filtros['proveedor_id']);
         }
 
         // Filtro por tipo de establecimiento.
-        if (!empty($filtros['tipo'])) {
+        if (! empty($filtros['tipo'])) {
             $query->where('tipo', $filtros['tipo']);
         }
 
         // Filtro por rango de precio (Bajo, Medio, Alto, Lujoso).
-        if (!empty($filtros['rango_precio'])) {
+        if (! empty($filtros['rango_precio'])) {
             $query->where('rango_precio', $filtros['rango_precio']);
         }
 
         // Filtro por categoría de interés.
-        if (!empty($filtros['categoria_id'])) {
+        if (! empty($filtros['categoria_id'])) {
             $query->whereHas('categorias', function ($q) use ($filtros) {
                 $q->where('categorias_interes.id', $filtros['categoria_id']);
             });
         }
 
         // Búsqueda por nombre, descripción o dirección.
-        if (!empty($filtros['busqueda'])) {
-            $termino = '%' . $filtros['busqueda'] . '%';
+        if (! empty($filtros['busqueda'])) {
+            $termino = '%'.$filtros['busqueda'].'%';
             $query->where(function ($q) use ($termino) {
                 $q->where('nombre', 'ilike', $termino)
-                  ->orWhere('descripcion', 'ilike', $termino)
-                  ->orWhere('direccion', 'ilike', $termino);
+                    ->orWhere('descripcion', 'ilike', $termino)
+                    ->orWhere('direccion', 'ilike', $termino);
             });
         }
 
         // Solo activos (catálogo público siempre filtra así).
-        if (!empty($filtros['solo_activos'])) {
+        if (! empty($filtros['solo_activos'])) {
             $query->where('estado', 'activo');
         }
 
@@ -79,10 +80,10 @@ class EstablecimientoService
     /**
      * Crea un nuevo establecimiento dentro de una transacción.
      *
-     * @param array $datos      Datos validados del FormRequest.
-     * @param array $categorias IDs de categorías seleccionadas.
-     * @param UploadedFile|null $portada Archivo de imagen de portada.
-     * @param UploadedFile[] $galeria Archivos de galería adicional.
+     * @param  array  $datos  Datos validados del FormRequest.
+     * @param  array  $categorias  IDs de categorías seleccionadas.
+     * @param  UploadedFile|null  $portada  Archivo de imagen de portada.
+     * @param  UploadedFile[]  $galeria  Archivos de galería adicional.
      */
     public function crear(
         array $datos,
@@ -139,7 +140,7 @@ class EstablecimientoService
 
             // Eliminar imágenes seleccionadas
             foreach ($eliminarImagenes as $imagenId) {
-                if (!empty($imagenId)) {
+                if (! empty($imagenId)) {
                     $this->eliminarImagen($establecimiento, (int) $imagenId);
                 }
             }
@@ -162,15 +163,15 @@ class EstablecimientoService
         DB::table('horarios')->where('establecimiento_id', $establecimiento->id)->delete();
 
         foreach ($horarios as $dia => $horas) {
-            if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
+            if (is_array($horas) && ! empty($horas['abre']) && ! empty($horas['cierra'])) {
                 DB::table('horarios')->insert([
-                    'atractivo_id'       => null,
+                    'atractivo_id' => null,
                     'establecimiento_id' => $establecimiento->id,
-                    'dia'                => $dia,
-                    'hora_inicio'        => $horas['abre'],
-                    'hora_fin'           => $horas['cierra'],
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'dia' => $dia,
+                    'hora_inicio' => $horas['abre'],
+                    'hora_fin' => $horas['cierra'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
@@ -199,7 +200,7 @@ class EstablecimientoService
     /**
      * Sincroniza las categorías del establecimiento (reemplaza el conjunto actual).
      *
-     * @param int[] $categoriaIds
+     * @param  int[]  $categoriaIds
      */
     public function sincronizarCategorias(Establecimiento $establecimiento, array $categoriaIds): void
     {
@@ -209,12 +210,12 @@ class EstablecimientoService
     /**
      * Guarda archivos de galería adicional en storage y registra en la tabla imagenes.
      *
-     * @param UploadedFile[] $archivos
+     * @param  UploadedFile[]  $archivos
      */
     public function guardarImagenes(Establecimiento $establecimiento, array $archivos): void
     {
         foreach ($archivos as $orden => $archivo) {
-            if (!($archivo instanceof UploadedFile) || !$archivo->isValid()) {
+            if (! ($archivo instanceof UploadedFile) || ! $archivo->isValid()) {
                 continue;
             }
 
@@ -222,10 +223,10 @@ class EstablecimientoService
 
             Imagen::create([
                 'entidad_tipo' => 'establecimiento',
-                'entidad_id'   => $establecimiento->id,
-                'url'          => $url,
-                'orden'        => (int) $orden,
-                'alt_text'     => $establecimiento->nombre,
+                'entidad_id' => $establecimiento->id,
+                'url' => $url,
+                'orden' => (int) $orden,
+                'alt_text' => $establecimiento->nombre,
             ]);
         }
     }

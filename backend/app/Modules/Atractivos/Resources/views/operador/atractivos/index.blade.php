@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Mis Atractivos')
+@section('title', __('operator_attractions.my_attractions'))
 
-@section('panel-rol-label', 'Operador')
+@section('panel-rol-label', __('operator_attractions.operator'))
 
 @section('panel-sidebar-links')
     <a href="{{ route('operador.atractivos.index') }}"
@@ -13,7 +13,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
             </svg>
         </div>
-        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Mis Atractivos</span>
+        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">{{ __('operator_attractions.my_attractions') }}</span>
     </a>
 @endsection
 
@@ -24,13 +24,13 @@
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
             <h1 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: #1a2232;">
-                Mis Atractivos
+                {{ __('operator_attractions.my_attractions') }}
             </h1>
-            <p class="text-sm text-gray-500 mt-0.5">Gestiona los atractivos turísticos que has registrado en la plataforma</p>
+            <p class="text-sm text-gray-500 mt-0.5">{{ __('operator_attractions.my_attractions_intro') }}</p>
         </div>
         <a href="{{ route('operador.atractivos.create') }}"
            class="tc-btn-primary shrink-0">
-            + Nuevo Atractivo
+            + {{ __('operator_attractions.new_attraction') }}
         </a>
     </div>
 
@@ -46,7 +46,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input type="text" name="busqueda" value="{{ request('busqueda') }}"
-                       placeholder="Buscar atractivo..."
+                       placeholder="{{ __('operator_attractions.search_placeholder') }}"
                        class="flex-1 text-sm outline-none bg-transparent py-1.5 text-gray-700 placeholder-gray-400"
                        onkeypress="if(event.key === 'Enter') this.form.submit();">
             </div>
@@ -55,14 +55,14 @@
             <div class="flex items-center gap-3 w-full sm:w-auto px-1 sm:px-0">
                 {{-- Estado --}}
                 <select name="estado" class="tc-select text-sm h-9 py-1 pr-8 pl-3" style="min-width: 160px;" onchange="this.form.submit()">
-                    <option value="">Todos los estados</option>
-                    <option value="activo"   @selected(request('estado') === 'activo')>Activos</option>
-                    <option value="inactivo" @selected(request('estado') === 'inactivo')>Inactivos</option>
+                    <option value="">{{ __('operator_attractions.all_statuses') }}</option>
+                    <option value="activo"   @selected(request('estado') === 'activo')>{{ __('operator_attractions.active_plural') }}</option>
+                    <option value="inactivo" @selected(request('estado') === 'inactivo')>{{ __('operator_attractions.inactive_plural') }}</option>
                 </select>
 
                 {{-- Destino --}}
                 <select name="destino_id" class="tc-select text-sm h-9 py-1 pr-8 pl-3" style="min-width: 170px;" onchange="this.form.submit()">
-                    <option value="">Todos los destinos</option>
+                    <option value="">{{ __('operator_attractions.all_destinations') }}</option>
                     @foreach($destinos as $d)
                         <option value="{{ $d->id }}" @selected(request('destino_id') == $d->id)>{{ $d->nombre }}</option>
                     @endforeach
@@ -78,22 +78,22 @@
                 <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
                 </svg>
-                <p class="text-gray-500 font-medium mb-3">No tienes atractivos registrados aún.</p>
+                <p class="text-gray-500 font-medium mb-3">{{ __('operator_attractions.no_attractions') }}</p>
                 <a href="{{ route('operador.atractivos.create') }}"
-                   class="tc-btn-primary text-sm">+ Nuevo Atractivo</a>
+                   class="tc-btn-primary text-sm">+ {{ __('operator_attractions.new_attraction') }}</a>
             </div>
         @else
             <div class="overflow-x-auto">
                 <table class="tc-table">
                     <thead>
                         <tr>
-                            <th>Atractivo</th>
-                            <th>Destino</th>
-                            <th>Categoría</th>
-                            <th class="text-right">Costo</th>
-                            <th class="text-center">Duración</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-center">Acciones</th>
+                            <th>{{ __('operator_attractions.attraction') }}</th>
+                            <th>{{ __('operator_attractions.destination') }}</th>
+                            <th>{{ __('operator_attractions.category') }}</th>
+                            <th class="text-right">{{ __('operator_attractions.cost') }}</th>
+                            <th class="text-center">{{ __('operator_attractions.duration') }}</th>
+                            <th class="text-center">{{ __('operator_attractions.status') }}</th>
+                            <th class="text-center">{{ __('operator_attractions.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -140,7 +140,7 @@
                                     @if($at->costo_entrada > 0)
                                         S/ {{ number_format($at->costo_entrada, 2) }}
                                     @else
-                                        <span class="text-green-600 font-medium text-xs">Gratuito</span>
+                                        <span class="text-green-600 font-medium text-xs">{{ __('operator_attractions.free') }}</span>
                                     @endif
                                 </td>
 
@@ -160,7 +160,7 @@
                                           action="{{ route('operador.atractivos.toggle-estado', $at) }}"
                                           id="tog-at-{{ $at->id }}">
                                         @csrf @method('PATCH')
-                                        <label class="tc-toggle">
+                                        <label class="tc-toggle" aria-label="{{ __('operator_attractions.change_status', ['name' => $at->nombre]) }}">
                                             <input type="checkbox"
                                                    {{ $at->estado === 'activo' ? 'checked' : '' }}
                                                    onchange="document.getElementById('tog-at-{{ $at->id }}').submit()">
@@ -174,7 +174,7 @@
                                 <td>
                                     <div class="flex items-center justify-center gap-1.5">
                                         <a href="{{ route('catalogo.atractivos.show', $at) }}" target="_blank"
-                                           title="Ver en catálogo"
+                                           title="{{ __('operator_attractions.view_in_catalog') }}"
                                            class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -182,7 +182,7 @@
                                             </svg>
                                         </a>
                                         <a href="{{ route('operador.atractivos.edit', $at) }}"
-                                           title="Editar"
+                                           title="{{ __('operator_attractions.edit') }}"
                                            class="p-1.5 rounded-lg transition-colors"
                                            style="color: var(--color-primary-600);"
                                            onmouseover="this.style.background='var(--color-teal-light)'"
@@ -192,9 +192,10 @@
                                             </svg>
                                         </a>
                                         <form method="POST" action="{{ route('operador.atractivos.destroy', $at) }}"
-                                              onsubmit="return confirm('¿Eliminar «{{ addslashes($at->nombre) }}»?')">
+                                              data-confirm="{{ __('operator_attractions.delete_confirm', ['name' => $at->nombre]) }}"
+                                              onsubmit="return confirm(this.dataset.confirm)">
                                             @csrf @method('DELETE')
-                                            <button type="submit" title="Eliminar"
+                                            <button type="submit" title="{{ __('operator_attractions.delete') }}"
                                                     class="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>

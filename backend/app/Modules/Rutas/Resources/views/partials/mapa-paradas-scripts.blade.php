@@ -5,6 +5,9 @@
         }
 
         let googleMapsPromise;
+        const copy = @json(trans('maps'));
+        const locale = @json(app()->getLocale());
+        const withCount = (message, count) => message.replace(':count', String(count));
 
         function cargarGoogleMaps(apiKey) {
             if (!apiKey) {
@@ -21,7 +24,7 @@
 
             googleMapsPromise = new Promise(function (resolve, reject) {
                 const script = document.createElement('script');
-                script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey) + '&v=weekly&language=es&region=PE';
+                script.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey) + '&v=weekly&language=' + encodeURIComponent(locale) + '&region=PE';
                 script.async = true;
                 script.defer = true;
                 script.onload = function () {
@@ -30,10 +33,10 @@
                         return;
                     }
 
-                    reject(new Error('Google Maps no se inicializó correctamente.'));
+                    reject(new Error(copy.maps_init_failed));
                 };
                 script.onerror = function () {
-                    reject(new Error('No se pudo cargar Google Maps.'));
+                    reject(new Error(copy.maps_load_failed));
                 };
                 document.head.appendChild(script);
             });
@@ -71,7 +74,7 @@
                     orden: Number(parada.orden) || indice + 1,
                     nombre: typeof parada.nombre === 'string' && parada.nombre.trim() !== ''
                         ? parada.nombre.trim()
-                        : 'Parada ' + (indice + 1),
+                        : copy.stop_number.replace(':number', String(indice + 1)),
                     latitud: latitud,
                     longitud: longitud,
                     tieneCoordenadas: esCoordenadaValida(latitud, longitud),
@@ -132,31 +135,31 @@
             texto.className = 'mt-1 text-sm leading-6 text-slate-500';
 
             if (paradas.length === 0) {
-                titulo.textContent = 'Aún no hay paradas seleccionadas';
-                texto.textContent = 'Agrega al menos dos atractivos para preparar la vista del recorrido.';
-                estado.textContent = 'Sin paradas';
+                titulo.textContent = copy.no_stops_selected;
+                texto.textContent = copy.add_two_attractions;
+                estado.textContent = copy.no_stops;
             } else if (ubicadas.length === 0) {
-                titulo.textContent = 'Las paradas aún no tienen coordenadas';
-                texto.textContent = 'La ruta conserva sus paradas, pero el mapa aparecerá cuando los atractivos publiquen latitud y longitud.';
-                estado.textContent = 'Sin coordenadas';
+                titulo.textContent = copy.stops_without_coordinates;
+                texto.textContent = copy.stops_without_coordinates_help;
+                estado.textContent = copy.no_coordinates;
             } else if (faltantes > 0) {
                 titulo.textContent = faltantes === 1
-                    ? 'Hay 1 parada sin coordenadas'
-                    : 'Hay ' + faltantes + ' paradas sin coordenadas';
-                texto.textContent = 'No se dibuja el recorrido hasta que todas las paradas publiquen su ubicación. Así se evita conectar puntos y presentar una ruta incompleta.';
-                estado.textContent = faltantes === 1 ? '1 parada sin coordenadas' : faltantes + ' paradas sin coordenadas';
+                    ? copy.missing_coordinate_one
+                    : withCount(copy.missing_coordinate_many, faltantes);
+                texto.textContent = copy.incomplete_route_note;
+                estado.textContent = faltantes === 1 ? copy.missing_coordinate_status_one : withCount(copy.missing_coordinate_status_many, faltantes);
             } else if (ubicadas.length === 1) {
-                titulo.textContent = 'Falta una segunda parada con coordenadas';
-                texto.textContent = 'Hay una ubicación disponible, pero se requieren al menos dos para dibujar el trayecto.';
-                estado.textContent = '1 punto ubicado';
+                titulo.textContent = copy.second_stop_needed;
+                texto.textContent = copy.second_stop_help;
+                estado.textContent = copy.one_point;
             } else if (razon === 'sin-clave') {
-                titulo.textContent = 'Google Maps aún no está configurado';
-                texto.textContent = 'Las paradas ya están listas. Al agregar la clave y habilitar Maps JavaScript API y Routes API, se verá el recorrido interactivo.';
-                estado.textContent = ubicadas.length + ' puntos listos';
+                titulo.textContent = copy.maps_not_configured;
+                texto.textContent = copy.maps_not_configured_help;
+                estado.textContent = withCount(copy.points_ready, ubicadas.length);
             } else {
-                titulo.textContent = 'No se pudo cargar el mapa interactivo';
-                texto.textContent = 'Puedes abrir el recorrido en Google Maps mientras se revisa la configuración de la clave.';
-                estado.textContent = ubicadas.length + ' puntos disponibles';
+                titulo.textContent = copy.interactive_map_failed;
+                texto.textContent = copy.open_route_help;
+                estado.textContent = withCount(copy.points_available, ubicadas.length);
             }
 
             contenido.append(icono, titulo, texto);
@@ -168,10 +171,10 @@
                 enlace.rel = 'noopener noreferrer';
                 enlace.className = 'mt-4 inline-flex items-center gap-2 rounded-lg border border-primary-200 bg-white px-3 py-2 text-sm font-bold text-primary-700 transition hover:bg-primary-50';
                 enlace.textContent = faltantes > 0
-                    ? 'Abrir puntos disponibles en Google Maps'
+                    ? copy.open_available_points
                     : ubicadas.length > 1
-                        ? 'Abrir recorrido en Google Maps'
-                        : 'Abrir ubicación en Google Maps';
+                        ? copy.open_route
+                        : copy.open_location;
                 contenido.appendChild(enlace);
             }
 
@@ -207,7 +210,7 @@
                             return { lat: parada.latitud, lng: parada.longitud };
                         }),
                         geodesic: true,
-                        strokeColor: '#00626A',
+                        strokeColor: '#16734f',
                         strokeOpacity: 0.8,
                         strokeWeight: 4,
                     });
@@ -220,7 +223,7 @@
                         return;
                     }
 
-                    estadoElemento.textContent = 'Trazando recorrido vial…';
+                    estadoElemento.textContent = copy.tracing_road;
                     maps.importLibrary('routes')
                         .then(function (biblioteca) {
                             return biblioteca.Route.computeRoutes({
@@ -252,11 +255,11 @@
                             polilineas.forEach(function (polilinea) {
                                 polilinea.setMap(mapa);
                             });
-                            estadoElemento.textContent = paradas.length + ' paradas trazadas';
+                            estadoElemento.textContent = withCount(copy.stops_traced, paradas.length);
                         })
                         .catch(function () {
                             if (versionActual === versionRenderizado) {
-                                estadoElemento.textContent = paradas.length + ' paradas ubicadas · línea referencial';
+                                estadoElemento.textContent = withCount(copy.stops_positioned, paradas.length);
                             }
                         });
                 }
@@ -288,7 +291,7 @@
 
                         respaldoElemento.classList.add('hidden');
                         mapaElemento.classList.remove('hidden');
-                        estadoElemento.textContent = 'Cargando mapa';
+                        estadoElemento.textContent = copy.loading_map;
 
                         if (!mapa) {
                             mapa = new maps.Map(mapaElemento, {
@@ -320,7 +323,7 @@
                         } else {
                             mapa.fitBounds(limites, 48);
                             dibujarLineaDirecta(maps, paradasUbicadas);
-                            estadoElemento.textContent = paradasUbicadas.length + ' paradas ubicadas · línea referencial';
+                            estadoElemento.textContent = withCount(copy.stops_positioned, paradasUbicadas.length);
                             intentarTrazadoVial(maps, paradasUbicadas, versionActual);
                         }
                     } catch (error) {
@@ -328,7 +331,7 @@
                             return;
                         }
 
-                        console.warn('No se pudo inicializar el mapa de la ruta.', error);
+                        console.warn(copy.route_map_init_failed, error);
                         mapaElemento.classList.add('hidden');
                         respaldoElemento.classList.remove('hidden');
                         mostrarRespaldo(respaldoElemento, estadoElemento, paradasActuales, 'error');

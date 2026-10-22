@@ -7,27 +7,27 @@
 
 @if($errors->any())
     <div class="tc-alert-error" role="alert">
-        Revisa los campos marcados antes de guardar la actividad.
+        {{ __('operator.review_marked_fields') }}
     </div>
 @endif
 
 <section class="tc-card tc-form-section p-5 sm:p-6">
     <div class="tc-form-section__heading">
         <div>
-            <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 20V4h10l4 4v12H5Z" stroke-width="1.7" stroke-linejoin="round"/><path d="M15 4v4h4M8 13h8M8 17h5" stroke-width="1.7" stroke-linecap="round"/></svg>Actividad</p>
-            <h2>Información de la experiencia</h2>
-            <p>Completa los datos que el turista verá al comparar actividades dentro de un destino.</p>
+            <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 20V4h10l4 4v12H5Z" stroke-width="1.7" stroke-linejoin="round"/><path d="M15 4v4h4M8 13h8M8 17h5" stroke-width="1.7" stroke-linecap="round"/></svg>{{ __('operator.activity') }}</p>
+            <h2>{{ __('operator.experience_information') }}</h2>
+            <p>{{ __('operator.experience_information_hint') }}</p>
         </div>
-        <span class="tc-step-badge">Paso 1 de 2</span>
+        <span class="tc-step-badge">{{ __('operator.step_one_of_two') }}</span>
     </div>
     <div class="tc-form-grid tc-form-grid--two">
         <div class="tc-form-field tc-form-field--wide">
-            <label for="destino_id" class="block text-sm font-semibold text-gray-700 mb-1.5">Destino <span class="text-red-600">*</span></label>
+            <label for="destino_id" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.destination') }} <span class="text-red-600">*</span></label>
             <select id="destino_id" name="destino_id" class="tc-select @error('destino_id') border-red-400 @enderror" required>
-                <option value="">Selecciona un destino</option>
+                <option value="">{{ __('operator.select_destination') }}</option>
                 @foreach($destinos as $destino)
                     <option value="{{ $destino->id }}" @selected((string) old('destino_id', $actividad?->destino_id) === (string) $destino->id)>
-                        {{ $destino->nombre }}{{ $destino->estado !== 'activo' ? ' (inactivo; solo se puede conservar)' : '' }}
+                        {{ $destino->nombre }}{{ $destino->estado !== 'activo' ? ' ('.__('operator.inactive_keep_only').')' : '' }}
                     </option>
                 @endforeach
             </select>
@@ -35,27 +35,27 @@
         </div>
 
         <div class="tc-form-field tc-form-field--wide">
-            <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre de la actividad <span class="text-red-600">*</span></label>
-            <input id="nombre" name="nombre" value="{{ old('nombre', $actividad?->nombre) }}" maxlength="150" placeholder="Ej. Taller de cerámica tradicional" class="tc-input @error('nombre') border-red-400 @enderror" required>
+            <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.activity_name') }} <span class="text-red-600">*</span></label>
+            <input id="nombre" name="nombre" value="{{ old('nombre', $actividad?->nombre) }}" maxlength="150" placeholder="{{ __('operator.activity_name_example') }}" class="tc-input @error('nombre') border-red-400 @enderror" required>
             @error('nombre')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
 
         <div class="tc-form-field tc-form-field--wide">
-            <label for="descripcion" class="block text-sm font-semibold text-gray-700 mb-1.5">Descripción</label>
-            <textarea id="descripcion" name="descripcion" rows="5" maxlength="5000" class="tc-input @error('descripcion') border-red-400 @enderror" placeholder="Explica qué incluye la experiencia y qué debe considerar el turista.">{{ old('descripcion', $actividad?->descripcion) }}</textarea>
+            <label for="descripcion" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.description') }}</label>
+            <textarea id="descripcion" name="descripcion" rows="5" maxlength="5000" class="tc-input @error('descripcion') border-red-400 @enderror" placeholder="{{ __('operator.activity_description_hint') }}">{{ old('descripcion', $actividad?->descripcion) }}</textarea>
             @error('descripcion')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
 
         <div class="tc-form-field">
-            <label for="costo" class="block text-sm font-semibold text-gray-700 mb-1.5">Costo estimado (S/) <span class="text-red-600">*</span></label>
-            <input id="costo" type="number" name="costo" min="0" max="99999999.99" step="0.01" value="{{ old('costo', $actividad?->costo ?? '0.00') }}" class="tc-input @error('costo') border-red-400 @enderror" required>
-            <p class="tc-form-field__hint">Usa 0 si la actividad es gratuita.</p>
+            <label for="costo" data-tc-money-label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.estimated_cost_pen') }} <span class="text-red-600">*</span></label>
+            <input id="costo" data-tc-money-input type="number" name="costo" min="0" max="99999999.99" step="0.01" value="{{ old('costo', $actividad?->costo ?? '0.00') }}" class="tc-input @error('costo') border-red-400 @enderror" required>
+            <p class="tc-form-field__hint">{{ __('operator.free_cost_hint') }}</p>
             @error('costo')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
 
         <div class="tc-form-field">
-            <label for="duracion_estimada_min" class="block text-sm font-semibold text-gray-700 mb-1.5">Duración estimada (minutos)</label>
-            <input id="duracion_estimada_min" type="number" name="duracion_estimada_min" min="1" max="10080" value="{{ old('duracion_estimada_min', $actividad?->duracion_estimada_min) }}" class="tc-input @error('duracion_estimada_min') border-red-400 @enderror" placeholder="Ej. 120">
+            <label for="duracion_estimada_min" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.estimated_duration_minutes') }}</label>
+            <input id="duracion_estimada_min" type="number" name="duracion_estimada_min" min="1" max="14400" value="{{ old('duracion_estimada_min', $actividad?->duracion_estimada_min) }}" class="tc-input @error('duracion_estimada_min') border-red-400 @enderror" placeholder="{{ __('operator.example_duration') }}">
             @error('duracion_estimada_min')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
 
@@ -63,57 +63,57 @@
             <div class="tc-form-location">
                 <span class="tc-form-location__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10Z" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" stroke-width="1.7"/></svg></span>
                 <div>
-                    <strong>Lugar o punto de encuentro</strong>
-                    <p>Busca el lugar donde se realiza la experiencia, haz clic en el mapa o arrastra el marcador. A diferencia de un atractivo, este punto puede ser el inicio de la actividad.</p>
+                    <strong>{{ __('operator.meeting_place') }}</strong>
+                    <p>{{ __('operator.meeting_place_hint') }}</p>
                 </div>
             </div>
         </div>
 
         <div class="tc-form-field tc-form-field--wide">
-            <div class="relative overflow-hidden rounded-2xl border border-[#00626A]/10 bg-[#e6f4f5] shadow-sm">
+            <div class="relative overflow-hidden rounded-2xl border border-[#16734f]/10 bg-[#daf2e6] shadow-sm">
                 <div class="absolute left-4 right-4 top-4 z-10 sm:right-auto sm:w-[25rem]">
-                    <label for="actividad-map-search" class="sr-only">Buscar lugar o punto de encuentro</label>
+                    <label for="actividad-map-search" class="sr-only">{{ __('operator.search_meeting_place') }}</label>
                     <div class="relative">
-                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#00626A]" aria-hidden="true">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-[#16734f]" aria-hidden="true">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="6.5" stroke-width="1.8"/><path d="m16 16 4 4" stroke-width="1.8" stroke-linecap="round"/></svg>
                         </span>
-                        <input id="actividad-map-search" type="search" autocomplete="off" placeholder="Busca un lugar o punto de encuentro…" @disabled(! $googleMapsApiKey) class="tc-input w-full bg-white/95 py-3 pl-11 pr-4 shadow-lg backdrop-blur-sm disabled:cursor-not-allowed disabled:opacity-75">
+                        <input id="actividad-map-search" type="search" autocomplete="off" placeholder="{{ __('operator.search_meeting_placeholder') }}" @disabled(! $googleMapsApiKey) class="tc-input w-full bg-white/95 py-3 pl-11 pr-4 shadow-lg backdrop-blur-sm disabled:cursor-not-allowed disabled:opacity-75">
                     </div>
-                    <ul id="actividad-map-suggestions" class="mt-2 hidden max-h-60 overflow-y-auto rounded-xl border border-slate-100 bg-white shadow-xl" aria-label="Sugerencias de lugares"></ul>
+                    <ul id="actividad-map-suggestions" class="mt-2 hidden max-h-60 overflow-y-auto rounded-xl border border-slate-100 bg-white shadow-xl" aria-label="{{ __('operator.place_suggestions') }}"></ul>
                 </div>
-                <div id="actividad-form-map" class="h-[21rem] w-full sm:h-[25rem]" aria-label="Mapa para seleccionar el lugar de la actividad"></div>
-                <div id="actividad-map-status" class="absolute inset-0 flex items-center justify-center bg-[#e6f4f5] p-6 text-center text-sm leading-6 text-[#08565D]" @if($googleMapsApiKey) aria-live="polite" @endif>
+                <div id="actividad-form-map" class="h-[21rem] w-full sm:h-[25rem]" aria-label="{{ __('operator.activity_location_map') }}"></div>
+                <div id="actividad-map-status" class="absolute inset-0 flex items-center justify-center bg-[#daf2e6] p-6 text-center text-sm leading-6 text-[#105c3e]" @if($googleMapsApiKey) aria-live="polite" @endif>
                     @if($googleMapsApiKey)
-                        Cargando selector de ubicación…
+                        {{ __('operator.loading_location_picker') }}
                     @else
                         <div class="max-w-md">
-                            <strong class="block text-base text-[#054048]">El selector de Google Maps aún no está configurado.</strong>
-                            <p class="mt-2">Puedes registrar las coordenadas manualmente por ahora. Al configurar <code class="rounded bg-white px-1.5 py-0.5 text-xs">GOOGLE_MAPS_API_KEY</code>, aquí aparecerán la búsqueda, el mapa y el marcador arrastrable.</p>
+                            <strong class="block text-base text-[#124e37]">{{ __('operator.map_picker_not_configured') }}</strong>
+                            <p class="mt-2">{{ __('operator.manual_coordinates_hint') }}</p>
                         </div>
                     @endif
                 </div>
             </div>
-            <p class="tc-form-field__hint mt-2">Las coordenadas son opcionales, pero deben registrarse juntas para mostrar la ubicación pública.</p>
+            <p class="tc-form-field__hint mt-2">{{ __('operator.coordinates_optional_hint') }}</p>
         </div>
 
         <div class="tc-form-field">
-            <label for="latitud" class="block text-sm font-semibold text-gray-700 mb-1.5">Latitud</label>
-            <input id="latitud" type="number" name="latitud" step="0.0000001" min="-90" max="90" value="{{ $latitudInicial }}" class="tc-input @error('latitud') border-red-400 @enderror" placeholder="Ej. -9.085">
+            <label for="latitud" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.latitude') }}</label>
+            <input id="latitud" type="number" name="latitud" step="0.0000001" min="-90" max="90" value="{{ $latitudInicial }}" class="tc-input @error('latitud') border-red-400 @enderror" placeholder="{{ __('catalog.example_value', ['value' => '-9.085']) }}">
             @error('latitud')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
-            <p class="tc-form-field__hint">Se completa al elegir una posición en el mapa; también puedes editarla manualmente.</p>
+            <p class="tc-form-field__hint">{{ __('operator.latitude_hint') }}</p>
         </div>
 
         <div class="tc-form-field">
-            <label for="longitud" class="block text-sm font-semibold text-gray-700 mb-1.5">Longitud</label>
-            <input id="longitud" type="number" name="longitud" step="0.0000001" min="-180" max="180" value="{{ $longitudInicial }}" class="tc-input @error('longitud') border-red-400 @enderror" placeholder="Ej. -78.565">
+            <label for="longitud" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.longitude') }}</label>
+            <input id="longitud" type="number" name="longitud" step="0.0000001" min="-180" max="180" value="{{ $longitudInicial }}" class="tc-input @error('longitud') border-red-400 @enderror" placeholder="{{ __('catalog.example_value', ['value' => '-78.565']) }}">
             @error('longitud')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
 
         <div class="tc-form-field tc-form-field--wide">
-            <label for="estado" class="block text-sm font-semibold text-gray-700 mb-1.5">Estado <span class="text-red-600">*</span></label>
+            <label for="estado" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.status') }} <span class="text-red-600">*</span></label>
             <select id="estado" name="estado" class="tc-select @error('estado') border-red-400 @enderror" required>
-                <option value="activo" @selected(old('estado', $actividad?->estado ?? 'activo') === 'activo')>Activo</option>
-                <option value="inactivo" @selected(old('estado', $actividad?->estado) === 'inactivo')>Inactivo</option>
+                <option value="activo" @selected(old('estado', $actividad?->estado ?? 'activo') === 'activo')>{{ __('operator.active_status') }}</option>
+                <option value="inactivo" @selected(old('estado', $actividad?->estado) === 'inactivo')>{{ __('operator.inactive_status') }}</option>
             </select>
             @error('estado')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
@@ -123,33 +123,33 @@
 <section class="tc-card tc-form-section p-5 sm:p-6">
     <div class="tc-form-section__heading">
         <div>
-            <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" stroke-width="1.7"/><circle cx="9" cy="10" r="1.4" stroke-width="1.7"/><path d="m6.5 17 4.2-4.2 2.8 2.7 2-2 2 3.5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Portada</p>
-            <h2>Imagen principal</h2>
-            <p>Es opcional, pero facilita que el visitante reconozca la actividad antes de abrir el detalle.</p>
+            <p class="tc-form-section__eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" stroke-width="1.7"/><circle cx="9" cy="10" r="1.4" stroke-width="1.7"/><path d="m6.5 17 4.2-4.2 2.8 2.7 2-2 2 3.5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ __('operator.cover') }}</p>
+            <h2>{{ __('operator.main_image') }}</h2>
+            <p>{{ __('operator.cover_hint') }}</p>
         </div>
-        <span class="tc-step-badge tc-step-badge--warm">Paso 2 de 2</span>
+        <span class="tc-step-badge tc-step-badge--warm">{{ __('operator.step_two_of_two') }}</span>
     </div>
 
     <div class="tc-form-cover">
         <div class="tc-form-cover__preview">
             @if($portadaUrl)
-                <img id="portada-preview" src="{{ $portadaUrl }}" alt="Portada actual" class="w-full h-full object-cover">
+                <img id="portada-preview" src="{{ $portadaUrl }}" alt="{{ __('operator.current_cover') }}" class="w-full h-full object-cover">
             @else
-                <img id="portada-preview" src="" alt="Vista previa de portada" class="w-full h-full object-cover hidden">
-                <span id="portada-placeholder" class="text-sm text-center px-4">Sin imagen de portada</span>
+                <img id="portada-preview" src="" alt="{{ __('operator.cover_preview') }}" class="w-full h-full object-cover hidden">
+                <span id="portada-placeholder" class="text-sm text-center px-4">{{ __('operator.no_cover') }}</span>
             @endif
         </div>
         <div class="tc-form-field">
-            <label for="imagen_portada" class="block text-sm font-semibold text-gray-700 mb-1.5">Seleccionar imagen</label>
+            <label for="imagen_portada" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.select_image') }}</label>
             <input id="imagen_portada" type="file" name="imagen_portada" accept="image/jpeg,image/png,image/webp" class="tc-input @error('imagen_portada') border-red-400 @enderror">
-            <p class="mt-1 text-xs text-gray-400">JPG, PNG o WebP. Tamaño máximo: 5 MB.</p>
+            <p class="mt-1 text-xs text-gray-400">{{ __('operator.image_limit') }}</p>
             @error('imagen_portada')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
 
             @if($portadaUrl)
                 <label class="inline-flex items-center gap-2 mt-4 text-sm text-gray-600 cursor-pointer">
                     <input type="hidden" name="quitar_portada" value="0">
                     <input type="checkbox" name="quitar_portada" value="1" @checked(old('quitar_portada')) class="rounded border-gray-300" style="accent-color: var(--color-primary-500);">
-                    Quitar la imagen actual
+                    {{ __('operator.remove_current_image') }}
                 </label>
             @endif
         </div>
@@ -157,7 +157,7 @@
 </section>
 
 <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end pb-4">
-    <a href="{{ route('operador.actividades.index') }}" class="tc-btn-outline justify-center">Cancelar</a>
+    <a href="{{ route('operador.actividades.index') }}" class="tc-btn-outline justify-center">{{ __('operator.cancel') }}</a>
     <button type="submit" class="tc-btn-primary justify-center">{{ $submitLabel }}</button>
 </div>
 
@@ -181,6 +181,8 @@
             });
 
             var apiKey = @json($googleMapsApiKey);
+            var copy = @json(trans('operator'));
+            var locale = @json(app()->getLocale());
             var mapCanvas = document.getElementById('actividad-form-map');
             var mapStatus = document.getElementById('actividad-map-status');
             var latInput = document.getElementById('latitud');
@@ -243,7 +245,7 @@
 
                 return new Promise(function (resolve, reject) {
                     var mapsScript = document.createElement('script');
-                    mapsScript.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey) + '&v=weekly';
+                    mapsScript.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(apiKey) + '&v=weekly&language=' + encodeURIComponent(locale);
                     mapsScript.async = true;
                     mapsScript.defer = true;
                     mapsScript.onload = function () {
@@ -252,10 +254,10 @@
                             return;
                         }
 
-                        reject(new Error('Google Maps no expuso importLibrary.'));
+                        reject(new Error(copy.google_maps_import_error));
                     };
                     mapsScript.onerror = function () {
-                        reject(new Error('No se pudo descargar Google Maps.'));
+                        reject(new Error(copy.google_maps_download_error));
                     };
                     document.head.appendChild(mapsScript);
                 });
@@ -271,7 +273,7 @@
                 }
 
                 searchInput.disabled = true;
-                searchInput.placeholder = 'Búsqueda no disponible; selecciona el punto en el mapa';
+                searchInput.placeholder = copy.search_unavailable;
                 hideSuggestions();
             }
 
@@ -280,15 +282,15 @@
                     return;
                 }
 
-                var label = prediction.text?.text || prediction.mainText?.text || 'Lugar sugerido';
+                var label = prediction.text?.text || prediction.mainText?.text || copy.suggested_place;
                 var item = document.createElement('li');
                 var button = document.createElement('button');
                 var icon = document.createElement('span');
                 var text = document.createElement('span');
 
                 button.type = 'button';
-                button.className = 'flex w-full items-center gap-2 border-b border-slate-100 px-4 py-3 text-left text-sm text-slate-700 transition last:border-b-0 hover:bg-[#e6f4f5] hover:text-[#054048]';
-                icon.className = 'shrink-0 text-[#00626A]';
+                button.className = 'flex w-full items-center gap-2 border-b border-slate-100 px-4 py-3 text-left text-sm text-slate-700 transition last:border-b-0 hover:bg-[#daf2e6] hover:text-[#124e37]';
+                icon.className = 'shrink-0 text-[#16734f]';
                 icon.setAttribute('aria-hidden', 'true');
                 icon.textContent = '⌖';
                 text.textContent = label;
@@ -348,7 +350,7 @@
                         var response = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
                             input: query,
                             includedRegionCodes: ['pe'],
-                            language: 'es',
+                            language: locale,
                             region: 'pe'
                         });
 
@@ -410,7 +412,7 @@
                         map: hasInitialPosition ? map : null,
                         position: hasInitialPosition ? startPosition : null,
                         gmpDraggable: true,
-                        title: 'Punto de encuentro de la actividad'
+                        title: copy.activity_meeting_marker
                     });
 
                     map.addListener('click', function (event) {
@@ -441,7 +443,7 @@
                         });
                     });
                 } catch (error) {
-                    showMapStatus('No se pudo cargar Google Maps. Puedes registrar las coordenadas manualmente y continuar.');
+                    showMapStatus(copy.google_maps_load_error);
                     setSearchUnavailable();
                 }
             }

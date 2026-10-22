@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\SetInterfaceLocale;
+use App\Modules\Usuarios\Http\Middleware\RoleMiddleware;
+use App\Modules\Usuarios\Models\Usuario;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,14 +19,17 @@ return Application::configure(basePath: dirname(__DIR__))
         // Laravel generates HTTPS URLs for Vite assets and redirects.
         $middleware->trustProxies(at: '*');
 
+        $middleware->web(append: [SetInterfaceLocale::class]);
+
         $middleware->alias([
-            'role' => \App\Modules\Usuarios\Http\Middleware\RoleMiddleware::class,
+            'role' => RoleMiddleware::class,
         ]);
 
         // Si un usuario ya logueado entra a /login, va a su panel
         $middleware->redirectUsersTo(function (Request $request) {
-            /** @var \App\Modules\Usuarios\Models\Usuario|null $user */
+            /** @var Usuario|null $user */
             $user = $request->user();
+
             return $user ? $user->homeUrl() : '/';
         });
     })

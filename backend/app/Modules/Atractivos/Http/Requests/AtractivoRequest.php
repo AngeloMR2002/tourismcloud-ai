@@ -19,68 +19,68 @@ class AtractivoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'destino_id'             => ['required', 'integer', 'min:1'],
-            'nombre'                 => ['required', 'string', 'max:150'],
-            'descripcion'            => ['nullable', 'string', 'max:5000'],
-            'costo_entrada'          => ['required', 'numeric', 'min:0', 'max:99999999.99'],
-            'duracion_estimada_min'  => ['nullable', 'integer', 'min:1', 'max:10080'], // máximo 1 semana en minutos
-            'latitud'                => ['nullable', 'numeric', 'between:-90,90'],
-            'longitud'               => ['nullable', 'numeric', 'between:-180,180'],
-            'imagen_portada'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
-            'estado'                 => ['required', Rule::in(['activo', 'inactivo'])],
+            'destino_id' => ['required', 'integer', 'min:1'],
+            'nombre' => ['required', 'string', 'max:150'],
+            'descripcion' => ['nullable', 'string', 'max:5000'],
+            'costo_entrada' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
+            'duracion_estimada_min' => ['nullable', 'integer', 'min:1', 'max:14400'], // máximo 10 días en minutos
+            'latitud' => ['nullable', 'numeric', 'between:-90,90'],
+            'longitud' => ['nullable', 'numeric', 'between:-180,180'],
+            'imagen_portada' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
+            'estado' => ['required', Rule::in(['activo', 'inactivo'])],
 
             // Categorías: array de IDs enteros, opcionales.
-            'categorias'             => ['nullable', 'array'],
-            'categorias.*'           => ['integer', 'min:1'],
+            'categorias' => ['nullable', 'array'],
+            'categorias.*' => ['integer', 'min:1'],
 
             // Galería de imágenes adicional.
-            'galeria'                => ['nullable', 'array', 'max:10'],
-            'galeria.*'              => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
+            'galeria' => ['nullable', 'array', 'max:10'],
+            'galeria.*' => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
 
             // Imágenes marcadas para eliminación
-            'eliminar_imagenes'      => ['nullable', 'array'],
-            'eliminar_imagenes.*'    => ['integer'],
+            'eliminar_imagenes' => ['nullable', 'array'],
+            'eliminar_imagenes.*' => ['integer'],
 
             // ─── Horarios ───────────────────────────────────────────────────
             // El campo horarios es un JSON object con 7 claves (días de la semana).
             // Cada valor es null (cerrado) o {"abre": "HH:mm", "cierra": "HH:mm"}.
-            'horarios'               => ['nullable', 'array'],
-            'horarios.lunes'         => ['nullable', 'array'],
-            'horarios.martes'        => ['nullable', 'array'],
-            'horarios.miercoles'     => ['nullable', 'array'],
-            'horarios.jueves'        => ['nullable', 'array'],
-            'horarios.viernes'       => ['nullable', 'array'],
-            'horarios.sabado'        => ['nullable', 'array'],
-            'horarios.domingo'       => ['nullable', 'array'],
+            'horarios' => ['nullable', 'array'],
+            'horarios.lunes' => ['nullable', 'array'],
+            'horarios.martes' => ['nullable', 'array'],
+            'horarios.miercoles' => ['nullable', 'array'],
+            'horarios.jueves' => ['nullable', 'array'],
+            'horarios.viernes' => ['nullable', 'array'],
+            'horarios.sabado' => ['nullable', 'array'],
+            'horarios.domingo' => ['nullable', 'array'],
 
             // Cuando el día NO es null, debe tener abre y cierra en formato HH:mm.
-            'horarios.*.abre'        => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
-            'horarios.*.cierra'      => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'horarios.*.abre' => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'horarios.*.cierra' => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'destino_id.required'       => 'Debes seleccionar un destino.',
-            'nombre.required'           => 'El nombre del atractivo es obligatorio.',
-            'nombre.max'                => 'El nombre no puede superar 150 caracteres.',
-            'costo_entrada.required'    => 'El costo de entrada es obligatorio (usa 0 si es gratuito).',
-            'costo_entrada.min'         => 'El costo no puede ser negativo.',
-            'estado.required'           => 'El estado es obligatorio.',
-            'estado.in'                 => 'El estado debe ser "activo" o "inactivo".',
-            'imagen_portada.image'      => 'La portada debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
-            'imagen_portada.mimes'      => 'La imagen de portada debe estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
-            'imagen_portada.max'        => 'La imagen de portada no puede superar 5 MB.',
-            'galeria.max'               => 'Puedes subir máximo 10 imágenes en la galería.',
-            'galeria.*.file'            => 'Cada archivo de la galería debe ser un archivo válido.',
-            'galeria.*.image'           => 'Cada archivo de la galería debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
-            'galeria.*.mimes'           => 'Las imágenes de la galería deben estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
-            'galeria.*.max'             => 'Cada imagen de la galería no puede superar 5 MB.',
-            'latitud.between'           => 'La latitud debe estar entre -90 y 90.',
-            'longitud.between'          => 'La longitud debe estar entre -180 y 180.',
-            'horarios.*.abre.regex'     => 'El horario de apertura debe estar en formato HH:mm (ej: 09:00).',
-            'horarios.*.cierra.regex'   => 'El horario de cierre debe estar en formato HH:mm (ej: 18:00).',
+            'destino_id.required' => __('operator_attractions.destination_required'),
+            'nombre.required' => __('operator_attractions.name_required'),
+            'nombre.max' => __('operator_attractions.name_max'),
+            'costo_entrada.required' => __('operator_attractions.cost_required'),
+            'costo_entrada.min' => __('operator_attractions.cost_nonnegative'),
+            'estado.required' => __('operator_attractions.status_required'),
+            'estado.in' => __('operator_attractions.status_valid'),
+            'imagen_portada.image' => __('operator_attractions.cover_valid_image'),
+            'imagen_portada.mimes' => __('operator_attractions.cover_valid_format'),
+            'imagen_portada.max' => __('operator_attractions.cover_max_size'),
+            'galeria.max' => __('operator_attractions.gallery_max'),
+            'galeria.*.file' => __('operator_attractions.gallery_valid_file'),
+            'galeria.*.image' => __('operator_attractions.gallery_valid_image'),
+            'galeria.*.mimes' => __('operator_attractions.gallery_valid_format'),
+            'galeria.*.max' => __('operator_attractions.gallery_max_size'),
+            'latitud.between' => __('operator_attractions.latitude_range'),
+            'longitud.between' => __('operator_attractions.longitude_range'),
+            'horarios.*.abre.regex' => __('operator_attractions.opening_time_format'),
+            'horarios.*.cierra.regex' => __('operator_attractions.closing_time_format'),
         ];
     }
 
@@ -105,43 +105,45 @@ class AtractivoRequest extends FormRequest
         $validator->after(function ($validator) {
             $horarios = $this->input('horarios', []);
 
-            if (!is_array($horarios)) {
+            if (! is_array($horarios)) {
                 return;
             }
 
             foreach ($horarios as $dia => $horario) {
-                if (!is_array($horario)) {
+                if (! is_array($horario)) {
                     continue;
                 }
 
-                $abreRaw   = $horario['abre'] ?? null;
+                $abreRaw = $horario['abre'] ?? null;
                 $cierraRaw = $horario['cierra'] ?? null;
 
-                $abre   = is_string($abreRaw) ? trim($abreRaw) : $abreRaw;
+                $abre = is_string($abreRaw) ? trim($abreRaw) : $abreRaw;
                 $cierra = is_string($cierraRaw) ? trim($cierraRaw) : $cierraRaw;
 
-                $tieneAbre   = !empty($abre);
-                $tieneCierra = !empty($cierra);
+                $tieneAbre = ! empty($abre);
+                $tieneCierra = ! empty($cierra);
 
                 // Si no tiene ninguno de los dos, se considera día cerrado
-                if (!$tieneAbre && !$tieneCierra) {
+                if (! $tieneAbre && ! $tieneCierra) {
                     continue;
                 }
 
                 // (a) Exigir que abre y cierra vengan juntos
-                if ($tieneAbre && !$tieneCierra) {
+                if ($tieneAbre && ! $tieneCierra) {
                     $validator->errors()->add(
                         "horarios.{$dia}.cierra",
-                        "Debes indicar la hora de cierre del {$dia}."
+                        __('operator_attractions.closing_time_required', ['day' => __('operator_attractions.'.$this->dayTranslationKey($dia))])
                     );
+
                     continue;
                 }
 
-                if (!$tieneAbre && $tieneCierra) {
+                if (! $tieneAbre && $tieneCierra) {
                     $validator->errors()->add(
                         "horarios.{$dia}.abre",
-                        "Debes indicar la hora de apertura del {$dia}."
+                        __('operator_attractions.opening_time_required', ['day' => __('operator_attractions.'.$this->dayTranslationKey($dia))])
                     );
+
                     continue;
                 }
 
@@ -149,10 +151,24 @@ class AtractivoRequest extends FormRequest
                 if ($cierra <= $abre) {
                     $validator->errors()->add(
                         "horarios.{$dia}.cierra",
-                        "La hora de cierre del {$dia} debe ser posterior a la hora de apertura."
+                        __('operator_attractions.closing_after_opening', ['day' => __('operator_attractions.'.$this->dayTranslationKey($dia))])
                     );
                 }
             }
         });
+    }
+
+    private function dayTranslationKey(string $day): string
+    {
+        return match ($day) {
+            'lunes' => 'monday',
+            'martes' => 'tuesday',
+            'miercoles' => 'wednesday',
+            'jueves' => 'thursday',
+            'viernes' => 'friday',
+            'sabado' => 'saturday',
+            'domingo' => 'sunday',
+            default => $day,
+        };
     }
 }
