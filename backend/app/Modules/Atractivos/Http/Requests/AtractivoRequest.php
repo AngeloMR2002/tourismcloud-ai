@@ -26,7 +26,7 @@ class AtractivoRequest extends FormRequest
             'duracion_estimada_min'  => ['nullable', 'integer', 'min:1', 'max:10080'], // máximo 1 semana en minutos
             'latitud'                => ['nullable', 'numeric', 'between:-90,90'],
             'longitud'               => ['nullable', 'numeric', 'between:-180,180'],
-            'imagen_portada'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
+            'imagen_portada'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:2000'],
             'estado'                 => ['required', Rule::in(['activo', 'inactivo'])],
 
             // Categorías: array de IDs enteros, opcionales.
@@ -34,8 +34,8 @@ class AtractivoRequest extends FormRequest
             'categorias.*'           => ['integer', 'min:1'],
 
             // Galería de imágenes adicional.
-            'galeria'                => ['nullable', 'array', 'max:10'],
-            'galeria.*'              => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:5120'],
+            'galeria'                => ['nullable', 'array', 'max:5'],
+            'galeria.*'              => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:2000'],
 
             // Imágenes marcadas para eliminación
             'eliminar_imagenes'      => ['nullable', 'array'],
@@ -71,12 +71,14 @@ class AtractivoRequest extends FormRequest
             'estado.in'                 => 'El estado debe ser "activo" o "inactivo".',
             'imagen_portada.image'      => 'La portada debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
             'imagen_portada.mimes'      => 'La imagen de portada debe estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
-            'imagen_portada.max'        => 'La imagen de portada no puede superar 5 MB.',
-            'galeria.max'               => 'Puedes subir máximo 10 imágenes en la galería.',
+            'imagen_portada.max'        => 'La imagen de portada no puede superar 2 MB.',
+            'imagen_portada.uploaded'   => 'No se pudo subir la imagen; verifica que no supere 2 MB.',
+            'galeria.max'               => 'Puedes subir máximo 5 imágenes en la galería.',
             'galeria.*.file'            => 'Cada archivo de la galería debe ser un archivo válido.',
             'galeria.*.image'           => 'Cada archivo de la galería debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
             'galeria.*.mimes'           => 'Las imágenes de la galería deben estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
-            'galeria.*.max'             => 'Cada imagen de la galería no puede superar 5 MB.',
+            'galeria.*.max'             => 'Cada imagen de la galería no puede superar 2 MB.',
+            'galeria.*.uploaded'        => 'No se pudo subir la imagen; verifica que no supere 2 MB.',
             'latitud.between'           => 'La latitud debe estar entre -90 y 90.',
             'longitud.between'          => 'La longitud debe estar entre -180 y 180.',
             'horarios.*.abre.regex'     => 'El horario de apertura debe estar en formato HH:mm (ej: 09:00).',
