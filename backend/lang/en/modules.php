@@ -69,6 +69,7 @@ return [
     'day_number' => 'Day :number',
     'date_to_define' => 'Date not set',
     'day_no_activities' => 'This day has no activities yet.',
+    'itinerary_item_unavailable' => 'Visit unavailable',
     'catalogue_ideas' => 'Find travel ideas in the catalogues.',
     'view_activities' => 'View activities →',
     'view_routes' => 'View routes →',

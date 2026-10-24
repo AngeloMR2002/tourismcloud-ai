@@ -3,8 +3,11 @@
 namespace App\Modules\Itinerarios\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Atractivos\Models\Atractivo;
 use App\Modules\Destinos\Models\Destino;
 use App\Modules\Itinerarios\Models\Itinerario;
+use App\Modules\Itinerarios\Services\ItinerarioComposerService;
+use App\Modules\Preferencias\Models\PreferenciaTurista;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,6 +16,8 @@ use Illuminate\View\View;
 
 class ItinerarioController extends Controller
 {
+    public function __construct(private ItinerarioComposerService $composer) {}
+
     public function index(Request $request): View
     {
         $itinerarios = Itinerario::with('destino')
@@ -47,9 +52,14 @@ class ItinerarioController extends Controller
     public function show(Request $request, Itinerario $itinerario): View
     {
         abort_unless($itinerario->turista_id === $request->user()->id, 403);
-        $itinerario->load(['destino', 'diasItinerario']);
+        $itinerario->load(['destino', 'diasItinerario.items']);
 
-        return view('itinerarios::show', compact('itinerario'));
+        $atractivoIds = $itinerario->diasItinerario->flatMap(fn ($dia) => $dia->items)
+            ->where('entidad_tipo', 'atractivo')
+            ->pluck('entidad_id');
+        $atractivos = Atractivo::whereIn('id', $atractivoIds)->get()->keyBy('id');
+
+        return view('itinerarios::show', compact('itinerario', 'atractivos'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -66,10 +76,16 @@ class ItinerarioController extends Controller
         $fechaInicio = $data['fecha_inicio'] ?? null;
         unset($data['fecha_inicio']);
 
-        DB::transaction(function () use ($request, $data, $fechaInicio): void {
+        $preferencia = PreferenciaTurista::where('turista_id', $request->user()->id)->first();
+        // Si el turista no indica presupuesto, se usa el de su preferencia registrada en vez de forzar S/ 0,
+        // que dejaría el itinerario sin presupuesto real y vaciaría la composición de visitas.
+        $presupuestoTotal = $data['presupuesto_total'] ?? $preferencia?->presupuesto_max;
+
+        DB::transaction(function () use ($request, $data, $fechaInicio, $preferencia, $presupuestoTotal): void {
             $itinerario = Itinerario::create($data + [
                 'turista_id' => $request->user()->id,
-                'presupuesto_total' => $data['presupuesto_total'] ?? 0,
+                'preferencia_id' => $preferencia?->id,
+                'presupuesto_total' => $presupuestoTotal,
                 'estado' => 'generado',
             ]);
             for ($dia = 1; $dia <= $data['dias']; $dia++) {
@@ -78,6 +94,9 @@ class ItinerarioController extends Controller
                     'fecha' => $fechaInicio ? Carbon::parse($fechaInicio)->addDays($dia - 1)->toDateString() : null,
                 ]);
             }
+
+            $itinerario->load('diasItinerario');
+            $this->composer->componer($itinerario, $preferencia);
         });
 
         return redirect()->route('itinerarios.index')->with('exito', __('modules.itinerary_created'));

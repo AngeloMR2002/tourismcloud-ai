@@ -32,7 +32,21 @@
                 @foreach($itinerario->diasItinerario as $dia)
                     <li class="flex gap-4 px-5 py-5 sm:px-6">
                         <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-sm font-bold text-primary-700">{{ $dia->numero_dia }}</span>
-                        <div class="min-w-0 flex-1"><div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-semibold text-slate-900">{{ __('modules.day_number', ['number' => $dia->numero_dia]) }}</h3><p class="text-sm text-slate-500">{{ $dia->fecha ? $dia->fecha->format('d/m/Y') : __('modules.date_to_define') }}</p></div><p class="mt-2 text-sm leading-6 text-slate-500">{{ __('modules.day_no_activities') }}</p></div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-baseline justify-between gap-2"><h3 class="font-semibold text-slate-900">{{ __('modules.day_number', ['number' => $dia->numero_dia]) }}</h3><p class="text-sm text-slate-500">{{ $dia->fecha ? $dia->fecha->format('d/m/Y') : __('modules.date_to_define') }}</p></div>
+                            @if($dia->items->isEmpty())
+                                <p class="mt-2 text-sm leading-6 text-slate-500">{{ __('modules.day_no_activities') }}</p>
+                            @else
+                                <ul class="mt-3 space-y-2">
+                                    @foreach($dia->items as $item)
+                                        <li class="flex items-baseline justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                                            <span class="font-medium text-slate-800">{{ $atractivos->get($item->entidad_id)?->nombre ?? __('modules.itinerary_item_unavailable') }}</span>
+                                            <span class="shrink-0 text-slate-500">{{ substr($item->hora_inicio, 0, 5) }}–{{ substr($item->hora_fin, 0, 5) }} · S/ {{ number_format((float) $item->costo_estimado, 2) }}</span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
                     </li>
                 @endforeach
             </ol>

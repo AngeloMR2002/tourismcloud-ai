@@ -26,6 +26,8 @@ class PreferenciaController
 
     public function turista(int $turistaId)
     {
+        $this->verificarTitular($turistaId);
+
         $preferencia = $this->preferenciaService->obtenerDelTurista($turistaId);
 
         return view('preferencias::preferencias.turista.index', compact('preferencia'));
@@ -58,10 +60,15 @@ class PreferenciaController
             'hora_fin_preferida.after' => __('travel_preferences.end_time_after_start'),
         ]);
 
-        $this->preferenciaService->crear($datos);
-
         /** @var Usuario|null $user */
         $user = Auth::user();
+        if ($user && $user->isTurista()) {
+            // El campo del formulario viaja oculto en el cliente; no se confía en su valor.
+            $datos['turista_id'] = $user->id;
+        }
+
+        $this->preferenciaService->crear($datos);
+
         if ($user && $user->isTurista()) {
             return redirect()->route('preferencias.turista', $user->id)->with('exito', __('travel_preferences.tourist_saved'));
         }
@@ -98,6 +105,8 @@ class PreferenciaController
 
     public function editarTurista(int $turistaId, int $preferenciaId)
     {
+        $this->verificarTitular($turistaId);
+
         $preferencia = $this->preferenciaService->obtenerDelTuristaPorId($turistaId, $preferenciaId);
         if (! $preferencia) {
             abort(404);
@@ -137,6 +146,8 @@ class PreferenciaController
 
     public function actualizarTurista(Request $request, int $turistaId, int $preferenciaId)
     {
+        $this->verificarTitular($turistaId);
+
         $preferencia = $this->preferenciaService->obtenerDelTuristaPorId($turistaId, $preferenciaId);
         if (! $preferencia) {
             abort(404);
@@ -172,6 +183,11 @@ class PreferenciaController
         $resumen = $this->preferenciaService->resumenRecientes(10);
 
         return view('preferencias::preferencias.proveedor.recientes', $resumen);
+    }
+
+    private function verificarTitular(int $turistaId): void
+    {
+        abort_unless($turistaId === (int) Auth::id(), 403, __('auth.access_forbidden'));
     }
 
     private function reglasHorario(Request $request): array
