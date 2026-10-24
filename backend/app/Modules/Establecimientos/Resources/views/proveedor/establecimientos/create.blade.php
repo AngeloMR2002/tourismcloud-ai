@@ -118,7 +118,7 @@
                         @error('destino_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Rango de precio</label>
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Rango de precio <span class="text-red-500">*</span></label>
                         @php
                             $rangos = [
                                 'Bajo'   => 'Bajo $',
@@ -132,7 +132,7 @@
                             @foreach($rangos as $rv => $rl)
                                 <label class="cursor-pointer">
                                     <input type="radio" name="rango_precio" value="{{ $rv }}"
-                                           {{ $rpOld === $rv ? 'checked' : '' }} class="sr-only"
+                                           {{ $rpOld === $rv ? 'checked' : '' }} required class="sr-only"
                                            onchange="selectRango('{{ $rv }}')">
                                     <span id="rango-btn-{{ $rv }}"
                                           class="block text-xs font-semibold py-1.5 px-1 rounded-lg border text-center transition-all cursor-pointer"
@@ -144,6 +144,8 @@
                                 </label>
                             @endforeach
                         </div>
+                        <p id="error-rango-precio" class="text-xs text-red-500 mt-1 hidden"></p>
+                        @error('rango_precio')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
@@ -157,16 +159,18 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Dirección</label>
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Dirección <span class="text-red-500">*</span></label>
                         <input type="text" name="direccion" value="{{ old('direccion') }}"
-                               placeholder="Calle, número, referencia…" class="tc-input" maxlength="255">
+                               placeholder="Calle, número, referencia…" class="tc-input" maxlength="255" required>
+                        @error('direccion')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
                 {{-- Descripción --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Descripción</label>
-                    <textarea name="descripcion" rows="4" placeholder="Describe el establecimiento…" class="tc-input resize-none">{{ old('descripcion') }}</textarea>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Descripción <span class="text-red-500">*</span></label>
+                    <textarea name="descripcion" rows="4" placeholder="Describe el establecimiento…" class="tc-input resize-none" maxlength="5000" required>{{ old('descripcion') }}</textarea>
+                    @error('descripcion')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
@@ -174,7 +178,7 @@
         {{-- ── 3. Categoría de Interés ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                Categoría de Interés
+                Categoría de Interés <span class="text-red-500">*</span>
             </h2>
             <p class="text-xs text-gray-400 mb-4">Selecciona todas las que apliquen</p>
             <div class="flex flex-wrap gap-2">
@@ -194,6 +198,8 @@
                     </label>
                 @endforeach
             </div>
+            <p id="error-categorias" class="mt-2 text-xs text-red-500 hidden"></p>
+            @error('categorias')<p class="mt-2 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
         {{-- ── 4. Ubicación geográfica (MAPA INTERACTIVO) ── --}}
@@ -237,6 +243,7 @@
                             class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
                     </div>
                 </div>
+                <p id="error-ubicacion" class="text-red-500 text-xs mt-1 font-medium hidden">Debes seleccionar una ubicación en el mapa.</p>
                 @error('latitud') <p class="text-red-500 text-xs mt-1 font-medium">Debes seleccionar una ubicación en el mapa.</p> @enderror
             </div>
         </div>
@@ -305,21 +312,26 @@
                     <div id="est-preview-portada-area" class="rounded-xl overflow-hidden mb-2" style="background: var(--color-amber-soft); height: 130px; display: flex; align-items: center; justify-content: center;">
                         <div class="text-center">
                             <svg class="w-8 h-8 mx-auto mb-1" style="color: var(--color-tertiary-400);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             <p class="text-xs" style="color: var(--color-tertiary-500);">Vista previa de portada</p>
                         </div>
                     </div>
-                    <input type="file" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" required class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700"
-                           onchange="estPreviewPortada(this)">
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 4 MB · 1200×900px recomendado</p>
+                    <input type="file" id="imagen_portada" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/avif,.jfif,.jpg,.jpeg,.png,.webp,.avif" required class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700"
+                           onchange="handleEstPortadaChange(this)">
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 2 MB · 1200×900px recomendado</p>
+                    <p id="error-imagen-portada" class="mt-1 text-xs text-red-500 hidden"></p>
                     @error('imagen_portada')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1.5 text-gray-700">Galería de imágenes adicional</label>
-                    <input type="file" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" multiple required
+                    <input type="file" id="galeria" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/avif,.jfif,.jpg,.jpeg,.png,.webp,.avif" multiple
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700">
-                    <p class="text-xs text-gray-400 mt-1">Hasta 10 imágenes · PNG, JPG, WebP · Máx 4 MB c/u</p>
+                    <p class="text-xs text-gray-400 mt-1">Hasta 5 imágenes · PNG, JPG, WebP · Máx 2 MB c/u</p>
+                    <p id="error-galeria" class="mt-1 text-xs text-red-500 hidden"></p>
+                    <p id="error-archivos-total" class="mt-2 text-xs text-red-500 font-medium hidden"></p>
+                    <div id="est-preview-galeria" class="mt-3 hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide"></div>
+                    @error('galeria')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
         </div>
@@ -388,6 +400,8 @@
                 marker.addListener('dragend', (event) => {
                     latInput.value = event.latLng.lat().toFixed(6);
                     lngInput.value = event.latLng.lng().toFixed(6);
+                    var errUbicacion = document.getElementById('error-ubicacion');
+                    if (errUbicacion) errUbicacion.classList.add('hidden');
                 });
             } else {
                 marker.position = { lat, lng };
@@ -395,6 +409,8 @@
             
             latInput.value = lat.toFixed(6);
             lngInput.value = lng.toFixed(6);
+            var errUbicacion = document.getElementById('error-ubicacion');
+            if (errUbicacion) errUbicacion.classList.add('hidden');
         }
 
         if (latInput.value && lngInput.value) {
@@ -592,10 +608,151 @@
         });
     });
 
+    // ── Validación de imágenes y archivos en el navegador ──────────
+    var MAX_FILE_SIZE = 2000 * 1024; // 2.000 KB (2 MB)
+    var MAX_TOTAL_SIZE = 7 * 1024 * 1024; // 7 MB
+    var MAX_GALERIA_COUNT = 5;
+
+    function esImagenValida(file) {
+        if (!file) return false;
+        var mime = (file.type || '').toLowerCase();
+        var tiposMime = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+        if (tiposMime.indexOf(mime) !== -1) {
+            return true;
+        }
+        var ext = (file.name || '').split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'webp', 'avif', 'jfif'].indexOf(ext) !== -1;
+    }
+
+    function mostrarErrorInput(idElemento, mensaje) {
+        var el = document.getElementById(idElemento);
+        if (!el) return;
+        if (mensaje) {
+            el.textContent = mensaje;
+            el.classList.remove('hidden');
+            el.style.display = 'block';
+        } else {
+            el.textContent = '';
+            el.classList.add('hidden');
+            el.style.display = 'none';
+        }
+    }
+
+    function limpiarEstPreviewGaleria() {
+        var previewContainer = document.getElementById('est-preview-galeria');
+        if (previewContainer) {
+            previewContainer.innerHTML = '';
+            previewContainer.classList.add('hidden');
+        }
+    }
+
+    function resetEstPreviewPortada() {
+        var previewArea = document.getElementById('est-preview-portada-area');
+        if (previewArea) {
+            previewArea.innerHTML = '<div class="text-center">' +
+                '<svg class="w-8 h-8 mx-auto mb-1" style="color: var(--color-tertiary-400);" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>' +
+                '</svg>' +
+                '<p class="text-xs" style="color: var(--color-tertiary-500);">Vista previa de portada</p>' +
+                '</div>';
+        }
+    }
+
+    function validarEstPortadaInput(input) {
+        mostrarErrorInput('error-imagen-portada', '');
+        mostrarErrorInput('error-archivos-total', '');
+        if (!input.files || input.files.length === 0) {
+            return true;
+        }
+        var file = input.files[0];
+        if (!esImagenValida(file)) {
+            input.value = '';
+            resetEstPreviewPortada();
+            mostrarErrorInput('error-imagen-portada', 'La portada debe ser una imagen válida (JPG, PNG, WebP, AVIF o JFIF).');
+            return false;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+            input.value = '';
+            resetEstPreviewPortada();
+            mostrarErrorInput('error-imagen-portada', 'La imagen de portada no puede superar 2 MB.');
+            return false;
+        }
+        return true;
+    }
+
+    function validarEstGaleriaInput(input) {
+        mostrarErrorInput('error-galeria', '');
+        mostrarErrorInput('error-archivos-total', '');
+        if (!input.files || input.files.length === 0) {
+            return true;
+        }
+        if (input.files.length > MAX_GALERIA_COUNT) {
+            input.value = '';
+            limpiarEstPreviewGaleria();
+            mostrarErrorInput('error-galeria', 'Puedes subir máximo 5 imágenes en la galería.');
+            return false;
+        }
+        for (var i = 0; i < input.files.length; i++) {
+            var file = input.files[i];
+            if (!esImagenValida(file)) {
+                input.value = '';
+                limpiarEstPreviewGaleria();
+                mostrarErrorInput('error-galeria', 'Cada archivo de la galería debe ser una imagen válida (JPG, PNG, WebP, AVIF o JFIF).');
+                return false;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+                input.value = '';
+                limpiarEstPreviewGaleria();
+                mostrarErrorInput('error-galeria', 'Cada imagen de la galería no puede superar 2 MB.');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function calcularTotalBytesEstArchivos() {
+        var total = 0;
+        var p = document.getElementById('imagen_portada') || document.querySelector('input[name="imagen_portada"]');
+        if (p && p.files && p.files[0]) {
+            total += p.files[0].size;
+        }
+        var g = document.getElementById('galeria') || document.querySelector('input[name="galeria[]"]');
+        if (g && g.files) {
+            for (var i = 0; i < g.files.length; i++) {
+                total += g.files[i].size;
+            }
+        }
+        return total;
+    }
+
+    function handleEstPortadaChange(input) {
+        if (!validarEstPortadaInput(input)) {
+            return;
+        }
+        if (calcularTotalBytesEstArchivos() > MAX_TOTAL_SIZE) {
+            input.value = '';
+            resetEstPreviewPortada();
+            mostrarErrorInput('error-archivos-total', 'El tamaño total de portada y galería supera el límite de 7 MB. Reduce el tamaño de los archivos.');
+            return;
+        }
+        estPreviewPortada(input);
+    }
+    window.handleEstPortadaChange = handleEstPortadaChange;
+
     // Preview de galería (múltiples imágenes)
-    var inputGaleria = document.querySelector('input[name="galeria[]"]');
+    var inputGaleria = document.getElementById('galeria') || document.querySelector('input[name="galeria[]"]');
     if (inputGaleria) {
         inputGaleria.addEventListener('change', function(e) {
+            if (!validarEstGaleriaInput(this)) {
+                return;
+            }
+            if (calcularTotalBytesEstArchivos() > MAX_TOTAL_SIZE) {
+                this.value = '';
+                limpiarEstPreviewGaleria();
+                mostrarErrorInput('error-archivos-total', 'El tamaño total de portada y galería supera el límite de 7 MB. Reduce el tamaño de los archivos.');
+                return;
+            }
+
             var previewContainer = document.getElementById('est-preview-galeria');
             if (!previewContainer) {
                 previewContainer = document.createElement('div');
@@ -605,8 +762,7 @@
             }
             previewContainer.innerHTML = '';
             
-            Array.from(e.target.files).slice(0, 10).forEach(function(file) {
-                if (!file.type.match('image.*')) return;
+            Array.from(e.target.files).slice(0, 5).forEach(function(file) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
                     var imgWrap = document.createElement('div');
@@ -637,6 +793,112 @@
             };
             reader.readAsDataURL(input.files[0]);
         }
+    }
+    window.estPreviewPortada = estPreviewPortada;
+
+    // Validación al enviar el formulario
+    var formEstCreate = document.getElementById('form-est-create') || document.querySelector('form');
+    if (formEstCreate) {
+        // Ocultar error de categorías al marcar alguna
+        document.querySelectorAll('input[name="categorias[]"]').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                var errCat = document.getElementById('error-categorias');
+                if (errCat && document.querySelectorAll('input[name="categorias[]"]:checked').length > 0) {
+                    errCat.classList.add('hidden');
+                }
+            });
+        });
+
+        // Ocultar error de rango de precio al seleccionar
+        document.querySelectorAll('input[name="rango_precio"]').forEach(function(rb) {
+            rb.addEventListener('change', function() {
+                var errRp = document.getElementById('error-rango-precio');
+                if (errRp) errRp.classList.add('hidden');
+            });
+        });
+
+        formEstCreate.addEventListener('submit', function(e) {
+            // 1. Validar rango de precio
+            var rpChecked = document.querySelector('input[name="rango_precio"]:checked');
+            var errRp = document.getElementById('error-rango-precio');
+            if (!rpChecked) {
+                e.preventDefault();
+                if (errRp) {
+                    errRp.textContent = 'Debes seleccionar un rango de precio.';
+                    errRp.classList.remove('hidden');
+                }
+                var firstRp = document.querySelector('input[name="rango_precio"]') || errRp;
+                if (firstRp) firstRp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else if (errRp) {
+                errRp.classList.add('hidden');
+            }
+
+            // 2. Validar ubicación en el mapa
+            var latInput = document.getElementById('latitud_input');
+            var lngInput = document.getElementById('longitud_input');
+            var latVal = latInput ? latInput.value.trim() : '';
+            var lngVal = lngInput ? lngInput.value.trim() : '';
+            var errUbicacion = document.getElementById('error-ubicacion');
+            if (!latVal || !lngVal) {
+                e.preventDefault();
+                if (errUbicacion) {
+                    errUbicacion.classList.remove('hidden');
+                }
+                var mapArea = document.getElementById('interactive_form_map') || latInput;
+                if (mapArea) mapArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else if (errUbicacion) {
+                errUbicacion.classList.add('hidden');
+            }
+
+            // 3. Validar al menos una categoría seleccionada
+            var catChecked = document.querySelectorAll('input[name="categorias[]"]:checked');
+            var errCat = document.getElementById('error-categorias');
+            if (catChecked.length === 0) {
+                e.preventDefault();
+                if (errCat) {
+                    errCat.textContent = 'Debes seleccionar al menos una categoría de interés.';
+                    errCat.classList.remove('hidden');
+                }
+                var firstCat = document.querySelector('input[name="categorias[]"]') || errCat;
+                if (firstCat) firstCat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else if (errCat) {
+                errCat.classList.add('hidden');
+            }
+
+            // 4. Validar portada obligatoria en creación
+            var portadaInput = document.getElementById('imagen_portada') || document.querySelector('input[name="imagen_portada"]');
+            if (!portadaInput || !portadaInput.files || portadaInput.files.length === 0) {
+                e.preventDefault();
+                mostrarErrorInput('error-imagen-portada', 'Debes seleccionar una imagen de portada.');
+                if (portadaInput) portadaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            if (!validarEstPortadaInput(portadaInput)) {
+                e.preventDefault();
+                portadaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // 5. Validar galería si fue adjuntada
+            var galeriaInput = document.getElementById('galeria') || document.querySelector('input[name="galeria[]"]');
+            if (galeriaInput && !validarEstGaleriaInput(galeriaInput)) {
+                e.preventDefault();
+                galeriaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // 6. Validar tamaño total
+            if (calcularTotalBytesEstArchivos() > MAX_TOTAL_SIZE) {
+                e.preventDefault();
+                mostrarErrorInput('error-archivos-total', 'El tamaño total de portada y galería supera el límite de 7 MB. Reduce el tamaño de los archivos.');
+                var errEl = document.getElementById('error-archivos-total') || galeriaInput;
+                if (errEl) errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        });
     }
 </script>
 @endpush

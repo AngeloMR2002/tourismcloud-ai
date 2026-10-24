@@ -14,21 +14,26 @@ class EstablecimientoRequest extends FormRequest
 
     public function rules(): array
     {
+        $portadaRequerida = $this->isMethod('post');
+
         return [
             'destino_id'   => ['required', 'integer', 'min:1'],
             'tipo'         => ['required', Rule::in(['hotel', 'restaurante', 'transporte', 'agencia', 'otro'])],
             'nombre'       => ['required', 'string', 'max:150'],
-            'descripcion'  => ['nullable', 'string', 'max:5000'],
-            'direccion'    => ['nullable', 'string', 'max:255'],
-            'latitud'      => ['nullable', 'numeric', 'between:-90,90'],
-            'longitud'     => ['nullable', 'numeric', 'between:-180,180'],
-            'rango_precio' => ['nullable', Rule::in(['Bajo', 'Medio', 'Alto', 'Lujoso'])],
-            'imagen_portada' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:2000'],
+            'descripcion'  => ['required', 'string', 'max:5000'],
+            'direccion'    => ['required', 'string', 'max:255'],
+            'latitud'      => ['required', 'numeric', 'between:-90,90'],
+            'longitud'     => ['required', 'numeric', 'between:-180,180'],
+            'rango_precio' => ['required', Rule::in(['Bajo', 'Medio', 'Alto', 'Lujoso'])],
+            'imagen_portada' => array_merge(
+                [$portadaRequerida ? 'required' : 'nullable'],
+                ['image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:2000']
+            ),
             'estado'       => ['required', Rule::in(['activo', 'inactivo'])],
 
-            // Categorías: array de IDs enteros, opcionales.
-            'categorias'   => ['nullable', 'array'],
-            'categorias.*' => ['integer', 'min:1'],
+            // Categorías: obligatorio, al menos 1 categoría existente.
+            'categorias'   => ['required', 'array', 'min:1'],
+            'categorias.*' => ['integer', 'min:1', 'exists:categorias_interes,id'],
 
             // Galería de imágenes adicional.
             'galeria'      => ['nullable', 'array', 'max:5'],
@@ -60,21 +65,33 @@ class EstablecimientoRequest extends FormRequest
             'tipo.in'                 => 'El tipo debe ser: hotel, restaurante, transporte, agencia u otro.',
             'nombre.required'         => 'El nombre del establecimiento es obligatorio.',
             'nombre.max'              => 'El nombre no puede superar 150 caracteres.',
-            'estado.required'         => 'El estado es obligatorio.',
-            'estado.in'               => 'El estado debe ser "activo" o "inactivo".',
+            'descripcion.required'    => 'La descripción del establecimiento es obligatoria.',
+            'descripcion.max'         => 'La descripción no puede superar 5000 caracteres.',
+            'direccion.required'      => 'La dirección del establecimiento es obligatoria.',
+            'direccion.max'           => 'La dirección no puede superar 255 caracteres.',
+            'rango_precio.required'   => 'Debes seleccionar un rango de precio.',
             'rango_precio.in'         => 'El rango de precio debe ser: Bajo, Medio, Alto o Lujoso.',
+            'latitud.required'        => 'Debes seleccionar la ubicación en el mapa (latitud).',
+            'latitud.between'         => 'La latitud debe estar entre -90 y 90.',
+            'longitud.required'       => 'Debes seleccionar la ubicación en el mapa (longitud).',
+            'longitud.between'        => 'La longitud debe estar entre -180 y 180.',
+            'imagen_portada.required' => 'Debes seleccionar una imagen de portada.',
             'imagen_portada.image'    => 'La portada debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
             'imagen_portada.mimes'    => 'La imagen de portada debe estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
             'imagen_portada.max'      => 'La imagen de portada no puede superar 2 MB.',
             'imagen_portada.uploaded' => 'No se pudo subir la imagen; verifica que no supere 2 MB.',
+            'estado.required'         => 'El estado es obligatorio.',
+            'estado.in'               => 'El estado debe ser "activo" o "inactivo".',
+            'categorias.required'     => 'Debes seleccionar al menos una categoría de interés.',
+            'categorias.array'        => 'El formato de categorías no es válido.',
+            'categorias.min'          => 'Debes seleccionar al menos una categoría de interés.',
+            'categorias.*.exists'     => 'Una o más categorías seleccionadas no son válidas.',
             'galeria.max'             => 'Puedes subir máximo 5 imágenes en la galería.',
             'galeria.*.file'          => 'Cada archivo de la galería debe ser un archivo válido.',
             'galeria.*.image'         => 'Cada archivo de la galería debe ser una imagen válida (JPG, PNG, WebP o JFIF).',
             'galeria.*.mimes'         => 'Las imágenes de la galería deben estar en formato JPG, JPEG, PNG, WEBP o JFIF.',
             'galeria.*.max'           => 'Cada imagen de la galería no puede superar 2 MB.',
             'galeria.*.uploaded'      => 'No se pudo subir la imagen; verifica que no supere 2 MB.',
-            'latitud.between'         => 'La latitud debe estar entre -90 y 90.',
-            'longitud.between'        => 'La longitud debe estar entre -180 y 180.',
             'horarios.*.abre.regex'   => 'El horario de apertura debe estar en formato HH:mm (ej: 09:00).',
             'horarios.*.cierra.regex' => 'El horario de cierre debe estar en formato HH:mm (ej: 18:00).',
         ];

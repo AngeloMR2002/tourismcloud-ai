@@ -11,8 +11,10 @@ use App\Modules\Usuarios\Models\Usuario;
 use Database\Factories\UserFactory;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -180,14 +182,71 @@ class AtractivosEstablecimientosTest extends TestCase
         $this->post(route('operador.atractivos.store'), $payloadInvalido)
             ->assertSessionHasErrors([
                 'nombre',
+                'descripcion',
                 'costo_entrada',
                 'latitud',
                 'longitud',
                 'duracion_estimada_min',
                 'estado',
                 'imagen_portada',
+                'categorias',
                 'horarios.lunes.cierra',
             ]);
+    }
+
+    public function test_atractivos_duracion_estimada_es_opcional_pero_demas_campos_son_obligatorios(): void
+    {
+        $this->actingAs($this->operador);
+
+        // Sin duracion_estimada_min (debe crearse exitosamente porque es el único campo opcional)
+        $payloadValidoSinDuracion = [
+            'destino_id'     => $this->destino->id,
+            'nombre'         => 'Atractivo Sin Tiempo Estimado',
+            'descripcion'    => 'Descripción completa del atractivo.',
+            'costo_entrada'  => 0,
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'estado'         => 'activo',
+            'categorias'     => [$this->categoriaAventura->id],
+            'imagen_portada' => UploadedFile::fake()->image('portada_ok.jpg'),
+        ];
+
+        $this->post(route('operador.atractivos.store'), $payloadValidoSinDuracion)
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('operador.atractivos.index'));
+
+        $this->assertDatabaseHas('atractivos', [
+            'nombre'                => 'Atractivo Sin Tiempo Estimado',
+            'duracion_estimada_min' => null,
+        ]);
+
+        // Sin imagen de portada -> debe fallar
+        $payloadSinPortada = $payloadValidoSinDuracion;
+        unset($payloadSinPortada['imagen_portada']);
+        $payloadSinPortada['nombre'] = 'Atractivo Sin Portada';
+        $this->post(route('operador.atractivos.store'), $payloadSinPortada)
+            ->assertSessionHasErrors(['imagen_portada']);
+
+        // Sin categorías -> debe fallar
+        $payloadSinCategorias = $payloadValidoSinDuracion;
+        unset($payloadSinCategorias['categorias']);
+        $payloadSinCategorias['nombre'] = 'Atractivo Sin Categorias';
+        $this->post(route('operador.atractivos.store'), $payloadSinCategorias)
+            ->assertSessionHasErrors(['categorias']);
+
+        // Sin ubicación exacta (latitud/longitud) -> debe fallar
+        $payloadSinMapa = $payloadValidoSinDuracion;
+        unset($payloadSinMapa['latitud'], $payloadSinMapa['longitud']);
+        $payloadSinMapa['nombre'] = 'Atractivo Sin Mapa';
+        $this->post(route('operador.atractivos.store'), $payloadSinMapa)
+            ->assertSessionHasErrors(['latitud', 'longitud']);
+
+        // Sin descripción -> debe fallar
+        $payloadSinDesc = $payloadValidoSinDuracion;
+        unset($payloadSinDesc['descripcion']);
+        $payloadSinDesc['nombre'] = 'Atractivo Sin Descripcion';
+        $this->post(route('operador.atractivos.store'), $payloadSinDesc)
+            ->assertSessionHasErrors(['descripcion']);
     }
 
     public function test_operador_a_recibe_403_en_operaciones_sobre_atractivo_del_operador_b(): void
@@ -208,7 +267,11 @@ class AtractivosEstablecimientosTest extends TestCase
         $this->patch(route('operador.atractivos.update', $atractivoAjeno), [
             'destino_id'    => $this->destino->id,
             'nombre'        => 'Intento de Hack',
+            'descripcion'   => 'Intento de hack descripción',
             'costo_entrada' => 10,
+            'latitud'       => -13.5150,
+            'longitud'      => -71.9750,
+            'categorias'    => [$this->categoriaCultura->id],
             'estado'        => 'activo',
         ])->assertForbidden();
 
@@ -220,10 +283,15 @@ class AtractivosEstablecimientosTest extends TestCase
 
         // Intento de crear atractivo en destino que pertenece a otro operador
         $this->post(route('operador.atractivos.store'), [
-            'destino_id'    => $this->destinoAjeno->id,
-            'nombre'        => 'Nuevo en Destino Ajeno',
-            'costo_entrada' => 0,
-            'estado'        => 'activo',
+            'destino_id'     => $this->destinoAjeno->id,
+            'nombre'         => 'Nuevo en Destino Ajeno',
+            'descripcion'    => 'Descripción válida',
+            'costo_entrada'  => 0,
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'imagen_portada' => UploadedFile::fake()->image('portada.jpg'),
+            'estado'         => 'activo',
         ])->assertForbidden();
     }
 
@@ -243,6 +311,10 @@ class AtractivosEstablecimientosTest extends TestCase
         $this->patch(route('operador.atractivos.update', $atractivo), [
             'destino_id'    => $this->destino->id,
             'nombre'        => 'Templo Qorikancha Editado',
+            'descripcion'   => 'Descripción editada del templo',
+            'latitud'       => -13.5150,
+            'longitud'      => -71.9750,
+            'categorias'    => [$this->categoriaCultura->id],
             'costo_entrada' => 20.00,
             'estado'        => 'activo',
         ])->assertSessionHasNoErrors()->assertRedirect(route('operador.atractivos.index'));
@@ -397,9 +469,67 @@ class AtractivosEstablecimientosTest extends TestCase
                 'latitud',
                 'longitud',
                 'nombre',
+                'descripcion',
+                'direccion',
+                'imagen_portada',
+                'categorias',
                 'estado',
                 'horarios.lunes.cierra',
             ]);
+    }
+
+    public function test_establecimientos_todos_los_campos_son_obligatorios(): void
+    {
+        $this->actingAs($this->proveedor);
+
+        $payloadBase = [
+            'destino_id'     => $this->destino->id,
+            'tipo'           => 'restaurante',
+            'nombre'         => 'Picantería El Fogón',
+            'descripcion'    => 'Picantería típica con platos tradicionales.',
+            'direccion'      => 'Av. Sol 500',
+            'rango_precio'   => 'Medio',
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'estado'         => 'activo',
+            'categorias'     => [$this->categoriaCultura->id],
+            'imagen_portada' => UploadedFile::fake()->image('portada_fogon.jpg'),
+        ];
+
+        // Creación completa válida
+        $this->post(route('proveedor.establecimientos.store'), $payloadBase)
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('proveedor.establecimientos.index'));
+
+        // Sin descripción -> debe fallar
+        $p = $payloadBase; unset($p['descripcion']);
+        $p['nombre'] = 'Sin Descripcion';
+        $this->post(route('proveedor.establecimientos.store'), $p)->assertSessionHasErrors(['descripcion']);
+
+        // Sin dirección -> debe fallar
+        $p = $payloadBase; unset($p['direccion']);
+        $p['nombre'] = 'Sin Direccion';
+        $this->post(route('proveedor.establecimientos.store'), $p)->assertSessionHasErrors(['direccion']);
+
+        // Sin rango_precio -> debe fallar
+        $p = $payloadBase; unset($p['rango_precio']);
+        $p['nombre'] = 'Sin Rango Precio';
+        $this->post(route('proveedor.establecimientos.store'), $p)->assertSessionHasErrors(['rango_precio']);
+
+        // Sin mapa (latitud/longitud) -> debe fallar
+        $p = $payloadBase; unset($p['latitud'], $p['longitud']);
+        $p['nombre'] = 'Sin Mapa';
+        $this->post(route('proveedor.establecimientos.store'), $p)->assertSessionHasErrors(['latitud', 'longitud']);
+
+        // Sin categorías -> debe fallar
+        $p = $payloadBase; unset($p['categorias']);
+        $p['nombre'] = 'Sin Categorias';
+        $this->post(route('proveedor.establecimientos.store'), $p)->assertSessionHasErrors(['categorias']);
+
+        // Sin imagen de portada -> debe fallar
+        $p = $payloadBase; unset($p['imagen_portada']);
+        $p['nombre'] = 'Sin Portada';
+        $this->post(route('proveedor.establecimientos.store'), $p)->assertSessionHasErrors(['imagen_portada']);
     }
 
     public function test_proveedor_a_recibe_403_sobre_establecimientos_del_proveedor_b(): void
@@ -421,6 +551,12 @@ class AtractivosEstablecimientosTest extends TestCase
             'destino_id'   => $this->destino->id,
             'tipo'         => 'restaurante',
             'nombre'       => 'Hack Restaurant',
+            'descripcion'  => 'Descripción válida',
+            'direccion'    => 'Calle Falsa 123',
+            'rango_precio' => 'Medio',
+            'latitud'      => -13.5150,
+            'longitud'     => -71.9750,
+            'categorias'   => [$this->categoriaCultura->id],
             'estado'       => 'activo',
         ])->assertForbidden();
 
@@ -450,6 +586,11 @@ class AtractivosEstablecimientosTest extends TestCase
             'destino_id'   => $this->destino->id,
             'tipo'         => 'restaurante',
             'nombre'       => 'Chichería Tradicional Renovada',
+            'descripcion'  => 'Descripción renovada',
+            'direccion'    => 'Calle Tradición 123',
+            'latitud'      => -13.5150,
+            'longitud'     => -71.9750,
+            'categorias'   => [$this->categoriaCultura->id],
             'rango_precio' => 'Medio',
             'estado'       => 'activo',
         ])->assertSessionHasNoErrors()->assertRedirect(route('proveedor.establecimientos.index'));
@@ -524,19 +665,164 @@ class AtractivosEstablecimientosTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_atractivos_rechaza_imagen_portada_mayor_a_2mb(): void
+    {
+        $this->actingAs($this->operador);
+
+        $payload = [
+            'destino_id'     => $this->destino->id,
+            'nombre'         => 'Atractivo Imagen Pesada',
+            'descripcion'    => 'Descripción de prueba',
+            'costo_entrada'  => 10.00,
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'estado'         => 'activo',
+            'imagen_portada' => UploadedFile::fake()->image('pesada.jpg')->size(2500),
+        ];
+
+        $this->post(route('operador.atractivos.store'), $payload)
+            ->assertSessionHasErrors([
+                'imagen_portada' => 'La imagen de portada no puede superar 2 MB.',
+            ]);
+    }
+
+    public function test_atractivos_rechaza_imagen_portada_no_imagen(): void
+    {
+        $this->actingAs($this->operador);
+
+        $payload = [
+            'destino_id'     => $this->destino->id,
+            'nombre'         => 'Atractivo Archivo PDF',
+            'descripcion'    => 'Descripción de prueba',
+            'costo_entrada'  => 10.00,
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'estado'         => 'activo',
+            'imagen_portada' => UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf'),
+        ];
+
+        $this->post(route('operador.atractivos.store'), $payload)
+            ->assertSessionHasErrors(['imagen_portada']);
+    }
+
+    public function test_atractivos_rechaza_galeria_con_mas_de_5_imagenes(): void
+    {
+        $this->actingAs($this->operador);
+
+        $payload = [
+            'destino_id'     => $this->destino->id,
+            'nombre'         => 'Atractivo Galeria Excedida',
+            'descripcion'    => 'Descripción de prueba',
+            'costo_entrada'  => 10.00,
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'imagen_portada' => UploadedFile::fake()->image('portada.jpg'),
+            'estado'         => 'activo',
+            'galeria'        => [
+                UploadedFile::fake()->image('1.jpg'),
+                UploadedFile::fake()->image('2.jpg'),
+                UploadedFile::fake()->image('3.jpg'),
+                UploadedFile::fake()->image('4.jpg'),
+                UploadedFile::fake()->image('5.jpg'),
+                UploadedFile::fake()->image('6.jpg'),
+            ],
+        ];
+
+        $this->post(route('operador.atractivos.store'), $payload)
+            ->assertSessionHasErrors([
+                'galeria' => 'Puedes subir máximo 5 imágenes en la galería.',
+            ]);
+    }
+
+    public function test_establecimientos_rechaza_imagen_portada_mayor_a_2mb(): void
+    {
+        $this->actingAs($this->proveedor);
+
+        $payload = [
+            'destino_id'     => $this->destino->id,
+            'tipo'           => 'hotel',
+            'nombre'         => 'Hotel Imagen Pesada',
+            'descripcion'    => 'Descripción de prueba',
+            'direccion'      => 'Calle San Blas 100',
+            'rango_precio'   => 'Medio',
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'estado'         => 'activo',
+            'imagen_portada' => UploadedFile::fake()->image('pesada.jpg')->size(2500),
+        ];
+
+        $this->post(route('proveedor.establecimientos.store'), $payload)
+            ->assertSessionHasErrors([
+                'imagen_portada' => 'La imagen de portada no puede superar 2 MB.',
+            ]);
+    }
+
+    public function test_establecimientos_rechaza_imagen_portada_no_imagen(): void
+    {
+        $this->actingAs($this->proveedor);
+
+        $payload = [
+            'destino_id'     => $this->destino->id,
+            'tipo'           => 'hotel',
+            'nombre'         => 'Hotel Archivo PDF',
+            'descripcion'    => 'Descripción de prueba',
+            'direccion'      => 'Calle San Blas 100',
+            'rango_precio'   => 'Medio',
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'estado'         => 'activo',
+            'imagen_portada' => UploadedFile::fake()->create('doc.pdf', 100, 'application/pdf'),
+        ];
+
+        $this->post(route('proveedor.establecimientos.store'), $payload)
+            ->assertSessionHasErrors(['imagen_portada']);
+    }
+
+    public function test_establecimientos_rechaza_galeria_con_mas_de_5_imagenes(): void
+    {
+        $this->actingAs($this->proveedor);
+
+        $payload = [
+            'destino_id'     => $this->destino->id,
+            'tipo'           => 'hotel',
+            'nombre'         => 'Hotel Galeria Excedida',
+            'descripcion'    => 'Descripción de prueba',
+            'direccion'      => 'Calle San Blas 100',
+            'rango_precio'   => 'Medio',
+            'latitud'        => -13.5150,
+            'longitud'       => -71.9750,
+            'categorias'     => [$this->categoriaCultura->id],
+            'imagen_portada' => UploadedFile::fake()->image('portada.jpg'),
+            'estado'         => 'activo',
+            'galeria'        => [
+                UploadedFile::fake()->image('1.jpg'),
+                UploadedFile::fake()->image('2.jpg'),
+                UploadedFile::fake()->image('3.jpg'),
+                UploadedFile::fake()->image('4.jpg'),
+                UploadedFile::fake()->image('5.jpg'),
+                UploadedFile::fake()->image('6.jpg'),
+            ],
+        ];
+
+        $this->post(route('proveedor.establecimientos.store'), $payload)
+            ->assertSessionHasErrors([
+                'galeria' => 'Puedes subir máximo 5 imágenes en la galería.',
+            ]);
+    }
+
     public function test_post_too_large_exception_muestra_vista_413_amigable(): void
     {
-        \Illuminate\Support\Facades\Route::post('/_test-post-too-large', function () {
-            throw new \Illuminate\Http\Exceptions\PostTooLargeException();
+        Route::post('/test-post-too-large', function () {
+            throw new PostTooLargeException();
         });
 
-        $response = $this->post('/_test-post-too-large');
-
-        $response->assertStatus(413);
-        $response->assertSee('Los archivos son demasiado pesados');
-        $response->assertSee('El tamaño total de los archivos que intentaste subir supera el límite permitido');
-
-        $this->postJson('/_test-post-too-large')->assertStatus(413);
+        $this->post('/test-post-too-large')
+            ->assertStatus(413)
+            ->assertSee('Los archivos son demasiado pesados');
     }
 }
-

@@ -49,7 +49,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('operador.atractivos.update', $atractivo) }}"
+    <form method="POST" id="form-atractivo-edit" action="{{ route('operador.atractivos.update', $atractivo) }}"
           enctype="multipart/form-data" class="space-y-5">
         @csrf
         @method('PATCH')
@@ -81,9 +81,9 @@
                         @error('destino_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Costo de Entrada (S/)</label>
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Costo de Entrada (S/) <span class="text-red-500">*</span></label>
                         <input type="number" name="costo_entrada" value="{{ old('costo_entrada', $atractivo->costo_entrada) }}"
-                               step="0.01" min="0" placeholder="S/ 0.00" class="tc-input">
+                               step="0.01" min="0" placeholder="S/ 0.00" class="tc-input" required>
                         @error('costo_entrada')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -112,8 +112,8 @@
 
                 {{-- Descripción --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Descripción</label>
-                    <textarea name="descripcion" rows="4" placeholder="Describe el atractivo…" class="tc-input resize-none">{{ old('descripcion', $atractivo->descripcion) }}</textarea>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Descripción <span class="text-red-500">*</span></label>
+                    <textarea name="descripcion" rows="4" placeholder="Describe el atractivo…" class="tc-input resize-none" maxlength="5000" required>{{ old('descripcion', $atractivo->descripcion) }}</textarea>
                 </div>
             </div>
         </div>
@@ -121,7 +121,7 @@
         {{-- ── 2. Categoría de interés ────────────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                Categoría de Interés
+                Categoría de Interés <span class="text-red-500">*</span>
             </h2>
             <p class="text-xs text-gray-400 mb-4">Selecciona todas las que apliquen</p>
             <div class="flex flex-wrap gap-2">
@@ -141,6 +141,8 @@
                     </label>
                 @endforeach
             </div>
+            <p id="error-categorias" class="mt-2 text-xs text-red-500 hidden"></p>
+            @error('categorias')<p class="mt-2 text-xs text-red-500">{{ $message }}</p>@enderror
         </div>
 
         {{-- ── 3. Ubicación geográfica ────────────────────────────────── --}}
@@ -185,6 +187,7 @@
                             class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
                     </div>
                 </div>
+                <p id="error-ubicacion" class="text-red-500 text-xs mt-1 font-medium hidden">Debes seleccionar una ubicación en el mapa.</p>
                 @error('latitud') <p class="text-red-500 text-xs mt-1 font-medium">Debes seleccionar una ubicación en el mapa.</p> @enderror
             </div>
         </div>
@@ -271,18 +274,21 @@
                             </div>
                         @endif
                     </div>
-                    <input type="file" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif"
+                    <input type="file" id="imagen_portada" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/avif,.jfif,.jpg,.jpeg,.png,.webp,.avif"
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700"
-                           onchange="previewPortada(this)">
-                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 5 MB · 1200×900px recomendado</p>
+                           onchange="handlePortadaChange(this)">
+                    <p class="text-xs text-gray-400 mt-1">PNG, JPG, WebP · Máx 2 MB · 1200×900px recomendado</p>
+                    <p id="error-imagen-portada" class="mt-1 text-xs text-red-500 hidden"></p>
                     @error('imagen_portada')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-semibold mb-1.5 text-gray-700">Galería de imágenes adicional</label>
-                    <input type="file" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/jpg,.jpg,.jpeg,.png,.webp,.jfif" multiple
+                    <input type="file" id="galeria" name="galeria[]" accept="image/jpeg,image/png,image/webp,image/avif,.jfif,.jpg,.jpeg,.png,.webp,.avif" multiple
                            class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700">
-                    <p class="text-xs text-gray-400 mt-1">Puedes agregar nuevas imágenes a la galería (PNG, JPG, WebP · Máx 5 MB c/u).</p>
+                    <p class="text-xs text-gray-400 mt-1">Puedes agregar nuevas imágenes a la galería (PNG, JPG, WebP · Máx 2 MB c/u, hasta 5 imágenes en total).</p>
+                    <p id="error-galeria" class="mt-1 text-xs text-red-500 hidden"></p>
+                    <p id="error-archivos-total" class="mt-2 text-xs text-red-500 font-medium hidden"></p>
                     
                     {{-- Contenedor de la galería completa --}}
                     <div class="mt-3 space-y-3">
@@ -377,6 +383,8 @@
                 marker.addListener('dragend', (event) => {
                     latInput.value = event.latLng.lat().toFixed(6);
                     lngInput.value = event.latLng.lng().toFixed(6);
+                    var errUbicacion = document.getElementById('error-ubicacion');
+                    if (errUbicacion) errUbicacion.classList.add('hidden');
                 });
             } else {
                 marker.position = { lat, lng };
@@ -384,6 +392,8 @@
             
             latInput.value = lat.toFixed(6);
             lngInput.value = lng.toFixed(6);
+            var errUbicacion = document.getElementById('error-ubicacion');
+            if (errUbicacion) errUbicacion.classList.add('hidden');
         }
 
         // Si estamos en EDITAR y ya hay coordenadas, dibujar el pin de inmediato
@@ -555,16 +565,157 @@
         });
     });
 
+    // ── Validación de imágenes y archivos en el navegador ──────────
+    var MAX_FILE_SIZE = 2000 * 1024; // 2.000 KB (2 MB)
+    var MAX_TOTAL_SIZE = 7 * 1024 * 1024; // 7 MB
+    var MAX_GALERIA_COUNT = 5;
+
+    function esImagenValida(file) {
+        if (!file) return false;
+        var mime = (file.type || '').toLowerCase();
+        var tiposMime = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+        if (tiposMime.indexOf(mime) !== -1) {
+            return true;
+        }
+        var ext = (file.name || '').split('.').pop().toLowerCase();
+        return ['jpg', 'jpeg', 'png', 'webp', 'avif', 'jfif'].indexOf(ext) !== -1;
+    }
+
+    function mostrarErrorInput(idElemento, mensaje) {
+        var el = document.getElementById(idElemento);
+        if (!el) return;
+        if (mensaje) {
+            el.textContent = mensaje;
+            el.classList.remove('hidden');
+            el.style.display = 'block';
+        } else {
+            el.textContent = '';
+            el.classList.add('hidden');
+            el.style.display = 'none';
+        }
+    }
+
+    function contarImagenesExistentes() {
+        var items = document.querySelectorAll('#existing-gallery [id^="img-container-"]');
+        var count = 0;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].style.display !== 'none' && !items[i].classList.contains('deleted-img')) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    function limpiarPreviewNuevasImagenes() {
+        var section = document.getElementById('new-uploads-section');
+        var previewContainer = document.getElementById('preview-nuevas-imagenes');
+        if (previewContainer) previewContainer.innerHTML = '';
+        if (section) section.classList.add('hidden');
+    }
+
+    function validarPortadaInput(input) {
+        mostrarErrorInput('error-imagen-portada', '');
+        mostrarErrorInput('error-archivos-total', '');
+        if (!input.files || input.files.length === 0) {
+            return true;
+        }
+        var file = input.files[0];
+        if (!esImagenValida(file)) {
+            input.value = '';
+            mostrarErrorInput('error-imagen-portada', 'La portada debe ser una imagen válida (JPG, PNG, WebP, AVIF o JFIF).');
+            return false;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+            input.value = '';
+            mostrarErrorInput('error-imagen-portada', 'La imagen de portada no puede superar 2 MB.');
+            return false;
+        }
+        return true;
+    }
+
+    function validarGaleriaInput(input) {
+        mostrarErrorInput('error-galeria', '');
+        mostrarErrorInput('error-archivos-total', '');
+        if (!input.files || input.files.length === 0) {
+            return true;
+        }
+        var existingCount = contarImagenesExistentes();
+        var totalCount = existingCount + input.files.length;
+        if (totalCount > MAX_GALERIA_COUNT) {
+            input.value = '';
+            limpiarPreviewNuevasImagenes();
+            var msg = existingCount > 0
+                ? 'Puedes subir máximo ' + Math.max(0, MAX_GALERIA_COUNT - existingCount) + ' imagen(es) adicional(es) en la galería (tienes ' + existingCount + ' ya guardada' + (existingCount > 1 ? 's' : '') + ').'
+                : 'Puedes subir máximo 5 imágenes en la galería.';
+            mostrarErrorInput('error-galeria', msg);
+            return false;
+        }
+        for (var i = 0; i < input.files.length; i++) {
+            var file = input.files[i];
+            if (!esImagenValida(file)) {
+                input.value = '';
+                limpiarPreviewNuevasImagenes();
+                mostrarErrorInput('error-galeria', 'Cada archivo de la galería debe ser una imagen válida (JPG, PNG, WebP, AVIF o JFIF).');
+                return false;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+                input.value = '';
+                limpiarPreviewNuevasImagenes();
+                mostrarErrorInput('error-galeria', 'Cada imagen de la galería no puede superar 2 MB.');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function calcularTotalBytesArchivos() {
+        var total = 0;
+        var p = document.getElementById('imagen_portada') || document.querySelector('input[name="imagen_portada"]');
+        if (p && p.files && p.files[0]) {
+            total += p.files[0].size;
+        }
+        var g = document.getElementById('galeria') || document.querySelector('input[name="galeria[]"]');
+        if (g && g.files) {
+            for (var i = 0; i < g.files.length; i++) {
+                total += g.files[i].size;
+            }
+        }
+        return total;
+    }
+
+    function handlePortadaChange(input) {
+        if (!validarPortadaInput(input)) {
+            return;
+        }
+        if (calcularTotalBytesArchivos() > MAX_TOTAL_SIZE) {
+            input.value = '';
+            mostrarErrorInput('error-archivos-total', 'El tamaño total de portada y galería supera el límite de 7 MB. Reduce el tamaño de los archivos.');
+            return;
+        }
+        previewPortada(input);
+    }
+    window.handlePortadaChange = handlePortadaChange;
+
     // Preview de nuevas imágenes adicionales
-    var inputGaleriaAtr = document.querySelector('input[name="galeria[]"]');
+    var inputGaleriaAtr = document.getElementById('galeria') || document.querySelector('input[name="galeria[]"]');
     if (inputGaleriaAtr) {
         inputGaleriaAtr.addEventListener('change', function(e) {
+            if (!validarGaleriaInput(this)) {
+                return;
+            }
+            if (calcularTotalBytesArchivos() > MAX_TOTAL_SIZE) {
+                this.value = '';
+                limpiarPreviewNuevasImagenes();
+                mostrarErrorInput('error-archivos-total', 'El tamaño total de portada y galería supera el límite de 7 MB. Reduce el tamaño de los archivos.');
+                return;
+            }
+
             var section = document.getElementById('new-uploads-section');
             var previewContainer = document.getElementById('preview-nuevas-imagenes');
             if (!previewContainer || !section) return;
 
             previewContainer.innerHTML = '';
-            var files = Array.from(e.target.files).slice(0, 10);
+            var files = Array.from(e.target.files).slice(0, 5);
 
             if (files.length === 0) {
                 section.classList.add('hidden');
@@ -574,7 +725,6 @@
             section.classList.remove('hidden');
 
             files.forEach(function(file) {
-                if (!file.type.match('image.*')) return;
                 var reader = new FileReader();
                 reader.onload = function(evt) {
                     var imgWrap = document.createElement('div');
@@ -612,6 +762,75 @@
         }
     }
     window.previewPortada = previewPortada;
+
+    // Validación al enviar el formulario
+    var formAtractivoEdit = document.getElementById('form-atractivo-edit') || document.querySelector('form');
+    if (formAtractivoEdit) {
+        document.querySelectorAll('input[name="categorias[]"]').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                var errCat = document.getElementById('error-categorias');
+                if (errCat && document.querySelectorAll('input[name="categorias[]"]:checked').length > 0) {
+                    errCat.classList.add('hidden');
+                }
+            });
+        });
+
+        formAtractivoEdit.addEventListener('submit', function(e) {
+            // 1. Validar ubicación
+            var latInput = document.getElementById('latitud_input');
+            var lngInput = document.getElementById('longitud_input');
+            var latVal = latInput ? latInput.value.trim() : '';
+            var lngVal = lngInput ? lngInput.value.trim() : '';
+            var errUbicacion = document.getElementById('error-ubicacion');
+            if (!latVal || !lngVal) {
+                e.preventDefault();
+                if (errUbicacion) errUbicacion.classList.remove('hidden');
+                var mapArea = document.getElementById('interactive_form_map') || latInput;
+                if (mapArea) mapArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else if (errUbicacion) {
+                errUbicacion.classList.add('hidden');
+            }
+
+            // 2. Validar al menos una categoría seleccionada
+            var catChecked = document.querySelectorAll('input[name="categorias[]"]:checked');
+            var errCat = document.getElementById('error-categorias');
+            if (catChecked.length === 0) {
+                e.preventDefault();
+                if (errCat) {
+                    errCat.textContent = 'Debes seleccionar al menos una categoría de interés.';
+                    errCat.classList.remove('hidden');
+                }
+                var firstCat = document.querySelector('input[name="categorias[]"]') || errCat;
+                if (firstCat) firstCat.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            } else if (errCat) {
+                errCat.classList.add('hidden');
+            }
+
+            var portadaInput = document.getElementById('imagen_portada') || document.querySelector('input[name="imagen_portada"]');
+            if (portadaInput && !validarPortadaInput(portadaInput)) {
+                e.preventDefault();
+                portadaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            var galeriaInput = document.getElementById('galeria') || document.querySelector('input[name="galeria[]"]');
+            if (galeriaInput && !validarGaleriaInput(galeriaInput)) {
+                e.preventDefault();
+                galeriaInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            if (calcularTotalBytesArchivos() > MAX_TOTAL_SIZE) {
+                e.preventDefault();
+                mostrarErrorInput('error-archivos-total', 'El tamaño total de portada y galería supera el límite de 7 MB. Reduce el tamaño de los archivos.');
+                var errEl = document.getElementById('error-archivos-total') || galeriaInput;
+                if (errEl) errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        });
+    }
 
     // Eliminar imagen de galería (vía AJAX)
     function eliminarImagen(id) {

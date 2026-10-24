@@ -7,6 +7,15 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Requisitos e Instalación
+
+### Límites de Subida de Archivos
+La subida de imágenes en la plataforma está configurada para alinearse con los valores por defecto de PHP:
+- **Límite por imagen:** Máximo 2 MB por imagen (`imagen_portada` y cada elemento de `galeria`).
+- **Límite de galería:** Imagen de portada + hasta 5 imágenes en la galería.
+- **Límite total por envío:** Máximo 8 MB totales por envío.
+- **Compatibilidad con PHP:** Esto se corresponde con los valores por defecto de PHP (`upload_max_filesize=2M`, `post_max_size=8M`), por lo que no requiere configuración adicional en el servidor.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
