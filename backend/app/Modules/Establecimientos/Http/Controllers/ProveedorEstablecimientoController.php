@@ -8,6 +8,7 @@ use App\Modules\Destinos\Models\Destino;
 use App\Modules\Establecimientos\Http\Requests\EstablecimientoRequest;
 use App\Modules\Establecimientos\Models\Establecimiento;
 use App\Modules\Establecimientos\Services\EstablecimientoService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -39,7 +40,7 @@ class ProveedorEstablecimientoController extends Controller
         );
 
         $establecimientos = $this->service->listar($filtros, porPagina: 20);
-        $destinos         = Destino::orderBy('nombre')->get();
+        $destinos = Destino::orderBy('nombre')->get();
 
         return view('proveedor.establecimientos.index', compact('establecimientos', 'destinos'));
     }
@@ -50,7 +51,7 @@ class ProveedorEstablecimientoController extends Controller
     public function create(Request $request): View
     {
         $proveedorId = (int) $request->user()->id;
-        $destinos   = Destino::orderBy('nombre')->get();
+        $destinos = Destino::orderBy('nombre')->get();
         $categorias = CategoriaInteres::orderBy('nombre')->get();
 
         return view('proveedor.establecimientos.create', compact('destinos', 'categorias'));
@@ -70,15 +71,15 @@ class ProveedorEstablecimientoController extends Controller
         );
 
         $establecimiento = $this->service->crear(
-            datos:      $datos,
+            datos: $datos,
             categorias: $request->input('categorias', []),
-            portada:    $request->file('imagen_portada'),
-            galeria:    $request->file('galeria', [])
+            portada: $request->file('imagen_portada'),
+            galeria: $request->file('galeria', [])
         );
 
         return redirect()
             ->route('proveedor.establecimientos.index')
-            ->with('exito', "Establecimiento \"{$establecimiento->nombre}\" creado correctamente.");
+            ->with('exito', __('provider_places.created', ['name' => $establecimiento->nombre]));
     }
 
     /**
@@ -90,7 +91,7 @@ class ProveedorEstablecimientoController extends Controller
         $proveedorId = (int) $request->user()->id;
         $this->verificarPropiedad($establecimiento, $proveedorId);
 
-        $destinos   = Destino::orderBy('nombre')->get();
+        $destinos = Destino::orderBy('nombre')->get();
         $categorias = CategoriaInteres::orderBy('nombre')->get();
         $establecimiento->load(['categorias', 'imagenes']);
 
@@ -108,30 +109,30 @@ class ProveedorEstablecimientoController extends Controller
         $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria', 'eliminar_imagenes']);
 
         $this->service->actualizar(
-            establecimiento:  $establecimiento,
-            datos:            $datos,
-            categorias:       $request->input('categorias', []),
-            portada:          $request->file('imagen_portada'),
-            galeria:          $request->file('galeria', []),
+            establecimiento: $establecimiento,
+            datos: $datos,
+            categorias: $request->input('categorias', []),
+            portada: $request->file('imagen_portada'),
+            galeria: $request->file('galeria', []),
             eliminarImagenes: (array) $request->input('eliminar_imagenes', [])
         );
 
         return redirect()
             ->route('proveedor.establecimientos.index')
-            ->with('exito', "Establecimiento \"{$establecimiento->nombre}\" actualizado correctamente.");
+            ->with('exito', __('provider_places.updated', ['name' => $establecimiento->nombre]));
     }
 
     /**
      * Elimina una imagen de galería vía AJAX.
      */
-    public function eliminarImagen(Request $request, Establecimiento $establecimiento, int $imagen): \Illuminate\Http\JsonResponse
+    public function eliminarImagen(Request $request, Establecimiento $establecimiento, int $imagen): JsonResponse
     {
         $proveedorId = (int) $request->user()->id;
         $this->verificarPropiedad($establecimiento, $proveedorId);
 
         $this->service->eliminarImagen($establecimiento, $imagen);
 
-        return response()->json(['exito' => true, 'mensaje' => 'Imagen eliminada correctamente.']);
+        return response()->json(['exito' => true, 'mensaje' => __('provider_places.image_deleted')]);
     }
 
     /**
@@ -147,7 +148,7 @@ class ProveedorEstablecimientoController extends Controller
 
         return redirect()
             ->route('proveedor.establecimientos.index')
-            ->with('exito', "Establecimiento \"{$nombre}\" eliminado.");
+            ->with('exito', __('provider_places.deleted', ['name' => $nombre]));
     }
 
     /**
@@ -161,7 +162,7 @@ class ProveedorEstablecimientoController extends Controller
 
         $establecimiento = $this->service->toggleEstado($establecimiento);
 
-        return back()->with('exito', "Estado cambiado a \"{$establecimiento->estado}\".");
+        return back()->with('exito', __('provider_places.status_changed', ['status' => __('provider_places.'.($establecimiento->estado === 'activo' ? 'active' : 'inactive'))]));
     }
 
     /**
@@ -172,7 +173,7 @@ class ProveedorEstablecimientoController extends Controller
         abort_unless(
             $establecimiento->proveedor_id === $proveedorId,
             403,
-            'No tienes permiso para gestionar este establecimiento.'
+            __('provider_places.forbidden')
         );
     }
 }

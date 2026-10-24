@@ -40,20 +40,20 @@ class EstablecimientoRequest extends FormRequest
             'galeria.*'    => ['file', 'image', 'mimes:jpg,jpeg,png,webp,jfif,avif', 'max:2000'],
 
             // Imágenes marcadas para eliminación
-            'eliminar_imagenes'   => ['nullable', 'array'],
+            'eliminar_imagenes' => ['nullable', 'array'],
             'eliminar_imagenes.*' => ['integer'],
 
             // ─── Horarios ───────────────────────────────────────────────────
-            'horarios'           => ['nullable', 'array'],
-            'horarios.lunes'     => ['nullable', 'array'],
-            'horarios.martes'    => ['nullable', 'array'],
+            'horarios' => ['nullable', 'array'],
+            'horarios.lunes' => ['nullable', 'array'],
+            'horarios.martes' => ['nullable', 'array'],
             'horarios.miercoles' => ['nullable', 'array'],
-            'horarios.jueves'    => ['nullable', 'array'],
-            'horarios.viernes'   => ['nullable', 'array'],
-            'horarios.sabado'    => ['nullable', 'array'],
-            'horarios.domingo'   => ['nullable', 'array'],
-            'horarios.*.abre'    => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
-            'horarios.*.cierra'  => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'horarios.jueves' => ['nullable', 'array'],
+            'horarios.viernes' => ['nullable', 'array'],
+            'horarios.sabado' => ['nullable', 'array'],
+            'horarios.domingo' => ['nullable', 'array'],
+            'horarios.*.abre' => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
+            'horarios.*.cierra' => ['nullable', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
         ];
     }
 
@@ -112,43 +112,45 @@ class EstablecimientoRequest extends FormRequest
         $validator->after(function ($validator) {
             $horarios = $this->input('horarios', []);
 
-            if (!is_array($horarios)) {
+            if (! is_array($horarios)) {
                 return;
             }
 
             foreach ($horarios as $dia => $horario) {
-                if (!is_array($horario)) {
+                if (! is_array($horario)) {
                     continue;
                 }
 
-                $abreRaw   = $horario['abre'] ?? null;
+                $abreRaw = $horario['abre'] ?? null;
                 $cierraRaw = $horario['cierra'] ?? null;
 
-                $abre   = is_string($abreRaw) ? trim($abreRaw) : $abreRaw;
+                $abre = is_string($abreRaw) ? trim($abreRaw) : $abreRaw;
                 $cierra = is_string($cierraRaw) ? trim($cierraRaw) : $cierraRaw;
 
-                $tieneAbre   = !empty($abre);
-                $tieneCierra = !empty($cierra);
+                $tieneAbre = ! empty($abre);
+                $tieneCierra = ! empty($cierra);
 
                 // Si no tiene ninguno de los dos, se considera día cerrado
-                if (!$tieneAbre && !$tieneCierra) {
+                if (! $tieneAbre && ! $tieneCierra) {
                     continue;
                 }
 
                 // (a) Exigir que abre y cierra vengan juntos
-                if ($tieneAbre && !$tieneCierra) {
+                if ($tieneAbre && ! $tieneCierra) {
                     $validator->errors()->add(
                         "horarios.{$dia}.cierra",
-                        "Debes indicar la hora de cierre del {$dia}."
+                        __('provider_places.validation.closing_required', ['day' => __('provider_places.day_'.$dia)])
                     );
+
                     continue;
                 }
 
-                if (!$tieneAbre && $tieneCierra) {
+                if (! $tieneAbre && $tieneCierra) {
                     $validator->errors()->add(
                         "horarios.{$dia}.abre",
-                        "Debes indicar la hora de apertura del {$dia}."
+                        __('provider_places.validation.opening_required', ['day' => __('provider_places.day_'.$dia)])
                     );
+
                     continue;
                 }
 
@@ -156,7 +158,7 @@ class EstablecimientoRequest extends FormRequest
                 if ($cierra <= $abre) {
                     $validator->errors()->add(
                         "horarios.{$dia}.cierra",
-                        "La hora de cierre del {$dia} debe ser posterior a la hora de apertura."
+                        __('provider_places.validation.closing_after_opening', ['day' => __('provider_places.day_'.$dia)])
                     );
                 }
             }

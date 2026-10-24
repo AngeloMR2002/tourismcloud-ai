@@ -4,6 +4,7 @@ namespace App\Modules\Valoraciones\Traits;
 
 use App\Modules\Valoraciones\Models\Valoracion;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
  * @property-read array $distribucion_estrellas
  * @property-read Valoracion|null $mi_valoracion
  *
- * @mixin \Illuminate\Database\Eloquent\Model
+ * @mixin Model
  */
 trait HasValoraciones
 {
@@ -31,6 +32,9 @@ trait HasValoraciones
      */
     public function getPromedioPuntuacionAttribute(): float
     {
+        if (array_key_exists('valoraciones_avg_puntuacion', $this->attributes)) {
+            return round((float) $this->attributes['valoraciones_avg_puntuacion'], 1);
+        }
         $avg = $this->relationLoaded('valoraciones')
             ? $this->valoraciones->avg('puntuacion')
             : $this->valoraciones()->avg('puntuacion');
@@ -43,6 +47,10 @@ trait HasValoraciones
      */
     public function getTotalResenasAttribute(): int
     {
+        if (array_key_exists('valoraciones_count', $this->attributes)) {
+            return (int) $this->attributes['valoraciones_count'];
+        }
+
         return $this->relationLoaded('valoraciones')
             ? $this->valoraciones->count()
             : $this->valoraciones()->count();
@@ -79,8 +87,8 @@ trait HasValoraciones
             $porcentaje = $total > 0 ? (float) round(($cantidad / $total) * 100, 1) : 0.0;
 
             $distribucion[$estrella] = [
-                'estrella'   => $estrella,
-                'cantidad'   => $cantidad,
+                'estrella' => $estrella,
+                'cantidad' => $cantidad,
                 'porcentaje' => $porcentaje,
             ];
         }
@@ -93,7 +101,7 @@ trait HasValoraciones
      */
     public function getMiValoracionAttribute(): ?Valoracion
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return null;
         }
 

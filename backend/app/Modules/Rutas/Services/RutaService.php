@@ -190,6 +190,17 @@ class RutaService
             $consulta->where('rutas.destino_id', (int) $filtros['destino_id']);
         }
 
+        if (isset($filtros['duracion_min']) && $filtros['duracion_min'] !== '') {
+            $consulta->where('rutas.duracion_estimada_min', '>=', $filtros['duracion_min']);
+        }
+        foreach (['costo_min' => '>=', 'costo_max' => '<='] as $campo => $operador) {
+            if (isset($filtros[$campo]) && $filtros[$campo] !== '') {
+                $consulta->whereRaw(
+                    "(SELECT COALESCE(SUM(a.costo_entrada), 0) FROM ruta_paradas p JOIN atractivos a ON a.id = p.atractivo_id WHERE p.ruta_id = rutas.id AND a.deleted_at IS NULL) {$operador} ?",
+                    [$filtros[$campo]]
+                );
+            }
+        }
         if (isset($filtros['duracion_max']) && $filtros['duracion_max'] !== '') {
             $consulta->where('rutas.duracion_estimada_min', '<=', $filtros['duracion_max']);
         }
@@ -216,7 +227,7 @@ class RutaService
         });
     }
 
-    private function aplicarVisibilidadPublica(Builder $consulta): void
+    public function aplicarVisibilidadPublica(Builder $consulta): void
     {
         $conteoAtractivosValidosDistintos = <<<'SQL'
 SELECT COUNT(DISTINCT atractivo.id)
@@ -254,7 +265,7 @@ SQL;
         foreach ($paradas as $paradaId) {
             if (! is_int($paradaId) && ! (is_string($paradaId) && ctype_digit($paradaId))) {
                 throw ValidationException::withMessages([
-                    'paradas' => 'Las paradas seleccionadas no son válidas.',
+                    'paradas' => __('operator_routes.stops_valid'),
                 ]);
             }
 
@@ -265,7 +276,7 @@ SQL;
 
         if (count($ids) < 2 || count($ids) !== count($paradas)) {
             throw ValidationException::withMessages([
-                'paradas' => 'Una ruta debe tener al menos dos paradas distintas.',
+                'paradas' => __('operator_routes.stops_minimum_distinct'),
             ]);
         }
 
@@ -281,7 +292,7 @@ SQL;
 
         if ($cantidadValidas !== count($ids)) {
             throw ValidationException::withMessages([
-                'paradas' => 'Cada parada debe ser un atractivo activo, no eliminado y del destino seleccionado.',
+                'paradas' => __('operator_routes.stops_valid'),
             ]);
         }
 

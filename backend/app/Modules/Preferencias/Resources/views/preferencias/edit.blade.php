@@ -4,17 +4,17 @@
     $esTurista = $esTurista ?? false;
 @endphp
 
-@section('title', 'Editar Preferencia')
+@section('title', __('modules.edit_preference'))
 
 @section('content')
 <div class="tc-workspace max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <header class="tc-page-heading">
         <div>
-            <p class="text-xs uppercase tracking-wider font-semibold text-neutral-400">Preferencias de Viaje</p>
-            <h1 class="text-2xl font-bold text-gray-900 mt-1">Editar Preferencias</h1>
+            <p class="text-xs uppercase tracking-wider font-semibold text-neutral-400">{{ __('modules.travel_preferences') }}</p>
+            <h1 class="text-2xl font-bold text-gray-900 mt-1">{{ __('modules.edit_preferences') }}</h1>
         </div>
         <a href="{{ $esTurista ? route('preferencias.turista', $preferencia->turista_id) : route('preferencias.index') }}" class="tc-btn-outline inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium">
-            Volver
+            {{ __('modules.back') }}
         </a>
     </header>
 
@@ -24,23 +24,23 @@
 
         {{-- Turista --}}
         <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-base font-semibold text-gray-900 mb-1">Información del Turista</h2>
-            <p class="text-xs text-gray-500 mb-4">Usuario asociado a estas preferencias.</p>
+            <h2 class="text-base font-semibold text-gray-900 mb-1">{{ __('modules.tourist_information') }}</h2>
+            <p class="text-xs text-gray-500 mb-4">{{ __('modules.tourist_edit_hint') }}</p>
 
             @if($esTurista)
                 <input type="hidden" name="turista_id" value="{{ $preferencia->turista_id }}">
                 <div class="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-200/60">
-                    <div class="w-10 h-10 rounded-full bg-[#00626A]/10 text-[#00626A] flex items-center justify-center font-bold text-sm">
+                    <div class="w-10 h-10 rounded-full bg-[#16734f]/10 text-[#16734f] flex items-center justify-center font-bold text-sm">
                         {{ substr($preferencia->turista->nombre ?? 'T', 0, 1) }}{{ substr($preferencia->turista->apellido ?? '', 0, 1) }}
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-900">{{ $preferencia->turista->nombre ?? 'Turista' }} {{ $preferencia->turista->apellido ?? '' }}</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ $preferencia->turista->nombre ?? __('modules.tourist') }} {{ $preferencia->turista->apellido ?? '' }}</p>
                         <p class="text-xs text-gray-500">{{ $preferencia->turista->email ?? '' }}</p>
                     </div>
                 </div>
             @else
                 <div>
-                    <label for="turista_id" class="block text-xs font-bold text-gray-700 mb-1.5">Turista Asignado *</label>
+                    <label for="turista_id" class="block text-xs font-bold text-gray-700 mb-1.5">{{ __('modules.assigned_tourist') }} *</label>
                     <select name="turista_id" id="turista_id" required class="tc-select w-full px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white text-sm">
                         @if(isset($turistas) && $turistas->isNotEmpty())
                             @foreach ($turistas as $t)
@@ -63,15 +63,15 @@
 
         {{-- Presupuesto y Tiempo --}}
         <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-base font-semibold text-gray-900 mb-1">Presupuesto y Duración</h2>
-            <p class="text-xs text-gray-500 mb-4">Parámetros clave para el itinerario turístico.</p>
+            <h2 class="text-base font-semibold text-gray-900 mb-1">{{ __('modules.budget_and_duration') }}</h2>
+            <p class="text-xs text-gray-500 mb-4">{{ __('modules.preference_budget_hint') }}</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="presupuesto_max" class="block text-xs font-bold text-gray-700 mb-1.5">Presupuesto Máximo (S/) *</label>
+                    <label for="presupuesto_max" data-tc-money-label class="block text-xs font-bold text-gray-700 mb-1.5">{{ __('modules.maximum_budget_pen') }} *</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-medium text-gray-400">S/</span>
-                        <input type="number" step="0.01" min="0" name="presupuesto_max" id="presupuesto_max" value="{{ old('presupuesto_max', $preferencia->presupuesto_max) }}" placeholder="Ej. 1200.00" required class="tc-input tc-currency-input w-full pl-9 pr-3.5 py-2.5 text-sm">
+                        <span data-tc-money-symbol class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-sm font-medium text-gray-400">S/</span>
+                        <input type="number" data-tc-money-input step="0.01" min="0" name="presupuesto_max" id="presupuesto_max" value="{{ old('presupuesto_max', $preferencia->presupuesto_max) }}" placeholder="1200.00" required class="tc-input tc-currency-input w-full pl-9 pr-3.5 py-2.5 text-sm">
                     </div>
                     @error('presupuesto_max')
                         <p class="mt-1.5 text-xs text-red-600 font-medium">{{ $message }}</p>
@@ -79,8 +79,8 @@
                 </div>
 
                 <div>
-                    <label for="dias_disponibles" class="block text-xs font-bold text-gray-700 mb-1.5">Días Disponibles *</label>
-                    <input type="number" min="1" name="dias_disponibles" id="dias_disponibles" value="{{ old('dias_disponibles', $preferencia->dias_disponibles) }}" placeholder="Ej. 3" required class="tc-input w-full px-3.5 py-2.5 text-sm">
+                    <label for="dias_disponibles" class="block text-xs font-bold text-gray-700 mb-1.5">{{ __('modules.days_available') }} *</label>
+                    <input type="number" min="1" name="dias_disponibles" id="dias_disponibles" value="{{ old('dias_disponibles', $preferencia->dias_disponibles) }}" placeholder="{{ __('catalog.example_value', ['value' => 3]) }}" required class="tc-input w-full px-3.5 py-2.5 text-sm">
                     @error('dias_disponibles')
                         <p class="mt-1.5 text-xs text-red-600 font-medium">{{ $message }}</p>
                     @enderror
@@ -90,12 +90,12 @@
 
         {{-- Horarios Preferidos --}}
         <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-base font-semibold text-gray-900 mb-1">Horario Preferido del Día</h2>
-            <p class="text-xs text-gray-500 mb-4">Rango habitual en que prefiere realizar actividades turísticas.</p>
+            <h2 class="text-base font-semibold text-gray-900 mb-1">{{ __('modules.preferred_time') }}</h2>
+            <p class="text-xs text-gray-500 mb-4">{{ __('modules.preferred_time_hint') }}</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="hora_inicio_preferida" class="block text-xs font-bold text-gray-700 mb-1.5">Hora de Inicio Habitual</label>
+                    <label for="hora_inicio_preferida" class="block text-xs font-bold text-gray-700 mb-1.5">{{ __('modules.usual_start_time') }}</label>
                     <input type="time" name="hora_inicio_preferida" id="hora_inicio_preferida" value="{{ old('hora_inicio_preferida', $preferencia->hora_inicio_preferida ? substr($preferencia->hora_inicio_preferida, 0, 5) : '08:00') }}" class="tc-input w-full px-3.5 py-2.5 text-sm">
                     @error('hora_inicio_preferida')
                         <p class="mt-1.5 text-xs text-red-600 font-medium">{{ $message }}</p>
@@ -103,7 +103,7 @@
                 </div>
 
                 <div>
-                    <label for="hora_fin_preferida" class="block text-xs font-bold text-gray-700 mb-1.5">Hora de Fin Habitual</label>
+                    <label for="hora_fin_preferida" class="block text-xs font-bold text-gray-700 mb-1.5">{{ __('modules.usual_end_time') }}</label>
                     <input type="time" name="hora_fin_preferida" id="hora_fin_preferida" value="{{ old('hora_fin_preferida', $preferencia->hora_fin_preferida ? substr($preferencia->hora_fin_preferida, 0, 5) : '20:00') }}" class="tc-input w-full px-3.5 py-2.5 text-sm">
                     @error('hora_fin_preferida')
                         <p class="mt-1.5 text-xs text-red-600 font-medium">{{ $message }}</p>
@@ -114,8 +114,8 @@
 
         {{-- Categorías de Interés --}}
         <div class="tc-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 class="text-base font-semibold text-gray-900 mb-1">Categorías de Interés</h2>
-            <p class="text-xs text-gray-500 mb-4">Selecciona los tipos de actividades y destinos favoritos.</p>
+            <h2 class="text-base font-semibold text-gray-900 mb-1">{{ __('modules.interest_categories') }}</h2>
+            <p class="text-xs text-gray-500 mb-4">{{ __('modules.interest_categories_hint') }}</p>
 
             @php
                 $seleccionadas = old('categorias', $preferencia->categorias->pluck('id')->toArray());
@@ -123,8 +123,8 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 @forelse ($categorias as $categoria)
-                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 hover:border-[#00626A] hover:bg-[#00626A]/5 cursor-pointer transition-colors">
-                        <input type="checkbox" name="categorias[]" value="{{ $categoria->id }}" {{ in_array($categoria->id, $seleccionadas) ? 'checked' : '' }} class="mt-0.5 rounded border-gray-300 text-[#00626A] focus:ring-[#00626A]">
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 hover:border-[#16734f] hover:bg-[#16734f]/5 cursor-pointer transition-colors">
+                        <input type="checkbox" name="categorias[]" value="{{ $categoria->id }}" {{ in_array($categoria->id, $seleccionadas) ? 'checked' : '' }} class="mt-0.5 rounded border-gray-300 text-[#16734f] focus:ring-[#16734f]">
                         <div>
                             <span class="text-sm font-semibold text-gray-900 block">{{ $categoria->nombre }}</span>
                             @if($categoria->descripcion)
@@ -133,7 +133,7 @@
                         </div>
                     </label>
                 @empty
-                    <p class="text-xs text-gray-400 col-span-3">No hay categorías de interés registradas.</p>
+                    <p class="text-xs text-gray-400 col-span-3">{{ __('modules.no_interest_categories') }}</p>
                 @endforelse
             </div>
             @error('categorias')
@@ -143,10 +143,10 @@
 
         <div class="flex items-center justify-end gap-3 pt-2">
             <a href="{{ $esTurista ? route('preferencias.turista', $preferencia->turista_id) : route('preferencias.index') }}" class="tc-btn-outline px-5 py-2.5 text-sm font-medium">
-                Cancelar
+                {{ __('modules.cancel') }}
             </a>
             <button type="submit" class="tc-btn-primary px-6 py-2.5 text-sm font-semibold">
-                Guardar Cambios
+                {{ __('modules.save_changes') }}
             </button>
         </div>
     </form>

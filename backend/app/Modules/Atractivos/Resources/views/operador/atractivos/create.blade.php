@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo Atractivo')
+@section('title', __('operator_attractions.new_attraction'))
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -12,10 +12,10 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
-            Mis Atractivos
+            {{ __('operator_attractions.my_attractions') }}
         </a>
         <h1 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: #1a2232;">
-            Nuevo Atractivo
+            {{ __('operator_attractions.new_attraction') }}
         </h1>
     </div>
 
@@ -26,7 +26,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div>
-                <p class="font-semibold">Por favor corrige los siguientes errores:</p>
+                <p class="font-semibold">{{ __('operator_attractions.validation_errors') }}</p>
                 <ul class="mt-1 list-disc list-inside text-sm space-y-0.5">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -46,17 +46,17 @@
         {{-- ── Sección: Información básica ────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                Información básica
+                {{ __('operator_attractions.basic_information') }}
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 {{-- Destino --}}
                 <div class="sm:col-span-2">
                     <label for="destino_id" class="block text-sm font-semibold mb-1.5 text-gray-700">
-                        Destino <span class="text-red-500">*</span>
+                        {{ __('operator_attractions.destination') }} <span class="text-red-500">*</span>
                     </label>
                     <select id="destino_id" name="destino_id" class="tc-select" required>
-                        <option value="">Selecciona un destino…</option>
+                        <option value="">{{ __('operator_attractions.select_destination') }}</option>
                         @foreach($destinos as $d)
                             <option value="{{ $d->id }}" @selected(old('destino_id') == $d->id)>
                                 {{ $d->nombre }}
@@ -71,11 +71,11 @@
                 {{-- Nombre --}}
                 <div class="sm:col-span-2">
                     <label for="nombre" class="block text-sm font-semibold mb-1.5 text-gray-700">
-                        Nombre <span class="text-red-500">*</span>
+                        {{ __('operator_attractions.name') }} <span class="text-red-500">*</span>
                     </label>
                     <input type="text" id="nombre" name="nombre"
                            value="{{ old('nombre') }}"
-                           placeholder="Ej: Machu Picchu"
+                           placeholder="{{ __('operator_attractions.name_example') }}"
                            class="tc-input" maxlength="150" required>
                     @error('nombre')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -97,14 +97,14 @@
 
                 {{-- Costo de entrada --}}
                 <div>
-                    <label for="costo_entrada" class="block text-sm font-semibold mb-1.5 text-gray-700">
-                        Costo de entrada (S/) <span class="text-red-500">*</span>
+                    <label for="costo_entrada" data-tc-money-label class="block text-sm font-semibold mb-1.5 text-gray-700">
+                        {{ __('operator_attractions.admission_cost') }} <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" id="costo_entrada" name="costo_entrada"
+                    <input type="number" id="costo_entrada" name="costo_entrada" data-tc-money-input
                            value="{{ old('costo_entrada', 0) }}"
                            min="0" step="0.01"
                            class="tc-input" required>
-                    <p class="text-xs text-gray-400 mt-1">Usa 0 si es gratuito.</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ __('operator_attractions.free_hint') }}</p>
                     @error('costo_entrada')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                     @enderror
@@ -113,12 +113,12 @@
                 {{-- Duración estimada --}}
                 <div>
                     <label for="duracion_estimada_min" class="block text-sm font-semibold mb-1.5 text-gray-700">
-                        Duración estimada (minutos)
+                        {{ __('operator_attractions.estimated_duration_minutes') }}
                     </label>
                     <input type="number" id="duracion_estimada_min" name="duracion_estimada_min"
                            value="{{ old('duracion_estimada_min') }}"
-                           min="1" max="10080"
-                           placeholder="Ej: 240"
+                           min="1" max="14400"
+                           placeholder="{{ __('operator_attractions.duration_example') }}"
                            class="tc-input">
                     @error('duracion_estimada_min')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -128,11 +128,11 @@
                 {{-- Estado --}}
                 <div>
                     <label for="estado" class="block text-sm font-semibold mb-1.5 text-gray-700">
-                        Estado <span class="text-red-500">*</span>
+                        {{ __('operator_attractions.status') }} <span class="text-red-500">*</span>
                     </label>
                     <select id="estado" name="estado" class="tc-select" required>
-                        <option value="activo"   @selected(old('estado', 'activo') === 'activo')>Activo</option>
-                        <option value="inactivo" @selected(old('estado') === 'inactivo')>Inactivo</option>
+                        <option value="activo"   @selected(old('estado', 'activo') === 'activo')>{{ __('operator_attractions.active') }}</option>
+                        <option value="inactivo" @selected(old('estado') === 'inactivo')>{{ __('operator_attractions.inactive') }}</option>
                     </select>
                     @error('estado')
                         <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
@@ -141,8 +141,8 @@
 
                 {{-- 📍 MAPA INTERACTIVO PARA SELECCIÓN DE COORDENADAS ════════════════════════ --}}
                 <div class="sm:col-span-2 mt-4">
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Ubicación Exacta en el Mapa <span class="text-red-500">*</span></label>
-                    <p class="text-xs text-gray-400 mb-4">Busca la dirección o arrastra el marcador rojo para fijar las coordenadas automáticamente.</p>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">{{ __('operator_attractions.exact_map_location') }} <span class="text-red-500">*</span></label>
+                    <p class="text-xs text-gray-400 mb-4">{{ __('operator_attractions.map_location_hint') }}</p>
                     
                     <!-- Contenedor del Mapa -->
                     <div class="relative w-full h-[450px] rounded-2xl overflow-hidden border border-gray-200 shadow-sm mb-4">
@@ -151,10 +151,10 @@
                         <div class="absolute top-4 left-4 z-10 w-11/12 max-w-sm">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <svg class="h-5 w-5 text-[#00626A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                    <svg class="h-5 w-5 text-[#16734f]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </div>
-                                <input type="text" id="map_search" placeholder="Ej. Plaza de Armas de Cusco..." autocomplete="off"
-                                    class="w-full pl-11 px-4 py-3.5 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-lg focus:ring-2 focus:ring-[#00626A]/50 focus:border-[#00626A] transition-all text-sm text-gray-800 placeholder-gray-400">
+                                <input type="text" id="map_search" placeholder="{{ __('operator_attractions.map_search_placeholder') }}" autocomplete="off"
+                                    class="w-full pl-11 px-4 py-3.5 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-lg focus:ring-2 focus:ring-[#16734f]/50 focus:border-[#16734f] transition-all text-sm text-gray-800 placeholder-gray-400">
                             </div>
                             <!-- Lista de sugerencias de Google -->
                             <ul id="map_suggestions" class="absolute w-full bg-white rounded-xl shadow-xl mt-2 hidden max-h-60 overflow-y-auto border border-gray-100"></ul>
@@ -167,12 +167,12 @@
                     <!-- Inputs de Coordenadas (Solo Lectura) -->
                     <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Latitud Seleccionada</label>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('operator_attractions.selected_latitude') }}</label>
                             <input type="number" step="any" id="latitud_input" name="latitud" value="{{ old('latitud', '') }}" readonly required
                                 class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-500 mb-1">Longitud Seleccionada</label>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('operator_attractions.selected_longitude') }}</label>
                             <input type="number" step="any" id="longitud_input" name="longitud" value="{{ old('longitud', '') }}" readonly required
                                 class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
                         </div>
@@ -189,7 +189,7 @@
                 Categorías de interés <span class="text-red-500">*</span>
             </h2>
             @if($categorias->isEmpty())
-                <p class="text-sm text-gray-400">No hay categorías disponibles aún.</p>
+                <p class="text-sm text-gray-400">{{ __('operator_attractions.categories_unavailable') }}</p>
             @else
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     @foreach($categorias as $cat)
@@ -210,22 +210,21 @@
         {{-- ── Sección: Horarios semanales ────────────────────────── --}}
         <div class="tc-card p-6" id="horario-editor">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-2" style="color: var(--color-primary-700);">
-                Horarios de apertura
+                {{ __('operator_attractions.opening_hours') }}
             </h2>
             <p class="text-xs text-gray-400 mb-5">
-                Activa el toggle del día para indicar que está abierto y luego define el horario.
-                Deja desactivado si ese día permanece cerrado.
+                {{ __('operator_attractions.hours_hint') }}
             </p>
 
             @php
                 $diasConfig = [
-                    'lunes'     => 'Lunes',
-                    'martes'    => 'Martes',
-                    'miercoles' => 'Miércoles',
-                    'jueves'    => 'Jueves',
-                    'viernes'   => 'Viernes',
-                    'sabado'    => 'Sábado',
-                    'domingo'   => 'Domingo',
+                    'lunes'     => __('operator_attractions.monday'),
+                    'martes'    => __('operator_attractions.tuesday'),
+                    'miercoles' => __('operator_attractions.wednesday'),
+                    'jueves'    => __('operator_attractions.thursday'),
+                    'viernes'   => __('operator_attractions.friday'),
+                    'sabado'    => __('operator_attractions.saturday'),
+                    'domingo'   => __('operator_attractions.sunday'),
                 ];
                 $horariosOld = old('horarios', []);
             @endphp
@@ -243,7 +242,7 @@
                          style="{{ $abierto ? 'background: var(--color-teal-light);' : 'background: #f3f4f6;' }}">
 
                         {{-- Toggle abierto/cerrado --}}
-                        <label class="tc-toggle shrink-0" title="{{ $abierto ? 'Cerrar' : 'Abrir' }} {{ $nombre }}">
+                        <label class="tc-toggle shrink-0" title="{{ $abierto ? __('operator_attractions.close') : __('operator_attractions.open') }} {{ $nombre }}">
                             <input type="checkbox"
                                    id="tog-{{ $clave }}"
                                    data-dia="{{ $clave }}"
@@ -264,7 +263,7 @@
                              class="flex items-center gap-3 flex-1 {{ $abierto ? '' : 'hidden' }}"
                              style="{{ $abierto ? 'display: flex;' : 'display: none;' }}">
                             <div class="flex items-center gap-1.5 shrink-0">
-                                <span class="text-xs text-gray-500">Abre</span>
+                                <span class="text-xs text-gray-500">{{ __('operator_attractions.opens') }}</span>
                                 <input type="time" id="abre-{{ $clave }}"
                                        name="horarios[{{ $clave }}][abre]"
                                        value="{{ $abre }}"
@@ -274,7 +273,7 @@
                             </div>
                             <span class="text-gray-300 text-sm shrink-0">→</span>
                             <div class="flex items-center gap-1.5 shrink-0">
-                                <span class="text-xs text-gray-500">Cierra</span>
+                                <span class="text-xs text-gray-500">{{ __('operator_attractions.closes') }}</span>
                                 <input type="time" id="cierra-{{ $clave }}"
                                        name="horarios[{{ $clave }}][cierra]"
                                        value="{{ $cierra }}"
@@ -288,7 +287,7 @@
                         <span id="closed-{{ $clave }}"
                               class="{{ $abierto ? 'hidden' : '' }} text-xs text-gray-400 flex-1"
                               style="{{ $abierto ? 'display: none;' : '' }}">
-                            Cerrado
+                            {{ __('operator_attractions.closed') }}
                         </span>
 
                         @error("horarios.{$clave}")
@@ -302,7 +301,7 @@
         {{-- ── Sección: Imágenes ───────────────────────────────────── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                Imágenes del atractivo
+                {{ __('operator_attractions.attraction_images') }}
             </h2>
             <div class="space-y-4">
 
@@ -316,7 +315,7 @@
                             <svg class="w-8 h-8 mx-auto mb-1" style="color: var(--color-primary-400, #2dd4bf);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
-                            <p class="text-xs" style="color: var(--color-primary-500, #00626A);">Vista previa de portada</p>
+                            <p class="text-xs" style="color: var(--color-primary-500, #16734f);">{{ __('operator_attractions.cover_preview') }}</p>
                         </div>
                     </div>
                     <input type="file" id="imagen_portada" name="imagen_portada"
@@ -332,7 +331,7 @@
                 {{-- Galería adicional --}}
                 <div>
                     <label for="galeria" class="block text-sm font-semibold mb-1.5 text-gray-700">
-                        Galería de imágenes adicional
+                        {{ __('operator_attractions.additional_gallery') }}
                     </label>
                     <input type="file" id="galeria" name="galeria[]"
                            accept="image/jpeg,image/png,image/webp,image/avif,.jfif,.jpg,.jpeg,.png,.webp,.avif"
@@ -350,13 +349,13 @@
         {{-- ── Botones de acción ───────────────────────────────────── --}}
         <div class="flex items-center justify-end gap-3">
             <a href="{{ route('operador.atractivos.index') }}" class="tc-btn-outline">
-                Cancelar
+                {{ __('operator_attractions.cancel') }}
             </a>
             <button type="submit" class="tc-btn-primary">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                Crear Atractivo
+                {{ __('operator_attractions.create_attraction') }}
             </button>
         </div>
     </form>
@@ -367,7 +366,9 @@
 <script>
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
         key: @json(config('services.google_maps.key')),
-        v: "weekly"
+        v: "weekly",
+        language: @json(app()->getLocale()),
+        region: "PE"
     });
 
     async function initInteractiveFormMap() {
@@ -403,7 +404,7 @@
                     map: map,
                     position: { lat, lng },
                     gmpDraggable: true, // ¡Permite arrastrar el pin libremente!
-                    title: "Arrastra para ajustar la ubicación"
+                    title: @json(__('operator_attractions.marker_drag_hint'))
                 });
                 
                 // Escuchar el final del arrastre (Drop)
@@ -487,7 +488,7 @@
                 });
                 suggestionsList.classList.remove('hidden');
             } catch (e) {
-                console.error("Error consultando Google Places:", e);
+                console.error(@json(__('operator_attractions.places_search_error')), e);
             }
         });
 
@@ -742,7 +743,7 @@
             reader.onload = function(e) {
                 var previewArea = document.getElementById('preview-portada-area');
                 if (previewArea) {
-                    previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="Portada">';
+                    previewArea.innerHTML = '<img src="' + e.target.result + '" class="w-full h-full object-cover" alt="' + @json(__('operator_attractions.cover')) + '">';
                 }
             };
             reader.readAsDataURL(input.files[0]);

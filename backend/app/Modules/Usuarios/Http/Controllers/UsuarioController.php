@@ -5,21 +5,22 @@ namespace App\Modules\Usuarios\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Usuarios\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth;
 
 class UsuarioController extends Controller
 {
-    private const ROLES   = ['administrador', 'operador_turistico', 'proveedor', 'turista'];
+    private const ROLES = ['administrador', 'operador_turistico', 'proveedor', 'turista'];
+
     private const ESTADOS = ['activo', 'inactivo'];
 
     public function index(Request $request)
     {
         $usuarios = Usuario::query()
             ->when($request->filled('q'), function ($query) use ($request) {
-                $q = '%' . $request->q . '%';
+                $q = '%'.$request->q.'%';
                 $query->where(fn ($w) => $w
                     ->where('nombre', 'ilike', $q)
                     ->orWhere('apellido', 'ilike', $q)
@@ -51,19 +52,19 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nombre'   => ['required', 'string', 'max:100'],
+            'nombre' => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
-            'email'    => ['required', 'string', 'email', 'max:150', 'unique:usuarios'],
+            'email' => ['required', 'string', 'email', 'max:150', 'unique:usuarios'],
             'password' => ['required', 'string', 'min:8'],
-            'rol'      => ['required', Rule::in(self::ROLES)],
-            'estado'   => ['required', Rule::in(self::ESTADOS)],
+            'rol' => ['required', Rule::in(self::ROLES)],
+            'estado' => ['required', Rule::in(self::ESTADOS)],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
         Usuario::create($validated);
 
-        return redirect()->route('admin.usuarios.index')->with('exito', 'Usuario registrado correctamente.');
+        return redirect()->route('admin.usuarios.index')->with('exito', __('admin_users.created_success'));
     }
 
     public function edit(Usuario $usuario)
@@ -74,46 +75,46 @@ class UsuarioController extends Controller
     public function update(Request $request, Usuario $usuario)
     {
         $validated = $request->validate([
-            'nombre'   => ['required', 'string', 'max:100'],
+            'nombre' => ['required', 'string', 'max:100'],
             'apellido' => ['required', 'string', 'max:100'],
-            'email'    => ['required', 'string', 'email', 'max:150', Rule::unique('usuarios')->ignore($usuario->id)],
-            'rol'      => ['required', Rule::in(self::ROLES)],
-            'estado'   => ['required', Rule::in(self::ESTADOS)],
+            'email' => ['required', 'string', 'email', 'max:150', Rule::unique('usuarios')->ignore($usuario->id)],
+            'rol' => ['required', Rule::in(self::ROLES)],
+            'estado' => ['required', Rule::in(self::ESTADOS)],
         ]);
 
         // El admin no puede quitarse a sí mismo el acceso
         if ($usuario->id === Auth::id()
             && ($validated['rol'] !== $usuario->rol || $validated['estado'] !== 'activo')) {
             return back()->withInput()
-                ->with('error', 'No puedes cambiar tu propio rol ni desactivar tu propia cuenta.');
+                ->with('error', __('admin_users.self_role_error'));
         }
 
         $usuario->update($validated);
 
-        return redirect()->route('admin.usuarios.index')->with('exito', 'Usuario actualizado correctamente.');
+        return redirect()->route('admin.usuarios.index')->with('exito', __('admin_users.updated_success'));
     }
 
     public function toggleEstado(Usuario $usuario)
     {
         if ($usuario->id === Auth::id()) {
-            return back()->with('error', 'No puedes desactivar tu propia cuenta.');
+            return back()->with('error', __('admin_users.self_deactivate_error'));
         }
 
         $usuario->update([
             'estado' => $usuario->estado === 'activo' ? 'inactivo' : 'activo',
         ]);
 
-        return back()->with('exito', $usuario->estado === 'activo' ? 'Usuario activado.' : 'Usuario desactivado.');
+        return back()->with('exito', __($usuario->estado === 'activo' ? 'admin_users.activated_success' : 'admin_users.deactivated_success'));
     }
 
     public function destroy(Usuario $usuario)
     {
         if ($usuario->id === Auth::id()) {
-            return back()->with('error', 'No puedes eliminar tu propia cuenta.');
+            return back()->with('error', __('admin_users.self_delete_error'));
         }
 
         $usuario->delete();
 
-        return redirect()->route('admin.usuarios.index')->with('exito', 'Usuario eliminado del sistema.');
+        return redirect()->route('admin.usuarios.index')->with('exito', __('admin_users.deleted_success'));
     }
 }

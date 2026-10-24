@@ -25,10 +25,10 @@
         {{-- Cabecera de la sección --}}
         <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
             <h3 class="text-xs font-bold uppercase tracking-wider text-gray-600">
-                Opiniones y Valoraciones
+                {{ __('reviews.reviews_and_ratings') }}
             </h3>
             <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 whitespace-nowrap">
-                {{ $total }} {{ $total === 1 ? 'reseña' : 'reseñas' }}
+                {{ $total }} {{ $total === 1 ? __('reviews.review') : __('reviews.reviews') }}
             </span>
         </div>
 
@@ -46,7 +46,7 @@
                     @endfor
                 </div>
                 <p class="text-[11px] text-gray-500 whitespace-nowrap">
-                    de 5.0 ({{ $total }} {{ $total === 1 ? 'calificación' : 'calificaciones' }})
+                    {{ __('reviews.of_five') }} ({{ $total }} {{ $total === 1 ? __('reviews.rating_singular') : __('reviews.rating_plural') }})
                 </p>
             </div>
         </div>
@@ -80,7 +80,7 @@
     <div>
         <div class="flex items-center justify-between mb-3">
             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-600">
-                Reseñas de la Comunidad
+                {{ __('reviews.community_reviews') }}
             </h4>
             <span class="text-[11px] text-gray-400 font-medium">
                 {{ $valoraciones->count() }}
@@ -92,7 +92,7 @@
                 <svg class="w-8 h-8 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                 </svg>
-                <p class="text-xs">Aún no hay reseñas registradas.</p>
+                <p class="text-xs">{{ __('reviews.no_reviews') }}</p>
             </div>
         @else
             <div class="space-y-4 max-h-[560px] overflow-y-auto pr-1 scrollbar-thin">
@@ -114,23 +114,23 @@
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         <span class="text-xs font-bold text-gray-800 leading-tight truncate">
-                                            {{ $user ? "{$user->nombre} {$user->apellido}" : 'Usuario Turista' }}
+                                            {{ $user ? "{$user->nombre} {$user->apellido}" : __('reviews.tourist_user') }}
                                         </span>
 
                                         {{-- Badge si es la reseña propia --}}
                                         @if($esPropia)
-                                            <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#00626A] text-white shrink-0">
-                                                Tu reseña
+                                            <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#16734f] text-white shrink-0">
+                                                {{ __('reviews.your_review') }}
                                             </span>
                                         @endif
 
                                         {{-- Badge Verde: Visita Verificada --}}
                                         @if($resena->visita_verificada)
-                                            <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0" title="Reseña verificada por visita o reserva confirmada">
+                                            <span class="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0" title="{{ __('reviews.verified_review_title') }}">
                                                 <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                                                 </svg>
-                                                Verificada
+                                                {{ __('reviews.verified') }}
                                             </span>
                                         @endif
                                     </div>
@@ -144,12 +144,12 @@
                                         {{-- Botón Editar --}}
                                         <button type="button" 
                                                 onclick="abrirModalEdicionResena({{ $resena->puntuacion }}, {{ json_encode($resena->comentario ?? '') }})"
-                                                class="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#00626A] hover:text-[#00474d] bg-white hover:bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-lg shadow-xs transition"
-                                                title="Editar mi reseña">
+                                                class="inline-flex items-center gap-0.5 text-[11px] font-semibold text-[#16734f] hover:text-[#00474d] bg-white hover:bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-lg shadow-xs transition"
+                                                title="{{ __('reviews.edit_my_review') }}">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                             </svg>
-                                            Editar
+                                            {{ __('reviews.edit') }}
                                         </button>
 
                                         {{-- Botón Eliminar --}}
@@ -158,11 +158,11 @@
                                             @method('DELETE')
                                             <button type="submit" 
                                                     class="inline-flex items-center gap-0.5 text-[11px] font-semibold text-rose-600 hover:text-rose-700 bg-white hover:bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-lg shadow-xs transition"
-                                                    title="Eliminar mi reseña">
+                                                    title="{{ __('reviews.delete_my_review') }}">
                                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                 </svg>
-                                                Eliminar
+                                                {{ __('reviews.delete') }}
                                             </button>
                                         </form>
                                     @elseif(Auth::user()->isAdmin())
@@ -170,7 +170,7 @@
                                         <form method="POST" action="{{ route('valoraciones.destroy', $resena) }}" onsubmit="event.preventDefault(); confirmarEliminarResena(this);">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="text-gray-300 hover:text-red-500 transition-colors p-0.5" title="Eliminar como administrador">
+                                            <button type="submit" class="text-gray-300 hover:text-red-500 transition-colors p-0.5" title="{{ __('reviews.delete_as_admin') }}">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                 </svg>
@@ -191,7 +191,7 @@
                                 @endfor
                             </div>
                             <span class="text-[10px] text-gray-400 font-medium whitespace-nowrap">
-                                {{ $resena->created_at->diffForHumans() }}
+                                {{ $resena->created_at->locale(app()->getLocale())->diffForHumans() }}
                             </span>
                         </div>
 
@@ -202,7 +202,7 @@
                             </p>
                         @else
                             <p class="text-[11px] text-gray-400 italic">
-                                Calificación sin comentario.
+                                {{ __('reviews.rating_without_comment') }}
                             </p>
                         @endif
                     </div>
@@ -223,7 +223,7 @@
         <button type="button" 
                 onclick="cerrarModalEdicionResena()" 
                 class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition"
-                title="Cerrar ventana">
+                title="{{ __('reviews.close_window') }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -231,17 +231,17 @@
 
         {{-- Encabezado del modal --}}
         <div class="flex items-center gap-3.5 pb-4 mb-5 border-b border-gray-100">
-            <div class="w-11 h-11 rounded-2xl bg-teal-50 text-[#00626A] flex items-center justify-center shrink-0 shadow-sm">
+            <div class="w-11 h-11 rounded-2xl bg-teal-50 text-[#16734f] flex items-center justify-center shrink-0 shadow-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                 </svg>
             </div>
             <div>
                 <h3 class="text-lg font-bold text-gray-900">
-                    Editar tu valoración
+                    {{ __('reviews.edit_your_review') }}
                 </h3>
                 <p class="text-xs text-gray-500">
-                    Modifica tu puntuación y comparte tus comentarios actualizados.
+                    {{ __('reviews.edit_hint') }}
                 </p>
             </div>
         </div>
@@ -256,7 +256,7 @@
             {{-- Selector interactivo de estrellas en Modal --}}
             <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
-                    Tu calificación:
+                    {{ __('reviews.rating') }}
                 </label>
                 <div class="flex items-center gap-2 flex-wrap" id="modal-star-picker">
                     <div class="flex items-center gap-1 bg-amber-50/50 p-2 rounded-2xl border border-amber-100">
@@ -264,7 +264,7 @@
                             <button type="button"
                                     class="modal-star-btn transition-transform hover:scale-125 focus:outline-none p-1 cursor-pointer"
                                     data-val="{{ $i }}"
-                                    title="{{ $i }} {{ $i === 1 ? 'estrella' : 'estrellas' }}">
+                                    title="{{ $i }} {{ $i === 1 ? __('reviews.star') : __('reviews.stars') }}">
                                 <svg class="w-7 h-7 modal-star-svg transition-colors text-amber-400"
                                      fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
@@ -273,7 +273,7 @@
                         @endfor
                     </div>
                     <span id="modal-star-text" class="text-sm font-bold text-gray-800 ml-2 whitespace-nowrap">
-                        5 de 5 estrellas
+                        {{ __('reviews.stars_out_of_five', ['count' => 5]) }}
                     </span>
                 </div>
             </div>
@@ -281,13 +281,13 @@
             {{-- Textarea de reseña en Modal --}}
             <div>
                 <label for="modal_edit_comentario" class="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
-                    Tu comentario o recomendación:
+                    {{ __('reviews.comment_recommendation') }}
                 </label>
                 <textarea id="modal_edit_comentario"
                           name="comentario"
                           rows="4"
-                          class="w-full rounded-2xl border border-gray-200 p-3.5 text-sm text-gray-800 placeholder-gray-400 focus:border-[#00626A] focus:ring-2 focus:ring-[#00626A]/20 transition outline-none resize-none"
-                          placeholder="Escribe tu opinión actualizada..."></textarea>
+                          class="w-full rounded-2xl border border-gray-200 p-3.5 text-sm text-gray-800 placeholder-gray-400 focus:border-[#16734f] focus:ring-2 focus:ring-[#16734f]/20 transition outline-none resize-none"
+                          placeholder="{{ __('reviews.edit_comment_placeholder') }}"></textarea>
             </div>
 
             {{-- Acciones del Modal --}}
@@ -295,14 +295,14 @@
                 <button type="button" 
                         onclick="cerrarModalEdicionResena()"
                         class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
-                    Cancelar
+                    {{ __('reviews.cancel') }}
                 </button>
                 <button type="submit" 
                         class="tc-btn-primary px-6 py-2.5 text-sm font-semibold inline-flex items-center gap-2 rounded-xl shadow-sm hover:shadow transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Actualizar Reseña
+                    {{ __('reviews.update_review') }}
                 </button>
             </div>
         </form>
@@ -312,6 +312,8 @@
 
 {{-- Scripts para Modales y Eliminación con SweetAlert2 --}}
 <script>
+    const reviewCopy = @json(trans('reviews'));
+    const ratingLabel = count => reviewCopy.stars_out_of_five.replace(':count', String(count));
     // ── Abrir Modal de Edición Pre-llenado ──
     window.abrirModalEdicionResena = function(puntuacion, comentario) {
         var modal = document.getElementById('modal-editar-resena');
@@ -324,7 +326,7 @@
         var val = parseInt(puntuacion || 5, 10);
         if (inputPuntuacion) inputPuntuacion.value = val;
         if (textareaComentario) textareaComentario.value = comentario || '';
-        if (starText) starText.textContent = val + ' de 5 estrellas';
+        if (starText) starText.textContent = ratingLabel(val);
 
         // Actualizar estrellas visuales
         document.querySelectorAll('.modal-star-btn').forEach(function(btn) {
@@ -384,7 +386,7 @@
                 }
             });
             if (starText) {
-                starText.textContent = activeVal + ' de 5 estrellas';
+                starText.textContent = ratingLabel(activeVal);
             }
         }
 
@@ -404,14 +406,14 @@
     window.confirmarEliminarResena = function(form) {
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: '¿Eliminar tu reseña?',
-                text: 'Esta acción no se puede deshacer y tu valoración será removida del cálculo del promedio.',
+                title: reviewCopy.delete_question,
+                text: reviewCopy.delete_warning,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
+                confirmButtonText: reviewCopy.confirm_delete,
+                cancelButtonText: reviewCopy.cancel,
                 customClass: {
                     popup: 'rounded-3xl shadow-2xl p-6 font-sans border border-gray-100',
                     confirmButton: 'rounded-xl px-5 py-2.5 font-semibold text-sm shadow-sm',
@@ -425,7 +427,7 @@
             return false;
         }
 
-        if (confirm('¿Seguro que deseas eliminar tu reseña?')) {
+        if (confirm(reviewCopy.confirm_delete_fallback)) {
             form.submit();
         }
         return false;

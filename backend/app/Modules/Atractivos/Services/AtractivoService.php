@@ -27,23 +27,24 @@ class AtractivoService
      */
     public function listar(array $filtros = [], int $porPagina = 15): LengthAwarePaginator
     {
-        $query = Atractivo::with(['destino', 'categorias', 'valoraciones'])
+        $query = Atractivo::with(['destino', 'categorias'])
+            ->withCount('valoraciones')->withAvg('valoraciones', 'puntuacion')
             ->withCount('imagenes');
 
         // Filtro por destino.
-        if (!empty($filtros['destino_id'])) {
+        if (! empty($filtros['destino_id'])) {
             $query->where('destino_id', $filtros['destino_id']);
         }
 
         // Filtro por operador: solo atractivos de destinos que le pertenecen.
-        if (!empty($filtros['operador_id'])) {
+        if (! empty($filtros['operador_id'])) {
             $query->whereHas('destino', function ($q) use ($filtros) {
                 $q->where('operador_id', $filtros['operador_id']);
             });
         }
 
         // Filtro por categoría de interés.
-        if (!empty($filtros['categoria_id'])) {
+        if (! empty($filtros['categoria_id'])) {
             $query->whereHas('categorias', function ($q) use ($filtros) {
                 $q->where('categorias_interes.id', $filtros['categoria_id']);
             });
@@ -59,17 +60,23 @@ class AtractivoService
             $query->where('costo_entrada', '<=', $filtros['costo_max']);
         }
 
+        foreach (['duracion_min' => '>=', 'duracion_max' => '<='] as $campo => $operador) {
+            if (isset($filtros[$campo]) && $filtros[$campo] !== '') {
+                $query->where('duracion_estimada_min', $operador, $filtros[$campo]);
+            }
+        }
+
         // Búsqueda por nombre o descripción.
-        if (!empty($filtros['busqueda'])) {
-            $termino = '%' . $filtros['busqueda'] . '%';
+        if (! empty($filtros['busqueda'])) {
+            $termino = '%'.$filtros['busqueda'].'%';
             $query->where(function ($q) use ($termino) {
                 $q->where('nombre', 'ilike', $termino)
-                  ->orWhere('descripcion', 'ilike', $termino);
+                    ->orWhere('descripcion', 'ilike', $termino);
             });
         }
 
         // Solo activos (catálogo público siempre filtra así).
-        if (!empty($filtros['solo_activos'])) {
+        if (! empty($filtros['solo_activos'])) {
             $query->where('estado', 'activo');
         }
 
@@ -80,10 +87,10 @@ class AtractivoService
      * Crea un nuevo atractivo dentro de una transacción.
      * Sincroniza categorías y guarda imágenes si se suministran.
      *
-     * @param array $datos      Datos validados del FormRequest.
-     * @param array $categorias IDs de categorías seleccionadas.
-     * @param UploadedFile|null $portada Archivo de imagen de portada.
-     * @param UploadedFile[] $galeria Archivos de galería adicional.
+     * @param  array  $datos  Datos validados del FormRequest.
+     * @param  array  $categorias  IDs de categorías seleccionadas.
+     * @param  UploadedFile|null  $portada  Archivo de imagen de portada.
+     * @param  UploadedFile[]  $galeria  Archivos de galería adicional.
      */
     public function crear(
         array $datos,
@@ -144,7 +151,7 @@ class AtractivoService
 
             // Eliminar imágenes seleccionadas
             foreach ($eliminarImagenes as $imagenId) {
-                if (!empty($imagenId)) {
+                if (! empty($imagenId)) {
                     $this->eliminarImagen($atractivo, (int) $imagenId);
                 }
             }
@@ -169,21 +176,21 @@ class AtractivoService
         $diasValidos = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
 
         foreach ($horarios as $dia => $horas) {
-            $diaNorm = strtolower(str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], trim((string)$dia)));
+            $diaNorm = strtolower(str_replace(['á', 'é', 'í', 'ó', 'ú'], ['a', 'e', 'i', 'o', 'u'], trim((string) $dia)));
 
-            if (!in_array($diaNorm, $diasValidos, true)) {
+            if (! in_array($diaNorm, $diasValidos, true)) {
                 continue;
             }
 
-            if (is_array($horas) && !empty($horas['abre']) && !empty($horas['cierra'])) {
+            if (is_array($horas) && ! empty($horas['abre']) && ! empty($horas['cierra'])) {
                 DB::table('horarios')->insert([
-                    'atractivo_id'       => $atractivo->id,
+                    'atractivo_id' => $atractivo->id,
                     'establecimiento_id' => null,
-                    'dia'                => $diaNorm,
-                    'hora_inicio'        => substr((string)$horas['abre'], 0, 5) . ':00',
-                    'hora_fin'           => substr((string)$horas['cierra'], 0, 5) . ':00',
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'dia' => $diaNorm,
+                    'hora_inicio' => substr((string) $horas['abre'], 0, 5).':00',
+                    'hora_fin' => substr((string) $horas['cierra'], 0, 5).':00',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }
@@ -213,7 +220,7 @@ class AtractivoService
     /**
      * Sincroniza las categorías del atractivo (reemplaza el conjunto actual).
      *
-     * @param int[] $categoriaIds
+     * @param  int[]  $categoriaIds
      */
     public function sincronizarCategorias(Atractivo $atractivo, array $categoriaIds): void
     {
@@ -223,12 +230,12 @@ class AtractivoService
     /**
      * Guarda archivos de galería adicional en storage y registra en la tabla imagenes.
      *
-     * @param UploadedFile[] $archivos
+     * @param  UploadedFile[]  $archivos
      */
     public function guardarImagenes(Atractivo $atractivo, array $archivos): void
     {
         foreach ($archivos as $orden => $archivo) {
-            if (!($archivo instanceof UploadedFile) || !$archivo->isValid()) {
+            if (! ($archivo instanceof UploadedFile) || ! $archivo->isValid()) {
                 continue;
             }
 
@@ -236,10 +243,10 @@ class AtractivoService
 
             Imagen::create([
                 'entidad_tipo' => 'atractivo',
-                'entidad_id'   => $atractivo->id,
-                'url'          => $url,
-                'orden'        => (int) $orden,
-                'alt_text'     => $atractivo->nombre,
+                'entidad_id' => $atractivo->id,
+                'url' => $url,
+                'orden' => (int) $orden,
+                'alt_text' => $atractivo->nombre,
             ]);
         }
     }

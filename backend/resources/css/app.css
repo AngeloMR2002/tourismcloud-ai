@@ -1,17 +1,19 @@
 @import 'tailwindcss';
 @import './voyage.css';
+@import './mint.css';
+@import './catalog-discovery.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 /* ============================================================
    TourismCloud AI â€” Design System Tokens (Tailwind v4 @theme)
-   Paleta aprobada en Figma:
-   - Primario teal:    #00626A / container #0E7C86 / dark #08565D
+   Identidad actual: Menta suave, esmeralda y carbon (mint.css).
+   - Primario:         #16734F / #105C3E (esmeralda)
    - Secundario:       #9A442D (terracota)
    - Terciario:        #85480C (Ã¡mbar oscuro)
-   - Fondo:            #FAF8FF
-   - Teal suave:       #E6F4F5
+   - Fondo:            #f6fbf8
+   - Menta suave:      #daf2e6
    - Amber suave:      #FDF6EC
    ============================================================ */
 @theme {
@@ -20,16 +22,16 @@
     --font-display:  'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 
     /* â”€â”€ Color primario (teal) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-    --color-primary-50:     #e6f4f5;
-    --color-primary-100:    #c0e4e7;
-    --color-primary-200:    #97d2d7;
-    --color-primary-300:    #67bec6;
-    --color-primary-400:    #3aabb5;
-    --color-primary-500:    #00626A;   /* base */
-    --color-primary-600:    #0E7C86;   /* container */
-    --color-primary-700:    #08565D;   /* dark */
-    --color-primary-800:    #054048;
-    --color-primary-900:    #022d33;
+    --color-primary-50:     #f1faf5;
+    --color-primary-100:    #daf2e6;
+    --color-primary-200:    #b5e3cd;
+    --color-primary-300:    #86ccab;
+    --color-primary-400:    #489d76;
+    --color-primary-500:    #16734f;
+    --color-primary-600:    #105c3e;
+    --color-primary-700:    #124e37;
+    --color-primary-800:    #143f2e;
+    --color-primary-900:    #123326;
 
     /* â”€â”€ Color secundario (terracota) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     --color-secondary-50:   #fdf0ec;
@@ -56,9 +58,9 @@
     --color-tertiary-900:   #281603;
 
     /* â”€â”€ Neutrales y fondo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-    --color-surface:        #FAF8FF;
+    --color-surface:        #F6FBF8;
     --color-surface-card:   #FFFFFF;
-    --color-teal-light:     #E6F4F5;
+    --color-teal-light:     #DAF2E6;
     --color-amber-soft:     #FDF6EC;
 
     /* â”€â”€ Bordes redondeados â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -550,13 +552,13 @@ h1, h2, h3, h4, h5, h6 {
 .tc-catalog-hero--activities {
     background:
         radial-gradient(circle at 82% 22%, rgb(243 176 95 / 0.48), transparent 28%),
-        linear-gradient(120deg, #043f48 0%, #00626a 53%, #0e7c86 100%);
+        linear-gradient(120deg, #043f48 0%, #16734f 53%, #1b8059 100%);
 }
 
 .tc-catalog-hero--routes {
     background:
         radial-gradient(circle at 16% 82%, rgb(154 68 45 / 0.55), transparent 30%),
-        linear-gradient(120deg, #073b45 0%, #08565d 48%, #146f76 100%);
+        linear-gradient(120deg, #073b45 0%, #105c3e 48%, #146f76 100%);
 }
 
 .tc-hero-eyebrow {
@@ -682,7 +684,7 @@ h1, h2, h3, h4, h5, h6 {
     display: block;
     min-height: 13.25rem;
     overflow: hidden;
-    background: linear-gradient(135deg, #e6f4f5, #c9e6e8);
+    background: linear-gradient(135deg, #daf2e6, #c9e6e8);
 }
 
 .tc-experience-card__media img {
@@ -712,7 +714,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-primary-700);
     background:
         radial-gradient(circle at 78% 20%, rgb(224 145 51 / 0.45), transparent 22%),
-        linear-gradient(135deg, #e6f4f5 0%, #b4dfe2 100%);
+        linear-gradient(135deg, #daf2e6 0%, #b4dfe2 100%);
 }
 
 .tc-cover-fallback::before,
@@ -799,7 +801,7 @@ h1, h2, h3, h4, h5, h6 {
     min-height: clamp(18rem, 46vw, 28rem);
     overflow: hidden;
     border-radius: 1.5rem;
-    background: linear-gradient(135deg, #043f48, #0e7c86);
+    background: linear-gradient(135deg, #043f48, #1b8059);
     box-shadow: 0 20px 48px rgb(5 64 72 / 0.18);
 }
 
@@ -819,7 +821,7 @@ h1, h2, h3, h4, h5, h6 {
     color: rgb(255 255 255 / 0.85);
     background:
         radial-gradient(circle at 78% 20%, rgb(243 176 95 / 0.4), transparent 22%),
-        linear-gradient(135deg, #054048, #0e7c86);
+        linear-gradient(135deg, #124e37, #1b8059);
 }
 
 .tc-detail-hero__fallback::after {

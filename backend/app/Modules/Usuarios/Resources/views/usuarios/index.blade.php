@@ -6,8 +6,8 @@
     {{-- Encabezado --}}
     <div class="tc-page-heading flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
-            <p class="text-sm text-gray-500 mt-1">Administra el acceso de operadores y turistas.</p>
+            <h1 class="text-2xl font-bold text-gray-900">{{ __('admin_users.title') }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ __('admin_users.subtitle') }}</p>
         </div>
 
         <a href="{{ route('admin.usuarios.create') }}"
@@ -15,7 +15,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Nuevo Usuario
+            {{ __('admin_users.new_user') }}
         </a>
     </div>
 
@@ -27,35 +27,35 @@
             type="text"
             name="q"
             value="{{ request('q') }}"
-            placeholder="Buscar por nombre o correo"
+            placeholder="{{ __('admin_users.search_placeholder') }}"
             class="tc-input md:col-span-2"
         >
 
         <select name="rol"
                 class="tc-select">
-            <option value="">Todos los roles</option>
-            <option value="administrador" @selected(request('rol') === 'administrador')>Administrador</option>
-            <option value="operador_turistico" @selected(request('rol') === 'operador_turistico')>Operador</option>
-            <option value="proveedor" @selected(request('rol') === 'proveedor')>Proveedor</option>
-            <option value="turista" @selected(request('rol') === 'turista')>Turista</option>
+            <option value="">{{ __('admin_users.all_roles') }}</option>
+            <option value="administrador" @selected(request('rol') === 'administrador')>{{ __('admin_users.roles.administrador') }}</option>
+            <option value="operador_turistico" @selected(request('rol') === 'operador_turistico')>{{ __('admin_users.roles.operador_turistico') }}</option>
+            <option value="proveedor" @selected(request('rol') === 'proveedor')>{{ __('admin_users.roles.proveedor') }}</option>
+            <option value="turista" @selected(request('rol') === 'turista')>{{ __('admin_users.roles.turista') }}</option>
         </select>
 
         <select name="estado"
                 class="tc-select">
-            <option value="">Todos los estados</option>
-            <option value="activo" @selected(request('estado') === 'activo')>Activo</option>
-            <option value="inactivo" @selected(request('estado') === 'inactivo')>Inactivo</option>
+            <option value="">{{ __('admin_users.all_statuses') }}</option>
+            <option value="activo" @selected(request('estado') === 'activo')>{{ __('admin_users.statuses.activo') }}</option>
+            <option value="inactivo" @selected(request('estado') === 'inactivo')>{{ __('admin_users.statuses.inactivo') }}</option>
         </select>
 
         <div class="flex gap-2">
             <button type="submit"
                     class="tc-btn-primary flex-1 justify-center">
-                Filtrar
+                {{ __('admin_users.filter') }}
             </button>
 
             <a href="{{ route('admin.usuarios.index') }}"
                class="tc-btn-outline justify-center">
-                Limpiar
+                {{ __('admin_users.clear') }}
             </a>
         </div>
     </form>
@@ -66,11 +66,11 @@
             <table class="tc-table w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50/50 border-b border-gray-100">
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Contacto</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Rol</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('admin_users.user') }}</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('admin_users.contact') }}</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('admin_users.role') }}</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ __('admin_users.status') }}</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">{{ __('admin_users.actions') }}</th>
                     </tr>
                 </thead>
 
@@ -82,7 +82,7 @@
                             {{-- Usuario --}}
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-[#00626A]/10 text-[#00626A] flex items-center justify-center font-bold text-sm">
+                                    <div class="w-10 h-10 rounded-full bg-[#16734f]/10 text-[#16734f] flex items-center justify-center font-bold text-sm">
                                         {{ substr($user->nombre, 0, 1) }}{{ substr($user->apellido, 0, 1) }}
                                     </div>
 
@@ -100,7 +100,7 @@
                             {{-- Contacto y fecha de registro --}}
                             <td class="px-6 py-4">
                                 <div class="text-xs text-gray-400">
-                                    Registrado: {{ $user->created_at?->format('d/m/Y') }}
+                                    {{ __('admin_users.registered', ['date' => $user->created_at?->format('d/m/Y')]) }}
                                 </div>
                                 <div class="text-sm text-gray-600">
                                     {{ $user->email }}
@@ -111,19 +111,19 @@
                             <td class="px-6 py-4">
                                 @if($user->rol === 'administrador' || $user->rol === 'admin')
                                     <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
-                                        Administrador
+                                        {{ __('admin_users.roles.administrador') }}
                                     </span>
                                 @elseif($user->rol === 'operador_turistico')
                                     <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                                        Operador
+                                        {{ __('admin_users.roles.operador_turistico') }}
                                     </span>
                                 @elseif($user->rol === 'proveedor')
                                     <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-                                        Proveedor
+                                        {{ __('admin_users.roles.proveedor') }}
                                     </span>
                                 @else
                                     <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
-                                        Turista
+                                        {{ __('admin_users.roles.turista') }}
                                     </span>
                                 @endif
                             </td>
@@ -133,12 +133,12 @@
                                 @if($user->estado === 'activo')
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        Activo
+                                        {{ __('admin_users.statuses.activo') }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium text-red-700 bg-red-50 border border-red-100">
                                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                        Inactivo
+                                        {{ __('admin_users.statuses.inactivo') }}
                                     </span>
                                 @endif
                             </td>
@@ -149,9 +149,9 @@
 
                                     {{-- Ver detalle --}}
                                     <a href="{{ route('admin.usuarios.show', $user->id) }}"
-                                       title="Ver detalle"
-                                       aria-label="Ver detalle de usuario"
-                                       class="p-2 text-gray-400 hover:text-[#00626A] hover:bg-[#00626A]/10 rounded-lg transition-colors">
+                                       title="{{ __('admin_users.view_detail') }}"
+                                       aria-label="{{ __('admin_users.view_user_detail') }}"
+                                       class="p-2 text-gray-400 hover:text-[#16734f] hover:bg-[#16734f]/10 rounded-lg transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -160,9 +160,9 @@
 
                                     {{-- Editar --}}
                                     <a href="{{ route('admin.usuarios.edit', $user->id) }}"
-                                       title="Editar usuario"
-                                       aria-label="Editar usuario"
-                                       class="p-2 text-gray-400 hover:text-[#00626A] hover:bg-[#00626A]/10 rounded-lg transition-colors">
+                                       title="{{ __('admin_users.edit_user') }}"
+                                       aria-label="{{ __('admin_users.edit_user') }}"
+                                       class="p-2 text-gray-400 hover:text-[#16734f] hover:bg-[#16734f]/10 rounded-lg transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
@@ -172,13 +172,13 @@
                                     <form action="{{ route('admin.usuarios.destroy', $user->id) }}"
                                           method="POST"
                                           class="inline-block"
-                                          onsubmit="return confirm('¿Seguro que deseas eliminar este usuario?');">
+                                          onsubmit="return confirm(@js(__('admin_users.delete_confirm')));">
                                         @csrf
                                         @method('DELETE')
 
                                         <button type="submit"
-                                                title="Eliminar usuario"
-                                                aria-label="Eliminar usuario"
+                                                title="{{ __('admin_users.delete_user') }}"
+                                                aria-label="{{ __('admin_users.delete_user') }}"
                                                 class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -192,7 +192,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">
-                                No se encontraron usuarios con esos filtros.
+                                {{ __('admin_users.no_results') }}
                             </td>
                         </tr>
                     @endforelse

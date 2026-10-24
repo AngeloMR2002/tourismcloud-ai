@@ -41,12 +41,12 @@
 
     {{-- ── Botones FUERA del trackWrap para evitar conflicto con pointer capture ── --}}
     @if(count($slides) > 1)
-    <button class="tc-carousel-btn tc-carousel-btn-prev" id="prev-{{ $cid }}" aria-label="Imagen anterior" type="button">
+    <button class="tc-carousel-btn tc-carousel-btn-prev" id="prev-{{ $cid }}" aria-label="{{ __('attraction.previous_image') }}" type="button">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
     </button>
-    <button class="tc-carousel-btn tc-carousel-btn-next" id="next-{{ $cid }}" aria-label="Imagen siguiente" type="button">
+    <button class="tc-carousel-btn tc-carousel-btn-next" id="next-{{ $cid }}" aria-label="{{ __('attraction.next_image') }}" type="button">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
         </svg>
@@ -58,7 +58,7 @@
             <button type="button"
                     class="tc-carousel-thumb {{ $i === 0 ? 'is-active' : '' }}"
                     data-index="{{ $i }}"
-                    aria-label="Ver imagen {{ $i + 1 }}">
+                    aria-label="{{ __('attraction.view_image', ['number' => $i + 1]) }}">
                 <img src="{{ $slide['url'] }}" alt="{{ $slide['alt'] }}" draggable="false">
             </button>
         @endforeach

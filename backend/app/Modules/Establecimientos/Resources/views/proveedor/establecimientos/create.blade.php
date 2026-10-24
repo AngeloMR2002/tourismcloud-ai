@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Registrar nuevo establecimiento')
+@section('title', __('provider_places.register_place'))
 
-@section('panel-rol-label', 'Proveedor')
+@section('panel-rol-label', __('provider_places.provider'))
 
 @section('panel-sidebar-links')
     <a href="{{ route('proveedor.establecimientos.index') }}"
@@ -13,7 +13,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
         </div>
-        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">Mis Establecimientos</span>
+        <span class="whitespace-pre group-hover/sidebar:translate-x-1 transition-transform duration-150">{{ __('provider_places.my_places') }}</span>
     </a>
 @endsection
 
@@ -27,12 +27,12 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
-            Mis Establecimientos
+            {{ __('provider_places.my_places') }}
         </a>
         <h1 style="font-family: var(--font-display); font-size: 1.625rem; font-weight: 800; color: #1a2232;">
-            Registrar nuevo establecimiento
+            {{ __('provider_places.register_place') }}
         </h1>
-        <p class="text-sm text-gray-400 mt-0.5">Completa todos los campos para registrar el establecimiento</p>
+        <p class="text-sm text-gray-400 mt-0.5">{{ __('provider_places.register_intro') }}</p>
     </div>
 
     @if($errors->any())
@@ -41,7 +41,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div>
-                <p class="font-semibold">Corrige los siguientes errores:</p>
+                <p class="font-semibold">{{ __('provider_places.fix_errors') }}</p>
                 <ul class="mt-1 list-disc list-inside text-sm">
                     @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
                 </ul>
@@ -56,17 +56,17 @@
         {{-- ── 1. Tipo de establecimiento ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                Tipo de establecimiento
+                {{ __('provider_places.place_type') }}
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Selecciona la categoría que mejor describe tu negocio</p>
+            <p class="text-xs text-gray-400 mb-4">{{ __('provider_places.choose_type_hint') }}</p>
 
             @php
                 $tiposDisp = [
-                    'restaurante' => ['ico' => '🍽️', 'label' => 'Restaurante'],
-                    'hotel'       => ['ico' => '🏨', 'label' => 'Hotel'],
-                    'transporte'  => ['ico' => '🚌', 'label' => 'Transporte'],
-                    'agencia'     => ['ico' => '🏢', 'label' => 'Agencia'],
-                    'otro'        => ['ico' => '📋', 'label' => 'Otro'],
+                    'restaurante' => ['ico' => '🍽️', 'label' => __('provider_places.type_restaurante')],
+                    'hotel'       => ['ico' => '🏨', 'label' => __('provider_places.type_hotel')],
+                    'transporte'  => ['ico' => '🚌', 'label' => __('provider_places.type_transporte')],
+                    'agencia'     => ['ico' => '🏢', 'label' => __('provider_places.type_agencia')],
+                    'otro'        => ['ico' => '📋', 'label' => __('provider_places.type_otro')],
                 ];
                 $tipoOld = old('tipo', '');
             @endphp
@@ -94,23 +94,23 @@
         {{-- ── 2. Información básica ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                Información básica
+                {{ __('provider_places.basic_info') }}
             </h2>
             <div class="space-y-4">
                 {{-- Nombre --}}
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Nombre del establecimiento <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">{{ __('provider_places.place_name') }} <span class="text-red-500">*</span></label>
                     <input type="text" name="nombre" value="{{ old('nombre') }}"
-                           placeholder="Ej: Restaurant La Tradición" class="tc-input" maxlength="150" required>
+                           placeholder="{{ __('provider_places.name_example') }}" class="tc-input" maxlength="150" required>
                     @error('nombre')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
                 </div>
 
                 {{-- Destino + Rango de precio --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Destino <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">{{ __('provider_places.destination') }} <span class="text-red-500">*</span></label>
                         <select name="destino_id" class="tc-select" required>
-                            <option value="">Seleccionar un destino…</option>
+                            <option value="">{{ __('provider_places.select_destination') }}</option>
                             @foreach($destinos as $d)
                                 <option value="{{ $d->id }}" @selected(old('destino_id') == $d->id)>{{ $d->nombre }}</option>
                             @endforeach
@@ -121,10 +121,10 @@
                         <label class="block text-sm font-semibold mb-1.5 text-gray-700">Rango de precio <span class="text-red-500">*</span></label>
                         @php
                             $rangos = [
-                                'Bajo'   => 'Bajo $',
-                                'Medio'  => 'Medio $$',
-                                'Alto'   => 'Alto $$$',
-                                'Lujoso' => 'Lujoso $$$$',
+                                'Bajo'   => __('provider_places.price_low'),
+                                'Medio'  => __('provider_places.price_mid'),
+                                'Alto'   => __('provider_places.price_high'),
+                                'Lujoso' => __('provider_places.price_luxury'),
                             ];
                             $rpOld  = old('rango_precio', '');
                         @endphp
@@ -152,10 +152,10 @@
                 {{-- Estado --}}
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">Estado <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-semibold mb-1.5 text-gray-700">{{ __('provider_places.status') }} <span class="text-red-500">*</span></label>
                         <select name="estado" class="tc-select" required>
-                            <option value="activo"   @selected(old('estado', 'activo') === 'activo')>Activo</option>
-                            <option value="inactivo" @selected(old('estado') === 'inactivo')>Inactivo</option>
+                            <option value="activo"   @selected(old('estado', 'activo') === 'activo')>{{ __('provider_places.active') }}</option>
+                            <option value="inactivo" @selected(old('estado') === 'inactivo')>{{ __('provider_places.inactive') }}</option>
                         </select>
                     </div>
                     <div>
@@ -180,7 +180,7 @@
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
                 Categoría de Interés <span class="text-red-500">*</span>
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Selecciona todas las que apliquen</p>
+            <p class="text-xs text-gray-400 mb-4">{{ __('provider_places.select_all') }}</p>
             <div class="flex flex-wrap gap-2">
                 @foreach($categorias as $cat)
                     @php $checked = in_array($cat->id, old('categorias', [])); @endphp
@@ -190,7 +190,7 @@
                                onchange="toggleChipEstCat(this, '{{ $cat->id }}')">
                         <span class="inline-block text-sm font-medium px-4 py-1.5 rounded-full border transition-all"
                               style="{{ $checked
-                                ? 'background-color: var(--color-primary-500, #00626A); color: #ffffff; border-color: var(--color-primary-500, #00626A);'
+                                ? 'background-color: var(--color-primary-500, #16734f); color: #ffffff; border-color: var(--color-primary-500, #16734f);'
                                 : 'background-color: #ffffff; color: #374151; border-color: #d1d5db;' }}"
                               id="chip-estcat-{{ $cat->id }}">
                             {{ $cat->nombre }}
@@ -205,9 +205,9 @@
         {{-- ── 4. Ubicación geográfica (MAPA INTERACTIVO) ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                Ubicación Exacta en el Mapa <span class="text-red-500">*</span>
+                {{ __('provider_places.exact_location') }} <span class="text-red-500">*</span>
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Busca la dirección o arrastra el marcador rojo para fijar las coordenadas automáticamente.</p>
+            <p class="text-xs text-gray-400 mb-4">{{ __('provider_places.map_hint') }}</p>
             
             <div class="space-y-4">
                 <!-- Contenedor del Mapa -->
@@ -217,10 +217,10 @@
                     <div class="absolute top-4 left-4 z-10 w-11/12 max-w-sm">
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-[#00626A]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                <svg class="h-5 w-5 text-[#16734f]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                             </div>
-                            <input type="text" id="map_search" placeholder="Ej. Plaza de Armas de Cusco..." autocomplete="off"
-                                class="w-full pl-11 px-4 py-3.5 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-lg focus:ring-2 focus:ring-[#00626A]/50 focus:border-[#00626A] transition-all text-sm text-gray-800 placeholder-gray-400">
+                            <input type="text" id="map_search" placeholder="{{ __('provider_places.map_search_example') }}" autocomplete="off"
+                                class="w-full pl-11 px-4 py-3.5 bg-white/95 backdrop-blur-md border border-gray-100 rounded-xl shadow-lg focus:ring-2 focus:ring-[#16734f]/50 focus:border-[#16734f] transition-all text-sm text-gray-800 placeholder-gray-400">
                         </div>
                         <!-- Lista de sugerencias de Google -->
                         <ul id="map_suggestions" class="absolute w-full bg-white rounded-xl shadow-xl mt-2 hidden max-h-60 overflow-y-auto border border-gray-100"></ul>
@@ -233,12 +233,12 @@
                 <!-- Inputs de Coordenadas (Solo Lectura) -->
                 <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Latitud Seleccionada</label>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('provider_places.selected_latitude') }}</label>
                         <input type="number" step="any" id="latitud_input" name="latitud" value="{{ old('latitud', '') }}" readonly required
                             class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1">Longitud Seleccionada</label>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">{{ __('provider_places.selected_longitude') }}</label>
                         <input type="number" step="any" id="longitud_input" name="longitud" value="{{ old('longitud', '') }}" readonly required
                             class="w-full px-4 py-2 rounded-lg border-none bg-transparent text-gray-800 focus:outline-none font-mono text-sm">
                     </div>
@@ -251,16 +251,16 @@
         {{-- ── 5. Horario semanal de atención ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-1" style="color: var(--color-primary-700);">
-                Horario semanal de atención
+                {{ __('provider_places.weekly_hours') }}
             </h2>
-            <p class="text-xs text-gray-400 mb-4">Activa los días en que el establecimiento está disponible para visitar</p>
+            <p class="text-xs text-gray-400 mb-4">{{ __('provider_places.weekly_hours_hint') }}</p>
 
             @php
-                $diasConf = ['lunes'=>'Lunes','martes'=>'Martes','miercoles'=>'Miércoles','jueves'=>'Jueves','viernes'=>'Viernes','sabado'=>'Sábado','domingo'=>'Domingo'];
+                $diasConf = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
                 $horariosOld = old('horarios', []);
             @endphp
             <div class="space-y-2">
-                @foreach($diasConf as $k => $nombre)
+                @foreach($diasConf as $k)
                     @php
                         $hor    = $horariosOld[$k] ?? null;
                         $open   = old() ? (is_array($hor) && isset($hor['abre'])) : true;
@@ -278,24 +278,24 @@
                         </label>
                         <span class="w-24 text-sm font-semibold shrink-0"
                               style="color: {{ $open ? 'var(--color-tertiary-500)' : '#9ca3af' }};" id="est-label-{{ $k }}">
-                            {{ $nombre }}
+                            {{ __('provider_places.day_'.$k) }}
                         </span>
                         <div id="est-times-{{ $k }}" class="flex items-center gap-3 flex-1 {{ $open ? '' : 'hidden' }}"
                              style="{{ $open ? 'display: flex;' : 'display: none;' }}">
                             <div class="flex items-center gap-1.5 shrink-0">
-                                <span class="text-xs text-gray-500">Abre</span>
+                                <span class="text-xs text-gray-500">{{ __('provider_places.opens') }}</span>
                                 <input type="time" id="est-abre-{{ $k }}" name="horarios[{{ $k }}][abre]"
                                        value="{{ $abre }}" class="tc-input text-sm" style="width: 110px;">
                             </div>
                             <span class="text-gray-300 text-sm shrink-0">→</span>
                             <div class="flex items-center gap-1.5 shrink-0">
-                                <span class="text-xs text-gray-500">Cierra</span>
+                                <span class="text-xs text-gray-500">{{ __('provider_places.closes') }}</span>
                                 <input type="time" id="est-cierra-{{ $k }}" name="horarios[{{ $k }}][cierra]"
                                        value="{{ $cierra }}" class="tc-input text-sm" style="width: 110px;">
                             </div>
                         </div>
                         <span id="est-closed-{{ $k }}" class="{{ $open ? 'hidden' : '' }} text-xs text-gray-400 flex-1"
-                              style="{{ $open ? 'display: none;' : '' }}">Cerrado</span>
+                              style="{{ $open ? 'display: none;' : '' }}">{{ __('provider_places.closed') }}</span>
                     </div>
                 @endforeach
             </div>
@@ -304,17 +304,17 @@
         {{-- ── 6. Imágenes del establecimiento ── --}}
         <div class="tc-card p-6">
             <h2 class="text-sm font-bold uppercase tracking-wide mb-5" style="color: var(--color-primary-700);">
-                Imágenes del establecimiento
+                {{ __('provider_places.place_images') }}
             </h2>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">Imagen de portada <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold mb-1.5 text-gray-700">{{ __('provider_places.cover_image') }} <span class="text-red-500">*</span></label>
                     <div id="est-preview-portada-area" class="rounded-xl overflow-hidden mb-2" style="background: var(--color-amber-soft); height: 130px; display: flex; align-items: center; justify-content: center;">
                         <div class="text-center">
                             <svg class="w-8 h-8 mx-auto mb-1" style="color: var(--color-tertiary-400);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
-                            <p class="text-xs" style="color: var(--color-tertiary-500);">Vista previa de portada</p>
+                            <p class="text-xs" style="color: var(--color-tertiary-500);">{{ __('provider_places.cover_preview') }}</p>
                         </div>
                     </div>
                     <input type="file" id="imagen_portada" name="imagen_portada" accept="image/jpeg,image/png,image/webp,image/avif,.jfif,.jpg,.jpeg,.png,.webp,.avif" required class="tc-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700"
@@ -339,9 +339,9 @@
         {{-- Botones --}}
         <div class="flex items-center justify-end gap-3 pb-4">
             <a href="{{ route('proveedor.establecimientos.index') }}"
-               class="tc-btn-outline">Cancelar</a>
+               class="tc-btn-outline">{{ __('provider_places.cancel') }}</a>
             <button type="submit" class="tc-btn-primary">
-                + Registrar Establecimiento
+                + {{ __('provider_places.register_place') }}
             </button>
         </div>
     </form>
@@ -355,7 +355,8 @@
     // ══════════════════════════════════════════════════════════════
     (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
         key: @json(config('services.google_maps.key')),
-        v: "weekly"
+        v: "weekly",
+        language: @json(app()->getLocale())
     });
 
     async function initInteractiveFormMap() {
@@ -394,7 +395,7 @@
                     map: map,
                     position: { lat, lng },
                     gmpDraggable: true,
-                    title: "Arrastra para ajustar la ubicación"
+                    title: @json(__('provider_places.marker_drag_hint'))
                 });
                 
                 marker.addListener('dragend', (event) => {
@@ -570,9 +571,9 @@
         }
         if (!span) return;
         if (cb.checked) {
-            span.style.backgroundColor = 'var(--color-primary-500, #00626A)';
+            span.style.backgroundColor = 'var(--color-primary-500, #16734f)';
             span.style.color           = '#ffffff';
-            span.style.borderColor     = 'var(--color-primary-500, #00626A)';
+            span.style.borderColor     = 'var(--color-primary-500, #16734f)';
         } else {
             span.style.backgroundColor = '#ffffff';
             span.style.color           = '#374151';

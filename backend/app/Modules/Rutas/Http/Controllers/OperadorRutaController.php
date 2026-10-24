@@ -59,7 +59,7 @@ class OperadorRutaController extends Controller
 
         return redirect()
             ->route('operador.rutas.index')
-            ->with('exito', "La ruta \"{$ruta->nombre}\" fue creada correctamente.");
+            ->with('exito', __('operator_routes.route_created', ['name' => $ruta->nombre]));
     }
 
     public function edit(Ruta $ruta): View
@@ -97,7 +97,7 @@ class OperadorRutaController extends Controller
 
         return redirect()
             ->route('operador.rutas.index')
-            ->with('exito', "La ruta \"{$ruta->nombre}\" fue actualizada correctamente.");
+            ->with('exito', __('operator_routes.route_updated', ['name' => $ruta->nombre]));
     }
 
     public function destroy(Ruta $ruta): RedirectResponse
@@ -109,7 +109,7 @@ class OperadorRutaController extends Controller
 
         return redirect()
             ->route('operador.rutas.index')
-            ->with('exito', "La ruta \"{$nombre}\" fue eliminada definitivamente.");
+            ->with('exito', __('operator_routes.route_deleted', ['name' => $nombre]));
     }
 
     public function toggleEstado(Ruta $ruta): RedirectResponse
@@ -118,7 +118,7 @@ class OperadorRutaController extends Controller
 
         $ruta = $this->rutaService->toggleEstado($ruta);
 
-        return back()->with('exito', "La ruta ahora está {$ruta->estado}.");
+        return back()->with('exito', __('operator_routes.route_status_changed', ['status' => $ruta->estado === 'activo' ? __('operator_routes.active') : __('operator_routes.inactive_status')]));
     }
 
     private function verificarPropiedad(Ruta $ruta): void
@@ -127,7 +127,7 @@ class OperadorRutaController extends Controller
             ->where('operador_id', auth()->id())
             ->exists();
 
-        abort_unless($esPropia, 403, 'No tienes permiso para gestionar esta ruta.');
+        abort_unless($esPropia, 403, __('operator_routes.route_manage_forbidden'));
     }
 
     private function validarDestinoSeleccionable(int $destinoId, ?Ruta $rutaActual = null): void
@@ -137,14 +137,14 @@ class OperadorRutaController extends Controller
             ->where('operador_id', auth()->id())
             ->first();
 
-        abort_unless($destino !== null, 403, 'No tienes permiso para usar este destino.');
+        abort_unless($destino !== null, 403, __('operator_routes.destination_use_forbidden'));
 
         $conservaDestinoActual = $rutaActual !== null
             && (int) $rutaActual->destino_id === (int) $destino->id;
 
         if ($destino->estado !== 'activo' && ! $conservaDestinoActual) {
             throw ValidationException::withMessages([
-                'destino_id' => 'Solo puedes seleccionar destinos activos.',
+                'destino_id' => __('operator_routes.destination_must_be_active'),
             ]);
         }
     }

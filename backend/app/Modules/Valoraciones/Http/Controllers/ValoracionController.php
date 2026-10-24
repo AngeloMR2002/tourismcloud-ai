@@ -3,9 +3,9 @@
 namespace App\Modules\Valoraciones\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Usuarios\Models\Usuario;
 use App\Modules\Valoraciones\Http\Requests\ValoracionRequest;
 use App\Modules\Valoraciones\Models\Valoracion;
-use App\Modules\Usuarios\Models\Usuario;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -21,21 +21,21 @@ class ValoracionController extends Controller
     public function store(ValoracionRequest $request): RedirectResponse
     {
         $tipo = $request->validated('valorable_type');
-        $id   = (int) $request->validated('valorable_id');
+        $id = (int) $request->validated('valorable_id');
 
         // Validar que el modelo polimórfico destino realmente exista
         $modelClass = Relation::getMorphedModel($tipo);
-        if (!$modelClass || !$modelClass::where('id', $id)->exists()) {
-            return back()->with('error', 'El lugar o establecimiento al que intentas calificar no existe.');
+        if (! $modelClass || ! $modelClass::where('id', $id)->exists()) {
+            return back()->with('error', __('reviews.target_missing'));
         }
 
         $comentario = $request->validated('comentario');
 
         $valoracion = Valoracion::updateOrCreate(
             [
-                'usuario_id'     => Auth::id(),
+                'usuario_id' => Auth::id(),
                 'valorable_type' => $tipo,
-                'valorable_id'   => $id,
+                'valorable_id' => $id,
             ],
             [
                 'puntuacion' => (int) $request->validated('puntuacion'),
@@ -44,8 +44,8 @@ class ValoracionController extends Controller
         );
 
         $mensaje = $valoracion->wasRecentlyCreated
-            ? '¡Gracias! Tu reseña ha sido publicada con éxito.'
-            : 'Tu reseña ha sido actualizada con éxito.';
+            ? __('reviews.created')
+            : __('reviews.updated');
 
         return back()->with('exito', $mensaje);
     }
@@ -59,12 +59,12 @@ class ValoracionController extends Controller
         $user = Auth::user();
 
         // Solo el autor o un administrador pueden eliminar la valoración
-        if (!$user || ($user->id !== $valoracion->usuario_id && !$user->isAdmin())) {
-            abort(403, 'No tienes permiso para eliminar esta valoración.');
+        if (! $user || ($user->id !== $valoracion->usuario_id && ! $user->isAdmin())) {
+            abort(403, __('reviews.delete_forbidden'));
         }
 
         $valoracion->delete();
 
-        return back()->with('exito', 'Tu reseña ha sido eliminada correctamente.');
+        return back()->with('exito', __('reviews.deleted'));
     }
 }

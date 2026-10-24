@@ -48,7 +48,7 @@ class OperadorActividadController extends Controller
 
         return redirect()
             ->route('operador.actividades.index')
-            ->with('exito', "La actividad \"{$actividad->nombre}\" fue creada correctamente.");
+            ->with('exito', __('operator.activity_created', ['name' => $actividad->nombre]));
     }
 
     public function edit(Actividad $actividad): View
@@ -82,7 +82,7 @@ class OperadorActividadController extends Controller
 
         return redirect()
             ->route('operador.actividades.index')
-            ->with('exito', "La actividad \"{$actividad->nombre}\" fue actualizada correctamente.");
+            ->with('exito', __('operator.activity_updated', ['name' => $actividad->nombre]));
     }
 
     public function destroy(Actividad $actividad): RedirectResponse
@@ -94,7 +94,7 @@ class OperadorActividadController extends Controller
 
         return redirect()
             ->route('operador.actividades.index')
-            ->with('exito', "La actividad \"{$nombre}\" fue eliminada.");
+            ->with('exito', __('operator.activity_deleted', ['name' => $nombre]));
     }
 
     public function toggleEstado(Actividad $actividad): RedirectResponse
@@ -103,7 +103,7 @@ class OperadorActividadController extends Controller
 
         $actividad = $this->actividadService->toggleEstado($actividad);
 
-        return back()->with('exito', "La actividad ahora está {$actividad->estado}.");
+        return back()->with('exito', __('operator.activity_status_changed', ['status' => $actividad->estado === 'activo' ? __('operator.active_status') : __('operator.inactive_status')]));
     }
 
     private function verificarPropiedad(Actividad $actividad): void
@@ -112,7 +112,7 @@ class OperadorActividadController extends Controller
             ->where('operador_id', auth()->id())
             ->exists();
 
-        abort_unless($esPropia, 403, 'No tienes permiso para gestionar esta actividad.');
+        abort_unless($esPropia, 403, __('operator.activity_manage_forbidden'));
     }
 
     private function validarDestinoSeleccionable(int $destinoId, ?Actividad $actividadActual = null): void
@@ -122,14 +122,14 @@ class OperadorActividadController extends Controller
             ->where('operador_id', auth()->id())
             ->first();
 
-        abort_unless($destino !== null, 403, 'No tienes permiso para usar este destino.');
+        abort_unless($destino !== null, 403, __('operator.destination_use_forbidden'));
 
         $conservaDestinoActual = $actividadActual !== null
             && (int) $actividadActual->destino_id === (int) $destino->id;
 
         if ($destino->estado !== 'activo' && ! $conservaDestinoActual) {
             throw ValidationException::withMessages([
-                'destino_id' => 'Solo puedes seleccionar destinos activos.',
+                'destino_id' => __('operator.destination_must_be_active'),
             ]);
         }
     }

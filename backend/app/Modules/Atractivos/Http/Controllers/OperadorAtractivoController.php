@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Modules\Atractivos\Http\Requests\AtractivoRequest;
 use App\Modules\Atractivos\Models\Atractivo;
 use App\Modules\Atractivos\Models\CategoriaInteres;
-use App\Modules\Destinos\Models\Destino;
 use App\Modules\Atractivos\Services\AtractivoService;
+use App\Modules\Destinos\Models\Destino;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -39,7 +40,7 @@ class OperadorAtractivoController extends Controller
         );
 
         $atractivos = $this->service->listar($filtros, porPagina: 20);
-        $destinos   = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
+        $destinos = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
 
         return view('operador.atractivos.index', compact('atractivos', 'destinos'));
     }
@@ -49,9 +50,9 @@ class OperadorAtractivoController extends Controller
      */
     public function create(Request $request): View
     {
-        $operadorId  = (int) $request->user()->id;
-        $destinos    = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
-        $categorias  = CategoriaInteres::orderBy('nombre')->get();
+        $operadorId = (int) $request->user()->id;
+        $destinos = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
+        $categorias = CategoriaInteres::orderBy('nombre')->get();
 
         return view('operador.atractivos.create', compact('destinos', 'categorias'));
     }
@@ -62,22 +63,22 @@ class OperadorAtractivoController extends Controller
     public function store(AtractivoRequest $request): RedirectResponse
     {
         $operadorId = (int) $request->user()->id;
-        $datos      = $request->safe()->except(['categorias', 'imagen_portada', 'galeria']);
+        $datos = $request->safe()->except(['categorias', 'imagen_portada', 'galeria']);
         $datos['horarios'] = (array) $request->input('horarios', []);
 
         // Verificar que el destino le pertenece al operador.
         $this->verificarPropiedadDestino((int) $datos['destino_id'], $operadorId);
 
         $atractivo = $this->service->crear(
-            datos:      $datos,
+            datos: $datos,
             categorias: $request->input('categorias', []),
-            portada:    $request->file('imagen_portada'),
-            galeria:    $request->file('galeria', [])
+            portada: $request->file('imagen_portada'),
+            galeria: $request->file('galeria', [])
         );
 
         return redirect()
             ->route('operador.atractivos.index')
-            ->with('exito', "Atractivo \"{$atractivo->nombre}\" creado correctamente.");
+            ->with('exito', __('operator_attractions.attraction_created', ['name' => $atractivo->nombre]));
     }
 
     /**
@@ -88,7 +89,7 @@ class OperadorAtractivoController extends Controller
         $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
-        $destinos   = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
+        $destinos = Destino::where('operador_id', $operadorId)->orderBy('nombre')->get();
         $categorias = CategoriaInteres::orderBy('nombre')->get();
         $atractivo->load(['categorias', 'imagenes']);
 
@@ -111,30 +112,30 @@ class OperadorAtractivoController extends Controller
         }
 
         $this->service->actualizar(
-            atractivo:        $atractivo,
-            datos:            $datos,
-            categorias:       $request->input('categorias', []),
-            portada:          $request->file('imagen_portada'),
-            galeria:          $request->file('galeria', []),
+            atractivo: $atractivo,
+            datos: $datos,
+            categorias: $request->input('categorias', []),
+            portada: $request->file('imagen_portada'),
+            galeria: $request->file('galeria', []),
             eliminarImagenes: (array) $request->input('eliminar_imagenes', [])
         );
 
         return redirect()
             ->route('operador.atractivos.index')
-            ->with('exito', "Atractivo \"{$atractivo->nombre}\" actualizado correctamente.");
+            ->with('exito', __('operator_attractions.attraction_updated', ['name' => $atractivo->nombre]));
     }
 
     /**
      * Elimina una imagen de galería vía AJAX.
      */
-    public function eliminarImagen(Request $request, Atractivo $atractivo, int $imagen): \Illuminate\Http\JsonResponse
+    public function eliminarImagen(Request $request, Atractivo $atractivo, int $imagen): JsonResponse
     {
         $operadorId = (int) $request->user()->id;
         $this->verificarPropiedadDestino($atractivo->destino_id, $operadorId);
 
         $this->service->eliminarImagen($atractivo, $imagen);
 
-        return response()->json(['exito' => true, 'mensaje' => 'Imagen eliminada correctamente.']);
+        return response()->json(['exito' => true, 'mensaje' => __('operator_attractions.image_deleted')]);
     }
 
     /**
@@ -150,7 +151,7 @@ class OperadorAtractivoController extends Controller
 
         return redirect()
             ->route('operador.atractivos.index')
-            ->with('exito', "Atractivo \"{$nombre}\" eliminado.");
+            ->with('exito', __('operator_attractions.attraction_deleted', ['name' => $nombre]));
     }
 
     /**
@@ -164,7 +165,9 @@ class OperadorAtractivoController extends Controller
 
         $atractivo = $this->service->toggleEstado($atractivo);
 
-        return back()->with('exito', "Estado cambiado a \"{$atractivo->estado}\".");
+        return back()->with('exito', __('operator_attractions.status_changed', [
+            'status' => __('operator_attractions.'.$atractivo->estado),
+        ]));
     }
 
     /**
@@ -177,6 +180,6 @@ class OperadorAtractivoController extends Controller
             ->where('operador_id', $operadorId)
             ->exists();
 
-        abort_unless($pertenece, 403, 'No tienes permiso para gestionar atractivos de este destino.');
+        abort_unless($pertenece, 403, __('operator_attractions.destination_forbidden'));
     }
 }

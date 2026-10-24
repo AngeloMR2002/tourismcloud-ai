@@ -1,12 +1,12 @@
-@extends('layouts.app', ['title' => 'Editar ruta'])
+@extends('layouts.app', ['title' => __('operator_routes.edit_route')])
 
 @section('content')
 <div class="tc-workspace mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
     <div class="tc-page-heading">
         <div>
-            <a href="{{ route('operador.rutas.index') }}" class="text-sm font-semibold text-primary-700 hover:text-primary-900">← Volver a mis rutas</a>
-            <h1>Editar ruta</h1>
-            <p>Actualiza la información y el orden de las paradas de {{ $ruta->nombre }}.</p>
+            <a href="{{ route('operador.rutas.index') }}" class="text-sm font-semibold text-primary-700 hover:text-primary-900">← {{ __('operator_routes.back_to_routes') }}</a>
+            <h1>{{ __('operator_routes.edit_route') }}</h1>
+            <p>{{ __('operator_routes.edit_intro', ['name' => $ruta->nombre]) }}</p>
         </div>
     </div>
 

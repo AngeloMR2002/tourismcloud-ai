@@ -147,6 +147,12 @@ class ActividadService
             $consulta->deDestino((int) $filtros['destino_id']);
         }
 
+        if (isset($filtros['costo_min']) && $filtros['costo_min'] !== '') {
+            $consulta->where('costo', '>=', $filtros['costo_min']);
+        }
+        if (isset($filtros['duracion_min']) && $filtros['duracion_min'] !== '') {
+            $consulta->where('duracion_estimada_min', '>=', $filtros['duracion_min']);
+        }
         if (isset($filtros['costo_max']) && $filtros['costo_max'] !== '') {
             $consulta->where('costo', '<=', $filtros['costo_max']);
         }

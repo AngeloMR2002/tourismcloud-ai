@@ -36,7 +36,7 @@ class RutaRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:150'],
             'descripcion' => ['nullable', 'string', 'max:5000'],
             'distancia_km' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
-            'duracion_estimada_min' => ['nullable', 'integer', 'min:1', 'max:10080'],
+            'duracion_estimada_min' => ['nullable', 'integer', 'min:1', 'max:14400'],
             'estado' => ['required', Rule::in(['activo', 'inactivo'])],
             'imagen_portada' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'quitar_portada' => ['nullable', 'boolean'],
@@ -48,16 +48,16 @@ class RutaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'destino_id.required' => 'Debes seleccionar un destino.',
-            'nombre.required' => 'El nombre de la ruta es obligatorio.',
-            'distancia_km.min' => 'La distancia no puede ser negativa.',
-            'duracion_estimada_min.min' => 'La duración debe ser mayor que cero.',
-            'imagen_portada.image' => 'La portada debe ser una imagen válida.',
-            'imagen_portada.mimes' => 'La portada debe estar en formato JPG, PNG o WebP.',
-            'imagen_portada.max' => 'La portada no puede superar 5 MB.',
-            'paradas.required' => 'Debes agregar al menos dos paradas.',
-            'paradas.min' => 'Una ruta debe tener al menos dos paradas.',
-            'paradas.*.distinct' => 'No puedes repetir un atractivo dentro de la misma ruta.',
+            'destino_id.required' => __('operator_routes.destination_required'),
+            'nombre.required' => __('operator_routes.route_name_required'),
+            'distancia_km.min' => __('operator_routes.distance_nonnegative'),
+            'duracion_estimada_min.min' => __('operator_routes.duration_minimum'),
+            'imagen_portada.image' => __('operator_routes.cover_valid_image'),
+            'imagen_portada.mimes' => __('operator_routes.cover_valid_format'),
+            'imagen_portada.max' => __('operator_routes.cover_max_size'),
+            'paradas.required' => __('operator_routes.stops_required'),
+            'paradas.min' => __('operator_routes.stops_minimum'),
+            'paradas.*.distinct' => __('operator_routes.stops_distinct'),
         ];
     }
 
@@ -92,7 +92,7 @@ class RutaRequest extends FormRequest
             if ($cantidadValidas !== count($ids)) {
                 $validator->errors()->add(
                     'paradas',
-                    'Cada parada debe ser un atractivo activo, no eliminado y perteneciente al destino seleccionado.'
+                    __('operator_routes.stops_valid')
                 );
             }
         });
