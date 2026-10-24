@@ -523,4 +523,20 @@ class AtractivosEstablecimientosTest extends TestCase
         $this->get(route('catalogo.establecimientos.show', $estInactivo))
             ->assertNotFound();
     }
+
+    public function test_post_too_large_exception_muestra_vista_413_amigable(): void
+    {
+        \Illuminate\Support\Facades\Route::post('/_test-post-too-large', function () {
+            throw new \Illuminate\Http\Exceptions\PostTooLargeException();
+        });
+
+        $response = $this->post('/_test-post-too-large');
+
+        $response->assertStatus(413);
+        $response->assertSee('Los archivos son demasiado pesados');
+        $response->assertSee('El tamaño total de los archivos que intentaste subir supera el límite permitido');
+
+        $this->postJson('/_test-post-too-large')->assertStatus(413);
+    }
 }
+
