@@ -3,8 +3,10 @@
 namespace App\Modules\Itinerarios\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Actividades\Models\Actividad;
 use App\Modules\Atractivos\Models\Atractivo;
 use App\Modules\Destinos\Models\Destino;
+use App\Modules\Establecimientos\Models\Establecimiento;
 use App\Modules\Itinerarios\Models\Itinerario;
 use App\Modules\Itinerarios\Services\ItinerarioComposerService;
 use App\Modules\Preferencias\Models\PreferenciaTurista;
@@ -54,12 +56,24 @@ class ItinerarioController extends Controller
         abort_unless($itinerario->turista_id === $request->user()->id, 403);
         $itinerario->load(['destino', 'diasItinerario.items']);
 
-        $atractivoIds = $itinerario->diasItinerario->flatMap(fn ($dia) => $dia->items)
-            ->where('entidad_tipo', 'atractivo')
-            ->pluck('entidad_id');
-        $atractivos = Atractivo::whereIn('id', $atractivoIds)->get()->keyBy('id');
+        $items = $itinerario->diasItinerario->flatMap->items;
+        $idsDe = fn (string $tipo) => $items->where('entidad_tipo', $tipo)->pluck('entidad_id');
 
-        return view('itinerarios::show', compact('itinerario', 'atractivos'));
+        $entidades = [
+            'atractivo' => Atractivo::whereIn('id', $idsDe('atractivo'))->get()->keyBy('id'),
+            'actividad' => Actividad::whereIn('id', $idsDe('actividad'))->get()->keyBy('id'),
+            'establecimiento' => Establecimiento::whereIn('id', $idsDe('establecimiento'))->get()->keyBy('id'),
+        ];
+
+        $catalogo = [
+            'atractivo' => Atractivo::activos()->deDestino($itinerario->destino_id)->orderBy('nombre')->get(['id', 'nombre', 'costo_entrada']),
+            'actividad' => Actividad::activas()->deDestino($itinerario->destino_id)->orderBy('nombre')->get(['id', 'nombre', 'costo']),
+            'establecimiento' => Establecimiento::activos()->deDestino($itinerario->destino_id)->orderBy('nombre')->get(['id', 'nombre']),
+        ];
+
+        $costoTotal = (float) $items->sum('costo_estimado');
+
+        return view('itinerarios::show', compact('itinerario', 'entidades', 'catalogo', 'costoTotal'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -95,8 +109,11 @@ class ItinerarioController extends Controller
                 ]);
             }
 
-            $itinerario->load('diasItinerario');
-            $this->composer->componer($itinerario, $preferencia);
+            // La composición automática ahora es opcional: el turista puede crear el itinerario vacío y elegir sus visitas.
+            if ($request->boolean('componer_automaticamente', true)) {
+                $itinerario->load('diasItinerario');
+                $this->composer->componer($itinerario, $preferencia);
+            }
         });
 
         return redirect()->route('itinerarios.index')->with('exito', __('modules.itinerary_created'));

@@ -264,6 +264,7 @@
                     <p class="text-sm leading-6 text-[#497173]">{{ __('place.provider_disclaimer') }}</p>
                 </div>
             </section>
+            <x-agregar-itinerario tipo="establecimiento" :item="$establecimiento" />
 
             @include('valoraciones::components.sidebar', ['modelo' => $establecimiento, 'tipo' => 'establecimiento'])
 

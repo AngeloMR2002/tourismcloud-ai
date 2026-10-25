@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Itinerarios\Http\Controllers\ItinerarioController;
+use App\Modules\Itinerarios\Http\Controllers\ItinerarioItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:turista'])->prefix('itinerarios')->name('itinerarios.')->group(function (): void {
@@ -9,4 +10,8 @@ Route::middleware(['auth', 'role:turista'])->prefix('itinerarios')->name('itiner
     Route::post('/', [ItinerarioController::class, 'store'])->name('store');
     Route::get('/{itinerario}', [ItinerarioController::class, 'show'])->name('show');
     Route::delete('/{itinerario}', [ItinerarioController::class, 'destroy'])->name('destroy');
+
+    Route::post('/{itinerario}/items', [ItinerarioItemController::class, 'store'])->name('items.store');
+    Route::put('/{itinerario}/items/{item}', [ItinerarioItemController::class, 'update'])->name('items.update');
+    Route::delete('/{itinerario}/items/{item}', [ItinerarioItemController::class, 'destroy'])->name('items.destroy');
 });

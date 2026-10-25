@@ -99,6 +99,7 @@
                     </div>
                     <div class="tc-note mt-5 rounded-r-lg p-3 text-xs leading-5">{{ __('catalog.activity_info_note') }}</div>
                 </section>
+                <x-agregar-itinerario tipo="actividad" :item="$actividad" />
                 <a href="{{ route('catalogo.actividades.index') }}" class="inline-flex items-center gap-2 text-sm font-bold text-primary-700 hover:underline"><span aria-hidden="true">←</span> {{ __('catalog.continue_activities') }}</a>
             </aside>
         </div>

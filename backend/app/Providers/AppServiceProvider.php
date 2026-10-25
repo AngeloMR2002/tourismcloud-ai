@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Modules\Atractivos\Models\Atractivo;
 use App\Modules\Establecimientos\Models\Establecimiento;
+use App\Modules\Itinerarios\Models\Itinerario;
 use App\Modules\Usuarios\Models\Favorito;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\View;
@@ -36,6 +37,15 @@ class AppServiceProvider extends ServiceProvider
             }
             $view->with('favoriteKeys', $request->attributes->get($key));
         });
+
+        // Itinerarios editables del turista para el botón "Agregar a mi itinerario" de los catálogos.
+        View::composer('components.agregar-itinerario', function ($view): void {
+            $usuario = request()->user();
+            $view->with('itinerariosUsuario', $usuario?->isTurista()
+                ? Itinerario::with('diasItinerario')->where('turista_id', $usuario->id)->whereIn('estado', ['generado', 'guardado', 'activo'])->latest()->get()
+                : collect());
+        });
+
         // Permite a Laravel buscar plantillas en los directorios Resources/views de cada módulo
         // para que llamadas como view('usuarios.auth.login') o view('destinos.index') funcionen directamente.
         if (is_dir(app_path('Modules'))) {

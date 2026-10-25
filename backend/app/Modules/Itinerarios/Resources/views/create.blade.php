@@ -57,6 +57,13 @@
                     <p class="mt-1.5 text-xs text-slate-500">{{ __('modules.budget_hint') }}</p>
                     @error('presupuesto_total')<p id="presupuesto-error" class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
+                <div class="sm:col-span-2">
+                    <input type="hidden" name="componer_automaticamente" value="0">
+                    <label class="flex items-start gap-2.5 text-sm text-slate-700">
+                        <input type="checkbox" name="componer_automaticamente" value="1" @checked(old('componer_automaticamente') === '1') class="mt-0.5 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+                        <span>{{ __('modules.auto_compose') }}<span class="mt-0.5 block text-xs text-slate-500">{{ __('modules.auto_compose_hint') }}</span></span>
+                    </label>
+                </div>
             </div>
         </section>
 

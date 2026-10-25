@@ -268,6 +268,7 @@
                     <p class="text-xs leading-5 text-slate-500">{{ __('attraction.operator_disclaimer') }}</p>
                 </div>
             </div>
+            <x-agregar-itinerario tipo="atractivo" :item="$atractivo" />
             @include('valoraciones::components.sidebar', ['modelo' => $atractivo, 'tipo' => 'atractivo'])
 
             <a href="{{ route('catalogo.atractivos.index') }}" class="tc-btn-outline mt-4 w-full justify-center text-sm">
