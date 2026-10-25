@@ -54,7 +54,7 @@
             </form>
         </section>
 
-        <nav class="mt-6 grid gap-4 md:grid-cols-3" aria-label="{{ __('dashboard.planning_steps') }}">
+        <nav class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="{{ __('dashboard.planning_steps') }}">
             <a href="{{ route('preferencias.turista', auth()->id()) }}" class="tc-card group flex gap-4 p-5 hover:border-primary-300">
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-bold text-primary-700">1</span>
                 <div><h2 class="font-semibold text-slate-900">{{ __('dashboard.your_preferences') }}</h2><p class="mt-1 text-sm leading-5 text-slate-500">{{ __('dashboard.preferences_intro') }}</p><span class="mt-3 inline-block text-sm font-semibold text-primary-700">{{ __('dashboard.review_preferences') }} →</span></div>
@@ -66,6 +66,10 @@
             <a href="{{ route('agenda.index') }}" class="tc-card group flex gap-4 p-5 hover:border-primary-300">
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-bold text-primary-700">3</span>
                 <div><h2 class="font-semibold text-slate-900">{{ __('dashboard.your_schedule') }}</h2><p class="mt-1 text-sm leading-5 text-slate-500">{{ __('dashboard.schedule_intro') }}</p><span class="mt-3 inline-block text-sm font-semibold text-primary-700">{{ __('dashboard.view_schedule') }} →</span></div>
+            </a>
+            <a href="{{ route('recomendaciones.index') }}" class="tc-card group flex gap-4 p-5 hover:border-primary-300">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-sm font-bold text-primary-700">4</span>
+                <div><h2 class="font-semibold text-slate-900">{{ __('dashboard.your_recommendations') }}</h2><p class="mt-1 text-sm leading-5 text-slate-500">{{ __('dashboard.recommendations_intro') }}</p><span class="mt-3 inline-block text-sm font-semibold text-primary-700">{{ __('dashboard.view_recommendations') }} →</span></div>
             </a>
         </nav>
     @else

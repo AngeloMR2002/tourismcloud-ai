@@ -12,6 +12,7 @@ return [
     'preferences' => 'Preferencias',
     'itineraries' => 'Itinerarios',
     'agenda' => 'Agenda',
+    'recommendations' => 'Recomendaciones',
     'users' => 'Usuarios',
     'dashboard' => 'Panel',
     'overview' => 'Resumen',

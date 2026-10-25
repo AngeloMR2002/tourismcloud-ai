@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'eyebrow' => 'For your next trip',
+    'title' => 'Recommendations',
+    'personalized_intro' => 'Attractions and activities are recommended according to your interests and budget.',
+    'general_intro' => 'Discover a few available attractions and activities. Save your preferences to get more personal suggestions.',
+    'review_preferences' => 'Review my preferences',
+    'set_preferences' => 'Set preferences',
+    'your_interests' => 'Interests we will consider',
+    'interests_hint' => 'Your interests help us find related attractions and activities associated with those categories.',
+    'empty_title' => 'There are no recommendations yet',
+    'empty_intro' => 'Active attractions or activities in available destinations will appear here.',
+    'attractions_heading' => 'Attractions for you',
+    'attraction_count' => '{1} :count recommended attraction|[2,*] :count recommended attractions',
+    'view_attractions' => 'View all attractions',
+    'explore_activities' => 'Explore activities',
+    'activities_heading' => 'Activities for you',
+    'activity_count' => '{1} :count recommended activity|[2,*] :count recommended activities',
+    'view_all' => 'View all activities',
+    'matches_interest' => 'Interest: :interest',
+    'within_budget' => 'Within your budget',
+    'general_pick' => 'Available activity',
+    'general_attraction' => 'Available attraction',
+];

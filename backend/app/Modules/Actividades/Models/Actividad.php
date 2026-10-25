@@ -3,11 +3,13 @@
 namespace App\Modules\Actividades\Models;
 
 use App\Modules\Destinos\Models\Destino;
+use App\Modules\Atractivos\Models\CategoriaInteres;
 use Database\Factories\ActividadFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -50,6 +52,19 @@ class Actividad extends Model
     public function destino(): BelongsTo
     {
         return $this->belongsTo(Destino::class, 'destino_id');
+    }
+
+    /**
+     * @return BelongsToMany<CategoriaInteres, $this>
+     */
+    public function categorias(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CategoriaInteres::class,
+            'actividad_categoria',
+            'actividad_id',
+            'categoria_id',
+        );
     }
 
     public function scopeActivas(Builder $query): Builder

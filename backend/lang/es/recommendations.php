@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'eyebrow' => 'Para tu próximo viaje',
+    'title' => 'Recomendaciones',
+    'personalized_intro' => 'Atractivos y actividades recomendados según tus categorías de interés y presupuesto.',
+    'general_intro' => 'Descubre algunos atractivos y actividades disponibles. Registra tus preferencias para recibir sugerencias más personales.',
+    'review_preferences' => 'Revisar mis preferencias',
+    'set_preferences' => 'Configurar preferencias',
+    'your_interests' => 'Intereses que tendremos en cuenta',
+    'interests_hint' => 'Tus intereses ayudan a encontrar atractivos relacionados y actividades asociadas a esas categorías.',
+    'empty_title' => 'Aún no hay recomendaciones disponibles',
+    'empty_intro' => 'Cuando haya atractivos o actividades activos en destinos disponibles, aparecerán aquí.',
+    'attractions_heading' => 'Atractivos turísticos para ti',
+    'attraction_count' => '{1} :count atractivo recomendado|[2,*] :count atractivos recomendados',
+    'view_attractions' => 'Ver todos los atractivos',
+    'explore_activities' => 'Explorar actividades',
+    'activities_heading' => 'Actividades para ti',
+    'activity_count' => '{1} :count actividad recomendada|[2,*] :count actividades recomendadas',
+    'view_all' => 'Ver todas las actividades',
+    'matches_interest' => 'Interés: :interest',
+    'within_budget' => 'Dentro de tu presupuesto',
+    'general_pick' => 'Actividad disponible',
+    'general_attraction' => 'Atractivo disponible',
+];

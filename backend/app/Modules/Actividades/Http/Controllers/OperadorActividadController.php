@@ -7,6 +7,7 @@ use App\Modules\Actividades\Http\Requests\ActividadRequest;
 use App\Modules\Actividades\Http\Requests\FiltroOperadorActividadRequest;
 use App\Modules\Actividades\Models\Actividad;
 use App\Modules\Actividades\Services\ActividadService;
+use App\Modules\Atractivos\Models\CategoriaInteres;
 use App\Modules\Destinos\Models\Destino;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -32,8 +33,9 @@ class OperadorActividadController extends Controller
         $destinos = $this->destinosDelOperador((int) auth()->id())
             ->where('estado', 'activo')
             ->get();
+        $categorias = CategoriaInteres::query()->orderBy('nombre')->get();
 
-        return view('actividades::operador.create', compact('destinos'));
+        return view('actividades::operador.create', compact('destinos', 'categorias'));
     }
 
     public function store(ActividadRequest $request): RedirectResponse
@@ -54,6 +56,7 @@ class OperadorActividadController extends Controller
     public function edit(Actividad $actividad): View
     {
         $this->verificarPropiedad($actividad);
+        $actividad->load('categorias');
 
         $destinos = $this->destinosDelOperador((int) auth()->id())
             ->where(function (Builder $consulta) use ($actividad): void {
@@ -62,8 +65,9 @@ class OperadorActividadController extends Controller
                     ->orWhere('id', $actividad->destino_id);
             })
             ->get();
+        $categorias = CategoriaInteres::query()->orderBy('nombre')->get();
 
-        return view('actividades::operador.edit', compact('actividad', 'destinos'));
+        return view('actividades::operador.edit', compact('actividad', 'destinos', 'categorias'));
     }
 
     public function update(ActividadRequest $request, Actividad $actividad): RedirectResponse

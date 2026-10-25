@@ -12,6 +12,7 @@ use App\Modules\Dashboard\Providers\DashboardServiceProvider;
 use App\Modules\Itinerarios\Providers\ItinerarioServiceProvider;
 use App\Modules\Agenda\Providers\AgendaServiceProvider;
 use App\Modules\Valoraciones\Providers\ValoracionServiceProvider;
+use App\Modules\Recomendaciones\Providers\RecomendacionServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -26,4 +27,5 @@ return [
     ItinerarioServiceProvider::class,
     AgendaServiceProvider::class,
     ValoracionServiceProvider::class,
+    RecomendacionServiceProvider::class,
 ];

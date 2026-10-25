@@ -46,6 +46,31 @@
             @error('descripcion')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
         </div>
 
+        <fieldset class="tc-form-field tc-form-field--wide">
+            <legend class="mb-2 block text-sm font-semibold text-gray-700">{{ __('operator.activity_categories') }}</legend>
+            <p class="mb-3 text-xs text-gray-500">{{ __('operator.activity_categories_hint') }}</p>
+            @if($categorias->isEmpty())
+                <p class="text-sm text-gray-500">{{ __('operator.no_activity_categories') }}</p>
+            @else
+                <div class="grid gap-2 sm:grid-cols-2">
+                    @foreach($categorias as $categoria)
+                        <label class="flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-700">
+                            <input
+                                type="checkbox"
+                                name="categorias[]"
+                                value="{{ $categoria->id }}"
+                                @checked(in_array((string) $categoria->id, array_map('strval', old('categorias', $actividad?->categorias->modelKeys() ?? [])), true))
+                                class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                            >
+                            <span>{{ $categoria->nombre }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            @endif
+            @error('categorias')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+            @error('categorias.*')<p class="mt-1 text-xs font-medium text-red-600">{{ $message }}</p>@enderror
+        </fieldset>
+
         <div class="tc-form-field">
             <label for="costo" data-tc-money-label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('operator.estimated_cost_pen') }} <span class="text-red-600">*</span></label>
             <input id="costo" data-tc-money-input type="number" name="costo" min="0" max="99999999.99" step="0.01" value="{{ old('costo', $actividad?->costo ?? '0.00') }}" class="tc-input @error('costo') border-red-400 @enderror" required>

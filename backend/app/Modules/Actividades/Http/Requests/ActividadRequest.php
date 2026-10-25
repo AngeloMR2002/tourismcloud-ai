@@ -32,6 +32,8 @@ class ActividadRequest extends FormRequest
             'descripcion' => ['nullable', 'string', 'max:5000'],
             'costo' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
             'duracion_estimada_min' => ['nullable', 'integer', 'min:1', 'max:14400'],
+            'categorias' => ['nullable', 'array'],
+            'categorias.*' => ['integer', 'distinct', 'exists:categorias_interes,id'],
             'latitud' => ['nullable', 'required_with:longitud', 'numeric', 'between:-90,90'],
             'longitud' => ['nullable', 'required_with:latitud', 'numeric', 'between:-180,180'],
             'imagen_portada' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],

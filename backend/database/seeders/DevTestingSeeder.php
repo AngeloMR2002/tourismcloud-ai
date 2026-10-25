@@ -686,6 +686,16 @@ class DevTestingSeeder extends Seeder
                 'deleted_at'            => null,
             ],
         ], ['id'], ['destino_id', 'nombre', 'descripcion', 'costo', 'duracion_estimada_min', 'latitud', 'longitud', 'imagen_portada', 'estado', 'updated_at']);
+        DB::table('actividad_categoria')->upsert([
+            ['actividad_id' => 1, 'categoria_id' => 1],
+            ['actividad_id' => 1, 'categoria_id' => 4],
+            ['actividad_id' => 2, 'categoria_id' => 4],
+            ['actividad_id' => 3, 'categoria_id' => 3],
+            ['actividad_id' => 4, 'categoria_id' => 1],
+            ['actividad_id' => 5, 'categoria_id' => 1],
+            ['actividad_id' => 5, 'categoria_id' => 4],
+            ['actividad_id' => 6, 'categoria_id' => 4],
+        ], ['actividad_id', 'categoria_id'], ['categoria_id']);
         $this->command->line('  ✓ 9. Actividades turísticas sembradas (6 actividades).');
 
         // ─── 10. Rutas Turísticas y Paradas ──────────────────────────────────

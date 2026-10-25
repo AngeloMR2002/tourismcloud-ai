@@ -66,12 +66,18 @@ class ActividadService
         try {
             /** @var Actividad $actividad */
             $actividad = DB::transaction(function () use ($datos, $portada, &$rutaNueva): Actividad {
+                $categorias = $datos['categorias'] ?? [];
+                unset($datos['categorias']);
+
                 if ($portada !== null) {
                     $rutaNueva = $this->guardarPortada($portada);
                     $datos['imagen_portada'] = $rutaNueva;
                 }
 
-                return Actividad::query()->create($datos);
+                $actividad = Actividad::query()->create($datos);
+                $actividad->categorias()->sync($categorias);
+
+                return $actividad;
             });
         } catch (Throwable $throwable) {
             $this->eliminarArchivoSeguro($rutaNueva);
@@ -97,6 +103,9 @@ class ActividadService
         try {
             /** @var Actividad $actividadActualizada */
             $actividadActualizada = DB::transaction(function () use ($actividad, $datos, $portada, $quitarPortada, &$rutaNueva): Actividad {
+                $categorias = $datos['categorias'] ?? [];
+                unset($datos['categorias']);
+
                 if ($portada !== null) {
                     $rutaNueva = $this->guardarPortada($portada);
                     $datos['imagen_portada'] = $rutaNueva;
@@ -105,6 +114,7 @@ class ActividadService
                 }
 
                 $actividad->update($datos);
+                $actividad->categorias()->sync($categorias);
 
                 return $actividad->fresh('destino');
             });

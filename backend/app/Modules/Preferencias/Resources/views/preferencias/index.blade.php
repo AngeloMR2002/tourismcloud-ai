@@ -92,7 +92,7 @@
                                         <a href="{{ route('preferencias.edit', $preferencia->id) }}" class="p-1.5 rounded-lg text-gray-500 hover:text-[#16734f] hover:bg-gray-100 transition-colors" title="{{ __('travel_preferences.edit') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </a>
-                                        <form action="{{ route('preferencias.destroy', $preferencia->id) }}" method="POST" onsubmit="return confirm(@js(__('travel_preferences.delete_confirm')));" class="inline">
+                                        <form action="{{ route('preferencias.destroy', $preferencia->id) }}" method="POST" data-preference-delete-form class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="{{ __('travel_preferences.delete') }}">
@@ -109,4 +109,5 @@
         @endif
     </div>
 </div>
+@include('components.preference-delete-confirmation')
 @endsection

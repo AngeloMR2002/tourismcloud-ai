@@ -79,7 +79,7 @@
 
         <div class="flex items-center justify-between pt-2">
             <span class="text-xs text-gray-400">{{ __('travel_preferences.registered_on', ['date' => $preferencia->created_at?->format('d/m/Y H:i')]) }}</span>
-            <form action="{{ route('preferencias.destroy', $preferencia->id) }}" method="POST" data-confirm-message="{{ __('travel_preferences.delete_confirm') }}" onsubmit="return confirm(this.dataset.confirmMessage);">
+            <form action="{{ route('preferencias.destroy', $preferencia->id) }}" method="POST" data-preference-delete-form>
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="px-4 py-2 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors">
@@ -89,4 +89,5 @@
         </div>
     </div>
 </div>
+@include('components.preference-delete-confirmation')
 @endsection

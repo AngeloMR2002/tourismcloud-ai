@@ -124,7 +124,7 @@
                     {{ __('favorites.title') }}
                 </a>
                 @if(auth()->user()->isTurista())
-                    @foreach(['itinerarios.index' => 'my_itineraries', 'agenda.index' => 'agenda'] as $rutaModulo => $etiquetaModulo)
+                    @foreach(['itinerarios.index' => 'my_itineraries', 'agenda.index' => 'agenda', 'recomendaciones.index' => 'recommendations'] as $rutaModulo => $etiquetaModulo)
                         <a href="{{ route($rutaModulo) }}" class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors {{ request()->routeIs($rutaModulo === 'itinerarios.index' ? 'itinerarios.*' : $rutaModulo) ? 'text-white shadow-sm' : 'text-neutral-700 hover:bg-neutral-100' }}" style="{{ request()->routeIs($rutaModulo === 'itinerarios.index' ? 'itinerarios.*' : $rutaModulo) ? 'background: var(--color-primary-500); color: white;' : '' }}">
                             @if($rutaModulo === 'agenda.index')
                                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
@@ -312,7 +312,7 @@
             <div class="tc-context-nav__inner">
                 <span>{{ __('ui.my_space') }}</span>
                 @if(auth()->user()->isTurista())
-                    @foreach(['dashboard' => 'overview', 'preferencias.turista' => 'preferences', 'itinerarios.index' => 'itineraries', 'agenda.index' => 'agenda'] as $navRoute => $navLabel)
+                    @foreach(['dashboard' => 'overview', 'preferencias.turista' => 'preferences', 'itinerarios.index' => 'itineraries', 'agenda.index' => 'agenda', 'recomendaciones.index' => 'recommendations'] as $navRoute => $navLabel)
                         <a href="{{ $navRoute === 'preferencias.turista' ? route($navRoute, auth()->id()) : route($navRoute) }}" {{ request()->routeIs(str_replace('.index', '.*', $navRoute).'*') ? 'aria-current=page' : '' }}>{{ __('ui.'.$navLabel) }}</a>
                     @endforeach
                 @elseif(auth()->user()->isOperador())
