@@ -825,4 +825,45 @@ class AtractivosEstablecimientosTest extends TestCase
             ->assertStatus(413)
             ->assertSee('Los archivos son demasiado pesados');
     }
+
+    public function test_proveedor_tabla_establecimientos_muestra_etiquetas_precio_correctamente(): void
+    {
+        $this->actingAs($this->proveedor);
+
+        Establecimiento::create([
+            'destino_id'   => $this->destino->id,
+            'proveedor_id' => $this->proveedor->id,
+            'tipo'         => 'hotel',
+            'nombre'       => 'Gran Hotel Lujo',
+            'rango_precio' => 'Lujoso',
+            'estado'       => 'activo',
+        ]);
+
+        Establecimiento::create([
+            'destino_id'   => $this->destino->id,
+            'proveedor_id' => $this->proveedor->id,
+            'tipo'         => 'restaurante',
+            'nombre'       => 'Restaurante Económico',
+            'rango_precio' => 'Bajo',
+            'estado'       => 'activo',
+        ]);
+
+        // En español
+        $responseEs = $this->withSession(['interface_locale' => 'es'])
+            ->get(route('proveedor.establecimientos.index'));
+        $responseEs->assertOk();
+        $responseEs->assertSee('Lujoso $$$$');
+        $responseEs->assertSee('Bajo $');
+        $responseEs->assertDontSee('provider_places.price_lujoso');
+        $responseEs->assertDontSee('provider_places.price_bajo');
+
+        // En inglés
+        $responseEn = $this->withSession(['interface_locale' => 'en'])
+            ->get(route('proveedor.establecimientos.index'));
+        $responseEn->assertOk();
+        $responseEn->assertSee('Luxury $$$$');
+        $responseEn->assertSee('Low $');
+        $responseEn->assertDontSee('provider_places.price_lujoso');
+        $responseEn->assertDontSee('provider_places.price_bajo');
+    }
 }

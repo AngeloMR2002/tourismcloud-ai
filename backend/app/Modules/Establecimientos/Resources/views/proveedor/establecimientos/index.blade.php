@@ -99,12 +99,20 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $iconos = ['hotel'=>'🏨','restaurante'=>'🍽️','transporte'=>'🚌','agencia'=>'🏢','otro'=>'📋'];
+                            $precios = [
+                                'bajo'   => __('provider_places.price_low'),
+                                'medio'  => __('provider_places.price_mid'),
+                                'alto'   => __('provider_places.price_high'),
+                                'lujoso' => __('provider_places.price_luxury'),
+                            ];
+                        @endphp
                         @foreach($establecimientos as $est)
                             <tr>
                                 {{-- Establecimiento --}}
                                 <td>
                                     <div class="flex items-center gap-3">
-                                        @php $iconos = ['hotel'=>'🏨','restaurante'=>'🍽️','transporte'=>'🚌','agencia'=>'🏢','otro'=>'📋']; @endphp
                                         <div class="w-10 h-10 rounded-lg overflow-hidden shrink-0 flex items-center justify-center text-lg"
                                              style="background: var(--color-amber-soft);">
                                             @if($est->imagen_portada)
@@ -129,7 +137,7 @@
                                 {{-- Precio --}}
                                 <td class="text-center">
                                     @if($est->rango_precio)
-                                        <span class="tc-badge-precio-{{ $est->rango_precio }}">{{ __('provider_places.price_'.strtolower($est->rango_precio)) }}</span>
+                                        <span class="tc-badge-precio-{{ $est->rango_precio }}">{{ $precios[strtolower($est->rango_precio)] ?? $est->rango_precio }}</span>
                                     @else
                                         <span class="text-gray-400 text-xs">—</span>
                                     @endif
