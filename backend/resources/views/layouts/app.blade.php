@@ -8,6 +8,7 @@
     <meta name="tc-rate-endpoint" content="{{ route('exchange-rate.pen-usd') }}">
     <meta name="description" content="{{ $metaDescription ?? __('ui.meta_description') }}">
     <title>@yield('title', $title ?? __('ui.explore')) | TourismCloud AI</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_tourism.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -25,10 +26,8 @@
         {{-- Encabezado del Sidebar --}}
         <div class="flex items-center justify-between px-5 h-16 shrink-0 border-b border-neutral-100">
             <a href="{{ route('inicio') }}" class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-sm" style="background: var(--color-primary-500);">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/>
-                    </svg>
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center p-1 bg-white border border-neutral-200/80 shadow-xs">
+                    <img src="{{ asset('images/logo_tourism.png') }}" alt="TourismCloud AI" class="w-full h-full object-contain">
                 </div>
                 <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; color: var(--color-primary-700); letter-spacing: -0.01em;">
                     TourismCloud AI
@@ -219,7 +218,7 @@
                     </button>
                     <a href="{{ route('inicio') }}" class="tc-brand">
                         <div class="tc-brand__mark">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m3 18 6-9 4 6 3-4 5 7H3ZM9 9l2-3 3 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>
+                            <img src="{{ asset('images/logo_tourism.png') }}" alt="TourismCloud AI" class="w-full h-full object-contain">
                         </div>
                         <span>TourismCloud <b>AI</b></span>
                     </a>
@@ -410,7 +409,12 @@
     <footer class="tc-footer">
         <div class="tc-footer__inner">
             <div class="tc-footer__intro">
-                <a href="{{ route('inicio') }}" class="tc-footer__brand">TourismCloud <b>AI</b></a>
+                <a href="{{ route('inicio') }}" class="tc-footer__brand inline-flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 shadow-xs">
+                        <img src="{{ asset('images/logo_tourism.png') }}" alt="TourismCloud AI" class="w-full h-full object-contain">
+                    </div>
+                    <span>TourismCloud <b>AI</b></span>
+                </a>
                 <p>{{ __('ui.platform_description') }}</p>
             </div>
             <div>

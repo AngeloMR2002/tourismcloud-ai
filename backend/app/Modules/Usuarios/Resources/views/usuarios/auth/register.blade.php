@@ -3,7 +3,12 @@
 @section('content')
 <main class="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 sm:py-7">
     <nav class="flex items-center justify-between gap-4" aria-label="{{ __('auth.register_navigation') }}">
-        <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5 text-sm font-bold text-[#16734f]"><span class="grid h-9 w-9 place-items-center rounded-xl bg-[#16734f] text-white"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 17 8 11l4 4 5-8 4 10M4 21h16"/></svg></span> TourismCloud AI</a>
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5 text-sm font-bold text-[#16734f]">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-white border border-slate-200/80 p-1.5 shadow-xs">
+                <img src="{{ asset('images/logo_tourism.png') }}" alt="TourismCloud AI" class="h-full w-full object-contain">
+            </span>
+            <span>TourismCloud AI</span>
+        </a>
         <a href="{{ url('/') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-[#16734f]"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 18-6-6 6-6"/></svg> {{ __('auth.home') }}</a>
     </nav>
 

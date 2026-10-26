@@ -7,6 +7,7 @@
     <meta name="tc-locale-endpoint" content="{{ route('interface.locale') }}">
     <meta name="tc-rate-endpoint" content="{{ route('exchange-rate.pen-usd') }}">
     <title>TourismCloud AI - {{ __('ui.authentication') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_tourism.png') }}">
     
     <!-- Fuentes: Inter / Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.bunny.net">
